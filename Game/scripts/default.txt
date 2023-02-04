@@ -1,0 +1,155 @@
+##########################################################################
+#
+# Ashita v4 Default Script
+#
+# This script is executed at the start of the game to allow for the user
+# to configure their game instance automatically. Use this script to load
+# plugins, addons or adjust different settings as you see fit.
+#
+# File Syntax:
+#
+#  - Comments start with '#'.
+#  - Commands start with '/'.
+#
+##########################################################################
+
+##########################################################################
+#
+# Horizon Launcher Controlled Plugins and Addons
+#
+##########################################################################
+#
+# DO NOT TOUCH THIS BLOCK OR THE FILE WILL BE OVERRIDDEN - LAUNCHER EDITS ONLY
+#
+# --HORIZON_PLUGINS_START--
+/load addons
+/load screenshot
+/load HardwareMouse
+/load Minimap
+/load Nameplate
+/load thirdparty
+# --HORIZON_PLUGINS_STOP--
+#
+# --HORIZON_ADDONS_START--
+/addon load dynamic_entity_renamer
+/addon load allmaps
+/addon load aspect
+/addon load Checker
+/addon load config
+/addon load craftmon
+/addon load distance
+/addon load enternity
+/addon load filterless
+/addon load fps
+/addon load instantah
+/addon load petinfo
+/addon load timestamp
+# --HORIZON_ADDONS_STOP--
+#
+# DO NOT TOUCH THIS BLOCK OR THE FILE WILL BE OVERRIDDEN - LAUNCHER EDITS ONLY
+##########################################################################
+
+##########################################################################
+#
+# Custom user plugins and addons
+# Please be sure to review our approved list: https://horizonxi.com/addons
+#
+#########################################################################
+
+
+
+
+##########################################################################
+#
+# Horizon Launcher Controlled Keybinds and Alias
+#
+##########################################################################
+#
+# DO NOT TOUCH THIS BLOCK OR THE FILE WILL BE OVERRIDDEN - LAUNCHER EDITS ONLY
+#
+# --HORIZON_KEYBINDS_START--
+/bind insert /ashita
+/bind SYSRQ /screenshot hide
+/bind ^v /paste
+/bind F11 /ambient
+/bind F12 /fps
+/bind ^F1 /input /ta <a10>
+/bind ^F2 /input /ta <a11>
+/bind ^F3 /input /ta <a12>
+/bind ^F4 /input /ta <a13>
+/bind ^F5 /input /ta <a14>
+/bind ^F6 /input /ta <a15>
+/bind !F1 /input /ta <a20>
+/bind !F2 /input /ta <a21>
+/bind !F3 /input /ta <a22>
+/bind !F4 /input /ta <a23>
+/bind !F5 /input /ta <a24>
+/bind !F6 /input /ta <a25>
+
+# --HORIZON_KEYBINDS_STOP--
+#
+# DO NOT TOUCH THIS BLOCK OR THE FILE WILL BE OVERRIDDEN - LAUNCHER EDITS ONLY
+##########################################################################
+
+##########################################################################
+#
+# Custom user keybinds and aliases
+#
+#########################################################################
+
+
+
+
+##########################################################################
+#
+# Plugin and Addon Configurations
+#
+# Use this section to configure loaded plugins, addons and Ashita.
+#
+# Important: The wait here is required! If you remove it, addons will not
+# see any commands inside of this file!
+#
+################### DO NOT TOUCH THIS WAIT LINE ##########################
+/wait 3
+##########################################################################
+
+
+##########################################################################
+#
+# Horizon Launcher Controlled Settings
+#
+##########################################################################
+#
+# DO NOT TOUCH THIS BLOCK OR THE FILE WILL BE OVERRIDDEN - LAUNCHER EDITS ONLY
+#
+# --HORIZON_SETTINGS_START--
+/ambient 255 255 255
+
+# --HORIZON_SETTINGS_STOP--
+#
+# DO NOT TOUCH THIS BLOCK OR THE FILE WILL BE OVERRIDDEN - LAUNCHER EDITS ONLY
+##########################################################################
+
+##########################################################################
+#
+# Custom user settings
+#
+#########################################################################
+/addon load xitools
+/addon load hxui
+/addon load mobdb
+/addon load recast
+/addon load points
+/addon load skillchain
+/addon load xicamera
+/addon load ctimers
+/addon load chatmon
+/load deeps
+/load trenderer
+/addon load thotbar
+/addon load luashitacast
+/mouse block
+/wait 5
+/fps 1
+/cam d 8
+/cam b 20

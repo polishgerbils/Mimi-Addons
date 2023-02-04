@@ -1,0 +1,8 @@
+XICamera - https://github.com/Hokuten85/XICamera/releases
+XITools - https://github.com/mousseng/xitools
+HXui - https://github.com/tirem/HXUI
+Deeps - https://github.com/relliko/Deeps
+MobDB - https://github.com/ThornyFFXI/mobdb
+Ashitav4 - https://github.com/AshitaXI/Ashita-v4beta
+tHotbar - https://github.com/ThornyFFXI/tHotBar
+ctimers- https://github.com/Shinzaku/CTimers/releases/tag/1.0
