@@ -1,7 +1,7 @@
 local profile = {};
 profile.Sets = {
     Idle = {
-        Head = 'Shep. Bonnet',
+        Head = 'Empress Hairpin',
         Neck = 'Peacock Amulet',
         Ear1 = 'Beetle Earring +1',
         Ear2 = 'Beetle Earring +1',
@@ -15,7 +15,7 @@ profile.Sets = {
         Feet = 'Bounding Boots',
     },
 	TP = {
-        Head = 'Shep. Bonnet',
+        Head = 'Empress Hairpin',
         Neck = 'Peacock Amulet',
         Ear1 = 'Beetle Earring +1',
         Ear2 = 'Beetle Earring +1',

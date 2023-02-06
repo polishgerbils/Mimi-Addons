@@ -138,17 +138,13 @@
 /addon load xitools
 /addon load hxui
 /addon load mobdb
-/addon load recast
 /addon load points
 /addon load skillchain
 /addon load xicamera
 /addon load ctimers
-/addon load chatmon
 /load deeps
 /load trenderer
 /addon load thotbar
-/addon load luashitacast
-/mouse block
 /wait 5
 /fps 1
 /cam d 8
