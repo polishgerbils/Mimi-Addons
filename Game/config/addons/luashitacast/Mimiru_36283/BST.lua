@@ -1,19 +1,5 @@
 local profile = {};
 profile.Sets = {
-    Idle = {
-        Head = 'Empress Hairpin',
-        Neck = 'Peacock Amulet',
-        Ear1 = 'Beetle Earring +1',
-        Ear2 = 'Beetle Earring +1',
-        Body = 'Shep. Doublet',
-        Hands = 'Battle Gloves',
-        Ring1 = 'Balance Ring',
-        Ring2 = 'Balance Ring',
-        Back = 'Dhalmel Mantle',
-        Waist = 'Life Belt',
-        Legs = 'Republic Subligar',
-        Feet = 'Bounding Boots',
-    },
 	TP = {
         Head = 'Empress Hairpin',
         Neck = 'Peacock Amulet',
@@ -21,25 +7,38 @@ profile.Sets = {
         Ear2 = 'Beetle Earring +1',
         Body = 'Shep. Doublet',
         Hands = 'Battle Gloves',
-        Ring1 = 'Balance Ring',
+        Ring1 = 'Venerer Ring',
         Ring2 = 'Balance Ring',
         Back = 'Dhalmel Mantle',
         Waist = 'Life Belt',
         Legs = 'Republic Subligar',
         Feet = 'Bounding Boots',
 	},
-    Weaponskill = {
+	Gaudy = {
+        Body = 'Gaudy Harness',
+	},
+    WS = {
         Head = 'Mrc.Cpt. Headgear',
         Neck = 'Spike Necklace',
         Ear1 = 'Beetle Earring +1',
         Ear2 = 'Beetle Earring +1',
         Body = 'Savage Separates',
-        Hands = 'Battle Gloves',
+		Hands = 'Enkelados\'s Brc.',
         Ring1 = 'Garnet Ring',
         Ring2 = 'Garnet Ring',
-        Back = 'Dhalmel Mantle',
+        Waist = 'Ryl.Kgt. Belt',
+        Feet = 'Savage Gaiters',
+    },
+    WSAcc = {
+        Head = 'Mrc.Cpt. Headgear',
+        Neck = 'Peacock Amulet',
+        Ear1 = 'Beetle Earring +1',
+        Ear2 = 'Beetle Earring +1',
+        Body = 'Savage Separates',
+		Hands = 'Enkelados\'s Brc.',
+        Ring1 = 'Garnet Ring',
+        Ring2 = 'Garnet Ring',
         Waist = 'Life Belt',
-        Legs = 'Republic Subligar',
         Feet = 'Savage Gaiters',
     },
     Resting = {
@@ -55,6 +54,24 @@ profile.Sets = {
         Waist = 'Life Belt',
         Legs = 'Republic Subligar',
         Feet = 'Bounding Boots',
+    },
+    reward = {
+        Neck = 'Peacock Amulet',	
+        Hands = 'Savage Gauntlets',
+		Legs = 'Savage Loincloth',
+		Waist = 'Ryl.Kgt. Belt',
+        Feet = 'Beast Gaiters',
+    },
+    charm = {
+	    Head = 'Entrancing Ribbon',
+        Neck = 'Flower necklace',	
+        Body = 'Gaudy Harness',
+        Hands = 'Savage Gauntlets',
+		Legs = 'Savage Loincloth',
+		Ring1 = 'Pearl Ring',
+        Ring2 = 'Pearl Ring',
+		Waist = 'Ryl.Kgt. Belt',
+        Feet = 'Beast Gaiters',
     },
     sneakvis = {
         Hands = 'Dream Mittens +1',
@@ -77,17 +94,29 @@ end
 
 profile.HandleDefault = function()
 	local player = gData.GetPlayer();
-	if (player.Status == 'Engaged') then
+	if (player.SubJob == 'WHM') then
+		if (player.MP < 49) then
+			gFunc.EquipSet(profile.Sets.Gaudy);
+		else
+			gFunc.EquipSet(profile.Sets.TP);
+		end
+	elseif (player.Status == 'Engaged') then
 		gFunc.EquipSet(profile.Sets.TP);
 	elseif (player.Status == 'Resting') then
 		gFunc.EquipSet(profile.Sets.Resting);
 	else
-		gFunc.EquipSet(profile.Sets.Idle);
+		gFunc.EquipSet(profile.Sets.TP);
 	end
 	
 end
 
 profile.HandleAbility = function()
+	local action = gData.GetAction();
+	if (action.Name == 'Reward') then
+		gFunc.EquipSet(profile.Sets.reward);
+	elseif (action.Name == 'Charm') then
+		gFunc.EquipSet(profile.Sets.charm);
+	end
 end
 
 profile.HandleItem = function()
@@ -112,7 +141,7 @@ end
 profile.HandleWeaponskill = function()
 	local action = gData.GetAction();
 	if (action.Name == 'Avalanche Axe') then
-		gFunc.EquipSet(profile.Sets.Weaponskill);
+		gFunc.EquipSet(profile.Sets.WS);
 	end
 	
 end
