@@ -30,7 +30,7 @@ require('common');
 local settings = require('settings');
 local chat = require('chat');
 -- local modules
-
+require('block_native');
 local helpers = require('helpers');
 local main_ui = require('main_ui');
 local conf_ui = require('conf_ui');

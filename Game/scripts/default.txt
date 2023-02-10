@@ -34,15 +34,21 @@
 /addon load dynamic_entity_renamer
 /addon load allmaps
 /addon load aspect
+/addon load chatmon
 /addon load Checker
+/addon load clock
 /addon load config
 /addon load craftmon
 /addon load distance
+/addon load drawdistance
 /addon load enternity
 /addon load filterless
 /addon load fps
+/addon load ImGui Style
 /addon load instantah
+/addon load luashitacast
 /addon load petinfo
+/addon load recast
 /addon load timestamp
 # --HORIZON_ADDONS_STOP--
 #
@@ -142,10 +148,11 @@
 /addon load skillchain
 /addon load xicamera
 /addon load ctimers
-/load deeps
+/addon load nocombat
 /load trenderer
 /addon load thotbar
+/load deeps
 /wait 5
-/fps 1
+/fps 0
 /cam d 8
 /cam b 20

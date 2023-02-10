@@ -121,7 +121,7 @@ ashita.events.register('d3d_present', 'present_cb', function ()
 
     imgui.SetNextWindowBgAlpha(0.8);
     imgui.SetNextWindowSize({ 250, -1, }, ImGuiCond_Always);
-    if (imgui.Begin('PetInfo', petinfo.is_open, bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoSavedSettings, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav))) then
+    if (imgui.Begin('PetInfo', petinfo.is_open, bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav))) then
         -- Obtain and prepare pet information..
         local petmp = AshitaCore:GetMemoryManager():GetPlayer():GetPetMPPercent();
         local pettp = AshitaCore:GetMemoryManager():GetPlayer():GetPetTP();

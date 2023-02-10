@@ -3,8 +3,8 @@ profile.Sets = {
 	TP = {
         Head = 'Empress Hairpin',
         Neck = 'Peacock Amulet',
-        Ear1 = 'Beetle Earring +1',
-        Ear2 = 'Beetle Earring +1',
+        Ear1 = 'Spike Earring',
+        Ear2 = 'Spike Earring',
         Body = 'Shep. Doublet',
         Hands = 'Battle Gloves',
         Ring1 = 'Venerer Ring',
@@ -20,8 +20,6 @@ profile.Sets = {
     WS = {
         Head = 'Mrc.Cpt. Headgear',
         Neck = 'Spike Necklace',
-        Ear1 = 'Beetle Earring +1',
-        Ear2 = 'Beetle Earring +1',
         Body = 'Savage Separates',
 		Hands = 'Enkelados\'s Brc.',
         Ring1 = 'Garnet Ring',
@@ -32,9 +30,7 @@ profile.Sets = {
     WSAcc = {
         Head = 'Mrc.Cpt. Headgear',
         Neck = 'Peacock Amulet',
-        Ear1 = 'Beetle Earring +1',
-        Ear2 = 'Beetle Earring +1',
-        Body = 'Savage Separates',
+        Body = 'Shep. Doublet',
 		Hands = 'Enkelados\'s Brc.',
         Ring1 = 'Garnet Ring',
         Ring2 = 'Garnet Ring',
@@ -42,18 +38,7 @@ profile.Sets = {
         Feet = 'Savage Gaiters',
     },
     Resting = {
-        Head = 'Shep. Bonnet',
-        Neck = 'Peacock Amulet',
-        Ear1 = 'Beetle Earring +1',
-        Ear2 = 'Beetle Earring +1',
-        Body = 'Savage Separates',
-        Hands = 'Battle Gloves',
-        Ring1 = 'Garnet Ring',
-        Ring2 = 'Garnet Ring',
-        Back = 'Dhalmel Mantle',
-        Waist = 'Life Belt',
-        Legs = 'Republic Subligar',
-        Feet = 'Bounding Boots',
+
     },
     reward = {
         Neck = 'Peacock Amulet',	
@@ -114,6 +99,7 @@ profile.HandleAbility = function()
 	local action = gData.GetAction();
 	if (action.Name == 'Reward') then
 		gFunc.EquipSet(profile.Sets.reward);
+		gFunc.Equip('Ammo', 'Pet Food Beta');
 	elseif (action.Name == 'Charm') then
 		gFunc.EquipSet(profile.Sets.charm);
 	end
@@ -140,8 +126,10 @@ end
 
 profile.HandleWeaponskill = function()
 	local action = gData.GetAction();
-	if (action.Name == 'Avalanche Axe') then
+	if (action.Name == 'Spinning Axe') then
 		gFunc.EquipSet(profile.Sets.WS);
+	elseif (action.Name == 'Rampage') then
+		gFunc.EquipSet(profile.Sets.WSAcc);
 	end
 	
 end
