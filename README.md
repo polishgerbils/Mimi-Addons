@@ -75,14 +75,3 @@ Ex: My folder names would be Mimiru_36283
 	/cam b #
 	
 	
-* **Crafting executable**
-
-	Craft 144 synths (12 stacks), this script cannot be cancelled so edit it if you want to change the number
-	
-	File Location:
-	
-		Game/scripts/craft.txt
-		
-	In Game Exceution:
-	
-		/exec craft.txt
