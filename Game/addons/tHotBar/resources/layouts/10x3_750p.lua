@@ -119,7 +119,7 @@ local theme = {
         scale_y         = 1.0,
         width           = 709,
         height          = 263,
-        color           = 0x70000000,
+        color           = 0x00000000,
     },
 
     --Level of transparency to be used for icons that are faded(due to recast down, or ability cost not met).
