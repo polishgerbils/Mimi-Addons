@@ -26,7 +26,7 @@ end
 * event: d3d_present
 * desc : Event called when the Direct3D device is presenting a scene.
 --]]
-inventoryTracker.DrawWindow = function(settings, userSettings)
+inventoryTracker.DrawWindow = function(settings)
     -- Obtain the player entity..
 
     local player = AshitaCore:GetMemoryManager():GetPlayer();
@@ -78,10 +78,10 @@ inventoryTracker.DrawWindow = function(settings, userSettings)
 			x = x + ((groupNum - 1) * groupOffsetX);
 
 			if (i > usedBagSlots) then
-				draw_circle({x + locX + imgui.GetStyle().FramePadding.x, y + locY}, settings.dotRadius, {0, 0, 0, 1}, settings.dotRadius * 3, true)
+				draw_circle({x + locX + imgui.GetStyle().FramePadding.x, y + locY}, settings.dotRadius, {0, .07, .17, 1}, settings.dotRadius * 3, true)
 			else
-				draw_circle({x + locX + imgui.GetStyle().FramePadding.x, y + locY}, settings.dotRadius, {.1, 0.9, 1, 1}, settings.dotRadius * 3, true)
-				draw_circle({x + locX + imgui.GetStyle().FramePadding.x, y + locY}, settings.dotRadius, {0, 0, 0, 1}, settings.dotRadius * 3, false)
+				draw_circle({x + locX + imgui.GetStyle().FramePadding.x, y + locY}, settings.dotRadius, {.37, .7, .88, 1}, settings.dotRadius * 3, true)
+				draw_circle({x + locX + imgui.GetStyle().FramePadding.x, y + locY}, settings.dotRadius, {0, .07, .17, 1}, settings.dotRadius * 3, false)
 			end
 		end
 

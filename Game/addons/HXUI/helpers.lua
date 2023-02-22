@@ -33,6 +33,52 @@ end
 function GetColorOfTarget(targetEntity, targetIndex)
     -- Obtain the entity spawn flags..
 
+	local color = 0xFFFFFFFF;
+	if (targetIndex == nil) then
+		return color;
+	end
+    local flag = targetEntity.SpawnFlags;
+
+    -- Determine the entity type and apply the proper color
+    if (bit.band(flag, 0x0001) == 0x0001) then --players
+		local party = AshitaCore:GetMemoryManager():GetParty();
+		for i = 0, 17 do
+			if (party:GetMemberIsActive(i) == 1) then
+				if (party:GetMemberTargetIndex(i) == targetIndex) then
+					color = 0xFF00FFFF;
+					break;
+				end
+			end
+		end
+    elseif (bit.band(flag, 0x0002) == 0x0002) then --npc
+        color = 0xFF66FF66;
+    else --mob
+		local entMgr = AshitaCore:GetMemoryManager():GetEntity();
+		local claimStatus = entMgr:GetClaimStatus(targetIndex);
+		local claimId = bit.band(claimStatus, 0xFFFF);
+--		local isClaimed = (bit.band(claimStatus, 0xFFFF0000) ~= 0);
+
+		if (claimId == 0) then
+			color = 0xFFFFFF66;
+		else
+			color = 0xFFFF66FF;
+			local party = AshitaCore:GetMemoryManager():GetParty();
+			for i = 0, 17 do
+				if (party:GetMemberIsActive(i) == 1) then
+					if (party:GetMemberServerId(i) == claimId) then
+						color = 0xFFFF6666;
+						break;
+					end;
+				end
+			end
+		end
+	end
+	return color;
+end
+
+function GetColorOfTargetRGBA(targetEntity, targetIndex)
+    -- Obtain the entity spawn flags..
+
 	local color = {1,1,1,1};
 	if (targetIndex == nil) then
 		return color;
@@ -116,7 +162,8 @@ function LoadTexture(textureName)
     local texture_ptr = ffi.new('IDirect3DTexture8*[1]');
     local res = C.D3DXCreateTextureFromFileA(d3d8dev, string.format('%s/assets/%s.png', addon.path, textureName), texture_ptr);
     if (res ~= C.S_OK) then
-        error(('Failed to load image texture: %08X (%s)'):fmt(res, d3d.get_error(res)));
+--      error(('Failed to load image texture: %08X (%s)'):fmt(res, d3d.get_error(res)));
+        return nil;
     end;
     textures.image = ffi.new('IDirect3DTexture8*', texture_ptr[0]);
     d3d.gc_safe_release(textures.image);
@@ -136,28 +183,27 @@ function FormatInt(number)
 	return minus .. int:reverse():gsub("^,", "") .. fraction
 end
 
-function LimitStringLength(string, length)
-	local output = '';
-	for i = 1, #string do
-		output = output..string[i];
-		if (#output >= length) then
-			break;
-		end
-	end
-	return output;
-end
-
-function GetIndexFromId(serverId)
-    local index = bit.band(serverId, 0x7FF);
+local function GetIndexFromId(id)
     local entMgr = AshitaCore:GetMemoryManager():GetEntity();
-    if (entMgr:GetServerId(index) == serverId) then
-        return index;
+    
+    --Shortcut for monsters/static npcs..
+    if (bit.band(id, 0x1000000) ~= 0) then
+        local index = bit.band(id, 0xFFF);
+        if (index >= 0x900) then
+            index = index - 0x100;
+        end
+
+        if (index < 0x900) and (entMgr:GetServerId(index) == id) then
+            return index;
+        end
     end
-    for i = 1,2303 do
-        if entMgr:GetServerId(i) == serverId then
+
+    for i = 1,0x8FF do
+        if entMgr:GetServerId(i) == id then
             return i;
         end
     end
+
     return 0;
 end
 
@@ -184,7 +230,15 @@ function ParseActionPacket(e)
     --Unknown 4 bits
     bitOffset = bitOffset + 4;
     actionPacket.Type = UnpackBits(4);
-    actionPacket.Id = UnpackBits(32);
+    -- Bandaid fix until we have more flexible packet parsing
+    if actionPacket.Type == 8 or actionPacket.Type == 9 then
+        actionPacket.Param = UnpackBits(16);
+        actionPacket.SpellGroup = UnpackBits(16);
+    else
+        -- Not every action packet has the same data at the same offsets so we just skip this for now
+        actionPacket.Param = UnpackBits(32);
+    end
+
     actionPacket.Recast = UnpackBits(32);
 
     actionPacket.Targets = T{};
@@ -350,30 +404,6 @@ function ParseMobUpdatePacket(e)
 	end
 end
 
-function GetIndexFromId(serverId)
-    local index = bit.band(serverId, 0x7FF);
-    local entMgr = AshitaCore:GetMemoryManager():GetEntity();
-    if (entMgr:GetServerId(index) == serverId) then
-        return index;
-    end
-    for i = 1,2303 do
-        if entMgr:GetServerId(i) == serverId then
-            return i;
-        end
-    end
-    return 0;
-end
-
-function has_value (tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return true
-        end
-    end
-
-    return false
-end
-
 function deep_copy_table(orig)
     local orig_type = type(orig)
     local copy
@@ -419,13 +449,19 @@ function IsMemberOfParty(targetIndex)
 	return false;
 end
 
-function DrawStatusIcons(statusIds, iconSize, maxColumns, maxRows, drawBg)
+function DrawStatusIcons(statusIds, iconSize, maxColumns, maxRows, drawBg, xOffset)
 	if (statusIds ~= nil and #statusIds > 0) then
 		local currentRow = 1;
         local currentColumn = 0;
-
+        if (xOffset ~= nil) then
+            imgui.SetCursorPosX(imgui.GetCursorPosX() + xOffset);
+        end
 		for i = 0,#statusIds do
-            local icon = statusHandler.get_icon_from_theme("icons",statusIds[i]);
+            -- Don't check anymore after -1, as it will be all -1's
+            if (statusIds == -1) then
+                break;
+            end
+            local icon = statusHandler.get_icon_from_theme(gConfig.statusIconTheme, statusIds[i]);
             if (icon ~= nil) then
                 if (drawBg == true) then
                     local resetX, resetY = imgui.GetCursorScreenPos();
@@ -443,7 +479,9 @@ function DrawStatusIcons(statusIds, iconSize, maxColumns, maxRows, drawBg)
                     imgui.SetCursorScreenPos({resetX, resetY});
                 end
                 imgui.Image(icon, { iconSize, iconSize }, { 0, 0 }, { 1, 1 });
-
+                if (imgui.IsItemHovered()) then
+                    statusHandler.render_tooltip(statusIds[i]);
+                end
                 currentColumn = currentColumn + 1;
                 -- Handle multiple rows
                 if (currentColumn < maxColumns) then
@@ -452,6 +490,9 @@ function DrawStatusIcons(statusIds, iconSize, maxColumns, maxRows, drawBg)
                     currentRow = currentRow + 1;
                     if (currentRow > maxRows) then
                         return;
+                    end
+                    if (xOffset ~= nil) then
+                        imgui.SetCursorPosX(imgui.GetCursorPosX() + xOffset);
                     end
                     currentColumn = 0;
                 end
@@ -500,3 +541,47 @@ function GetTargets()
     return mainTarget, secondaryTarget;
 end
 
+function GetJobStr(jobIdx)
+    if (jobIdx == nil or jobIdx == 0 or jobIdx == -1) then
+        return '';
+    end
+
+    return AshitaCore:GetResourceManager():GetString("jobs.names_abbr", jobIdx);
+end
+
+-- Easing function for HP bar interpolation
+-- Reference: https://easings.net/
+function easeOutPercent(percent)
+    -- Ease out exponential
+    if percent < 1 then
+        return 1 - math.pow(2, -10 * percent);
+    else
+        return percent;
+    end
+
+    -- Ease out quart
+    -- return 1 - math.pow(1 - percent, 4);
+
+    -- Ease out quint
+    -- return 1 - math.pow(1 - percent, 5);
+end
+
+function GetHpColors(hpPercent)
+    local hpNameColor;
+    local hpGradient;
+    if (hpPercent < .25) then 
+        hpNameColor = 0xFFFF0000;
+        hpGradient = {"#ec3232", "#f16161"};
+    elseif (hpPercent < .50) then;
+        hpNameColor = 0xFFFFA500;
+        hpGradient = {"#ee9c06", "#ecb44e"};
+    elseif (hpPercent < .75) then
+        hpNameColor = 0xFFFFFF00;
+        hpGradient = {"#ffff0c", "#ffff97"};
+    else
+        hpNameColor = 0xFFFFFFFF;
+        hpGradient = {"#e26c6c", "#fa9c9c"};
+    end
+
+    return hpNameColor, hpGradient;
+end

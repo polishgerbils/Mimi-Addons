@@ -1,6 +1,7 @@
 require('common');
 local imgui = require('imgui');
 local fonts = require('fonts');
+local progressbar = require('progressbar');
 
 local jobText;
 local expText;
@@ -18,7 +19,7 @@ end
 * event: d3d_present
 * desc : Event called when the Direct3D device is presenting a scene.
 --]]
-expbar.DrawWindow = function(settings, userSettings)
+expbar.DrawWindow = function(settings)
     -- Obtain the player entity..
     local player    = AshitaCore:GetMemoryManager():GetPlayer();
 
@@ -46,9 +47,12 @@ expbar.DrawWindow = function(settings, userSettings)
 		-- Draw HP Bar (two bars to fake animation
 		local expPercent = currentExp / totalExp;
 		local startX, startY = imgui.GetCursorScreenPos();
-		imgui.PushStyleColor(ImGuiCol_PlotHistogram, {1, 1, .5, 1});
-		imgui.ProgressBar(expPercent, { -1, settings.barHeight }, '');
-		imgui.PopStyleColor(1);
+		-- imgui.PushStyleColor(ImGuiCol_PlotHistogram, {1, 1, .5, 1});
+		-- imgui.ProgressBar(expPercent, { -1, settings.barHeight }, '');
+		-- imgui.PopStyleColor(1);
+
+		progressbar.ProgressBar({{expPercent, {'#c39040', '#e9c466'}}}, {-1, settings.barHeight});
+
 		imgui.SameLine();
 		
 		-- Update our text objects
