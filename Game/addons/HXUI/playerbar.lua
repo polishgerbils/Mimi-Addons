@@ -117,9 +117,12 @@ playerbar.DrawWindow = function(settings)
 		resetPosNextFrame = false;
 	end
 	
-    imgui.SetNextWindowSize({ settings.barWidth + settings.barSpacing * 2, -1, }, ImGuiCond_Always);
 		
-    if (imgui.Begin('PlayerBar', true, bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground))) then
+	local windowFlags = bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoBringToFrontOnFocus);
+	if (gConfig.lockPositions) then
+		windowFlags = bit.bor(windowFlags, ImGuiWindowFlags_NoMove);
+	end
+    if (imgui.Begin('PlayerBar', true, windowFlags)) then
 
 		local hpNameColor, hpGradient = GetHpColors(SelfHPPercent/100);
 
@@ -163,7 +166,7 @@ playerbar.DrawWindow = function(settings)
 			imgui.SameLine();
 		end
 		
-		progressbar.ProgressBar(hpPercentData, {barSize, settings.barHeight});
+		progressbar.ProgressBar(hpPercentData, {barSize, settings.barHeight}, {decorate = gConfig.showPlayerBarBookends});
 		
 		imgui.SameLine();
 		local hpEndX = imgui.GetCursorPosX();
@@ -180,13 +183,12 @@ playerbar.DrawWindow = function(settings)
 		if (bShowMp) then
 			-- Draw MP Bar
 			imgui.SetCursorPosX(hpEndX + settings.barSpacing);
-			progressbar.ProgressBar({{SelfMPPercent / 100, {'#9abb5a', '#bfe07d'}}}, {barSize, settings.barHeight});
+			progressbar.ProgressBar({{SelfMPPercent / 100, {'#9abb5a', '#bfe07d'}}}, {barSize, settings.barHeight}, {decorate = gConfig.showPlayerBarBookends});
 			imgui.SameLine();
 			mpLocX, mpLocY  = imgui.GetCursorScreenPos()
 		end
 		
 		-- Draw TP Bars
-		local tpX = imgui.GetCursorPosX();
 		imgui.SetCursorPosX(imgui.GetCursorPosX() + settings.barSpacing);
 		
 		local tpGradient = {'#3898ce', '#78c4ee'};
@@ -214,7 +216,7 @@ playerbar.DrawWindow = function(settings)
 			mainPercent = SelfTP / 1000;
 		end
 		
-		progressbar.ProgressBar({{mainPercent, tpGradient}}, {barSize, settings.barHeight}, {overlayBar=tpOverlay});
+		progressbar.ProgressBar({{mainPercent, tpGradient}}, {barSize, settings.barHeight}, {overlayBar=tpOverlay, decorate = gConfig.showPlayerBarBookends});
 		
 		imgui.SameLine();
 

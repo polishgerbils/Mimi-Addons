@@ -62,11 +62,14 @@ inventoryTracker.DrawWindow = function(settings)
 
     imgui.SetNextWindowSize({-1, -1}, ImGuiCond_Always);
 		
-    if (imgui.Begin('InventoryTracker', true, bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground))) then
+	local windowFlags = bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoBringToFrontOnFocus);
+	if (gConfig.lockPositions) then
+		windowFlags = bit.bor(windowFlags, ImGuiWindowFlags_NoMove);
+	end
+    if (imgui.Begin('InventoryTracker', true, windowFlags)) then
 
 		imgui.Dummy({winSizeX,winSizeY});
 		local locX, locY = imgui.GetWindowPos();
-		local invSlot = 0;
 
 		for i = 1, maxBagSlots do
 			local groupNum = math.ceil(i / numPerGroup);

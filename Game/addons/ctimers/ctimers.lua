@@ -16,7 +16,7 @@ local fontSettings = T{
     color = 0xFFFFFFFF,
     font_family = "Tahoma",
     font_height = 11,
-    position_x = 1700,
+    position_x = 1800,
     position_y = 1250,
 };
 local fontTimer = fonts.new(fontSettings);

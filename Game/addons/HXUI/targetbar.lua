@@ -173,7 +173,11 @@ targetbar.DrawWindow = function(settings)
 	local isMonster = GetIsMob(targetEntity);
 
 	-- Draw the main target window
-    if (imgui.Begin('TargetBar', true, bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground))) then
+	local windowFlags = bit.bor(ImGuiWindowFlags_NoDecoration, ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoFocusOnAppearing, ImGuiWindowFlags_NoNav, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoBringToFrontOnFocus);
+	if (gConfig.lockPositions) then
+		windowFlags = bit.bor(windowFlags, ImGuiWindowFlags_NoMove);
+	end
+    if (imgui.Begin('TargetBar', true, windowFlags)) then
         
 		-- Obtain and prepare target information..
         local dist  = ('%.1f'):fmt(math.sqrt(targetEntity.Distance));
@@ -217,7 +221,7 @@ targetbar.DrawWindow = function(settings)
 		end
 		
 		local startX, startY = imgui.GetCursorScreenPos();
-		progressbar.ProgressBar(hpPercentData, {settings.barWidth, settings.barHeight});
+		progressbar.ProgressBar(hpPercentData, {settings.barWidth, settings.barHeight}, {decorate = gConfig.showTargetBarBookends});
 
 		local nameSize = SIZE.new();
 		nameText:GetTextSize(nameSize);
@@ -289,7 +293,7 @@ targetbar.DrawWindow = function(settings)
 			imgui.SetCursorScreenPos({totX, totY - (settings.totBarHeight / 2) + (settings.barHeight/2) + settings.totBarOffset});
 
 			local totStartX, totStartY = imgui.GetCursorScreenPos();
-			progressbar.ProgressBar({{totEntity.HPPercent / 100, {'#e16c6c', '#fb9494'}}}, {settings.barWidth / 3, settings.totBarHeight});
+			progressbar.ProgressBar({{totEntity.HPPercent / 100, {'#e16c6c', '#fb9494'}}}, {settings.barWidth / 3, settings.totBarHeight}, {decorate = gConfig.showTargetBarBookends});
 
 			local totNameSize = SIZE.new();
 			totNameText:GetTextSize(totNameSize);

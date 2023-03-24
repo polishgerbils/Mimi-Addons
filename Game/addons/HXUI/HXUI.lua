@@ -23,13 +23,12 @@
 ]]--
 
 addon.name      = 'HXUI';
-addon.author    = 'Team HXUI';
-addon.version   = '0.1.1';
+addon.author    = 'Team HXUI (Tirem, Shuu, colorglut, RheaCloud)';
+addon.version   = '1.1.1';
 addon.desc      = 'Multiple UI elements with manager';
 addon.link      = 'https://github.com/tirem/HXUI'
 
 require('common');
-local imgui = require('imgui');
 local settings = require('settings');
 local playerBar = require('playerbar');
 local targetBar = require('targetbar');
@@ -103,6 +102,10 @@ local user_settings =
 T{
 	patchNotesVer = -1,
 
+	noBookendRounding = 4,
+	lockPositions = false,
+
+
 	showPlayerBar = true,
 	showTargetBar = true,
 	showEnemyList = true,
@@ -121,12 +124,14 @@ T{
 	playerBarScaleX = 1,
 	playerBarScaleY = 1,
 	playerBarFontOffset = 0,
+	showPlayerBarBookends = true,
 	alwaysShowMpBar = true,
 
 	targetBarScaleX = 1,
 	targetBarScaleY = 1,
 	targetBarFontOffset = 0,
 	targetBarIconScale = 1,
+	showTargetBarBookends = true,
 	showEnemyId = false;
 	alwaysShowHealthPercent = false,
 
@@ -134,9 +139,11 @@ T{
 	enemyListScaleY = 1,
 	enemyListFontScale = 1,
 	enemyListIconScale = 1,
+	showEnemyListBookends = true,
 
 	expBarScaleX = 1,
 	expBarScaleY = 1,
+	showExpBarBookends = true,
 	expBarFontOffset = 0,
 
 	gilTrackerScale = 1,
@@ -151,12 +158,15 @@ T{
 	partyListFontOffset = 0,
 	partyListStatusTheme = 0, -- 0: HorizonXI-L, 1: HorizonXI-R 2: XIV1.0, 3: XIV, 4: Disabled
 	partyListTheme = 0, 
-	partyListBgOpacity = 255;
-	partyListCursor = 'BlueArrow.png',
-	partyListBackground = 'GreyGradient.png',
+	partyListBgOpacity = 200;
+	showPartyListBookends = true,
+	partyListCursor = 'GreyArrow.png',
+	partyListBackground = 'BlueGradient.png',
+	partyListEntrySpacing = 0,
 
 	castBarScaleX = 1,
 	castBarScaleY = 1,
+	showCastBarBookends = true,
 	castBarFontOffset = 0,
 
 	healthBarFlashEnabled = true,
@@ -170,7 +180,7 @@ T{
 local default_settings =
 T{
 	-- global settings
-	currentPatchVer = 1,
+	currentPatchVer = 2,
 	tpEmptyColor = 0xFF9acce8,
 	tpFullColor = 0xFF2fa9ff,
 	mpColor = 0xFFdef2db,
@@ -428,11 +438,10 @@ T{
 		tpBarWidth = 100,
 		mpBarWidth = 100,
 		barHeight = 20,
-		barSpacing = 0,
-		entrySpacing = 0,
+		barSpacing = 8,
 
-		nameTextOffsetX = 0,
-		nameTextOffsetY = 5,
+		nameTextOffsetX = 1,
+		nameTextOffsetY = 0,
 		hpTextOffsetX = -2,
 		hpTextOffsetY = -3,
 		mpTextOffsetX = -2,
@@ -445,20 +454,21 @@ T{
 		backgroundPaddingY1 = 0,
 		backgroundPaddingY2 = 0,
 
-		cursorPaddingX1 = 4,
-		cursorPaddingX2 = 4,
-		cursorPaddingY1 = 6,
-		cursorPaddingY2 = 6,
+		cursorPaddingX1 = 5,
+		cursorPaddingX2 = 5,
+		cursorPaddingY1 = 4,
+		cursorPaddingY2 = 4,
 		dotRadius = 3,
 
 		arrowSize = 1;
 
 		subtargetArrowTint = 0xFFfdd017,
 
-		iconSize = 20,
+		iconSize = 22,
 		maxIconColumns = 6,
 		buffOffset = 10,
-		xivBuffOffsetY = 5;
+		xivBuffOffsetY = 1,
+		entrySpacing = 8,
 
 		hp_font_settings = 
 		T{
@@ -671,12 +681,13 @@ local function UpdateUserSettings()
     gAdjustedSettings.partyListSettings.barHeight = ns.partyListSettings.barHeight * us.partyListScaleY;
     gAdjustedSettings.partyListSettings.tpBarWidth = ns.partyListSettings.tpBarWidth * us.partyListScaleX;
 	gAdjustedSettings.partyListSettings.mpBarWidth = ns.partyListSettings.mpBarWidth * us.partyListScaleX;
-    gAdjustedSettings.partyListSettings.entrySpacing = ns.partyListSettings.entrySpacing * us.partyListScaleY;
+	gAdjustedSettings.partyListSettings.barSpacing = ns.partyListSettings.barSpacing * us.partyListScaleX;
     gAdjustedSettings.partyListSettings.hp_font_settings.font_height = math.max(ns.partyListSettings.hp_font_settings.font_height + us.partyListFontOffset, 1);
     gAdjustedSettings.partyListSettings.mp_font_settings.font_height = math.max(ns.partyListSettings.mp_font_settings.font_height + us.partyListFontOffset, 1);
 	gAdjustedSettings.partyListSettings.tp_font_settings.font_height = math.max(ns.partyListSettings.tp_font_settings.font_height + us.partyListFontOffset, 1);
     gAdjustedSettings.partyListSettings.name_font_settings.font_height = math.max(ns.partyListSettings.name_font_settings.font_height + us.partyListFontOffset, 1);
 	gAdjustedSettings.partyListSettings.iconSize = ns.partyListSettings.iconSize * us.partyListBuffScale;
+	gAdjustedSettings.partyListSettings.entrySpacing = ns.partyListSettings.entrySpacing + us.partyListEntrySpacing;
 
 	-- Player Bar
 	gAdjustedSettings.playerBarSettings.barWidth = ns.playerBarSettings.barWidth * us.playerBarScaleX;

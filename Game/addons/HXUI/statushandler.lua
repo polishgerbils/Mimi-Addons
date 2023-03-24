@@ -180,7 +180,9 @@ statusHandler.render_tooltip = function(status)
     if (name ~= nil and info ~= nil) then
         imgui.BeginTooltip();
             imgui.Text(('%s (#%d)'):fmt(name, status));
-            imgui.Text(info.Description[1]);
+            if (info.Description[1] ~= nil) then
+                imgui.Text(info.Description[1]);
+            end
         imgui.EndTooltip();
     end
 end

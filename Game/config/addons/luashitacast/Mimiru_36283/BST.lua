@@ -4,33 +4,34 @@ profile.Sets = {
 	    Head = 'Empress Hairpin',	
 	},
 	TP = {
-        Head = 'Celata',
+        Head = 'Optical Hat',
         Neck = 'Peacock Amulet',
         Ear1 = 'Coral Earring',
         Ear2 = 'Coral Earring',
         Body = 'Assault Jerkin',
         Hands = 'Thick Mufflers',
-        Ring1 = 'Venerer Ring',
-        Ring2 = 'Woodsman Ring',
-        Waist = 'Life Belt',
+        Ring1 = 'Sniper\'s Ring',
+        Ring2 = 'Rajas Ring',
+        Waist = 'Swift Belt',
         Legs = 'Thick Breeches',
         Feet = 'Thick Sollerets',
 	},
     WS = {
         Neck = 'Spike Necklace',
-        Body = 'Assault Jerkin',
+        Ear1 = 'Bushinomimi',
 		Hands = 'Ogre Gloves',
-        Ring1 = 'Garnet Ring',
-        Ring2 = 'Garnet Ring',
+        Ring1 = 'Puissance Ring',
+        Ring2 = 'Rajas Ring',
         Waist = 'Ryl.Kgt. Belt',
         Feet = 'Savage Gaiters',
     },
     WSAcc = {
         Neck = 'Peacock Amulet',
+        Ear1 = 'Bushinomimi',
         Body = 'Assault Jerkin',
 		Hands = 'Ogre Gloves',
-        Ring1 = 'Garnet Ring',
-        Ring2 = 'Garnet Ring',
+        Ring1 = 'Sniper\'s Ring',
+        Ring2 = 'Rajas Ring',
         Waist = 'Life Belt',
         Feet = 'Savage Gaiters',
     },
@@ -60,6 +61,28 @@ profile.Sets = {
     sneakvis = {
         Hands = 'Dream Mittens +1',
         Feet = 'Dream Boots +1',
+    },
+    gather = {
+        Body = 'Field Tunica',
+        Hands = 'Field Gloves',
+        Feet = 'Field Boots',
+    },
+    ['fourty'] = {
+        Main = 'Barbaroi Axe',
+        Sub = 'Parana Shield',
+        Ammo = 'Fish Oil Broth',
+        Head = 'Shep. Bonnet',
+        Neck = 'Peacock Amulet',
+        Ear1 = 'Beetle Earring +1',
+        Ear2 = 'Beetle Earring +1',
+        Body = 'Shep. Doublet',
+        Hands = 'Battle Gloves',
+        Ring1 = 'Sniper\'s Ring',
+        Ring2 = 'Rajas Ring',
+        Back = 'Ram Mantle',
+        Waist = 'Warrior\'s Belt',
+        Legs = 'Republic Subligar',
+        Feet = 'Bounding Boots',
     },
 };
 
@@ -113,11 +136,18 @@ profile.HandleAbility = function()
 end
 
 profile.HandleItem = function()
+	local action = gData.GetAction();
+	if (action.Name == 'Silent Oil') or (action.Name == 'Prism Powder') then
+		gFunc.EquipSet(profile.Sets.sneakvis);
+	elseif (action.Name == 'Pickaxe') then
+		gFunc.EquipSet(profile.Sets.gather);
+	end
+		
 end
 
 profile.HandlePrecast = function()
 	local action = gData.GetAction();
-	if (action.Name == 'Sneak') or (action.Name == 'Invisible') then
+	if (action.Name == 'Sneak') or (action.Name == 'Invisible') or (action.Name == 'Tonko: Ichi') or (action.Name == 'Tonko: Ni') then
 		gFunc.EquipSet(profile.Sets.sneakvis);
 	end
 end
@@ -133,7 +163,7 @@ end
 
 profile.HandleWeaponskill = function()
 	local action = gData.GetAction();
-	if (action.Name == 'Spinning Axe') or (action.Name == 'Calamity') or (action.Name == 'Mistral Axe') then
+	if (action.Name == 'Decimation') or (action.Name == 'Calamity') or (action.Name == 'Mistral Axe') then
 		gFunc.EquipSet(profile.Sets.WS);
 	elseif (action.Name == 'Rampage') then
 		gFunc.EquipSet(profile.Sets.WSAcc);

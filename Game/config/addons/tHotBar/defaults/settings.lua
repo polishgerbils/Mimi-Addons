@@ -9,14 +9,15 @@ settings["Position"]["10x3_750p"][1] = 925.5;
 settings["Position"]["10x3_750p"][2] = 995.66666666666674;
 settings["ClickToActivate"] = true;
 settings["ShowSkillchainIcon"] = true;
-settings["HideWhileMap"] = true;
 settings["HideWhileZoning"] = true;
+settings["HideWhileMap"] = true;
+settings["ShowTrigger"] = true;
 settings["ShowName"] = true;
 settings["ShowFade"] = true;
 settings["ShowSkillchainAnimation"] = true;
-settings["ShowTrigger"] = true;
-settings["Layout"] = "10x3_750p";
 settings["ShowRecast"] = true;
+settings["Layout"] = "10x3_750p";
+settings["ShowHotkey"] = true;
 settings["HideWhileCutscene"] = true;
 
 return settings;

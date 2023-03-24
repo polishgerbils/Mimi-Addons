@@ -48,7 +48,6 @@
 /addon load instantah
 /addon load luashitacast
 /addon load petinfo
-/addon load recast
 /addon load timestamp
 # --HORIZON_ADDONS_STOP--
 #
@@ -149,6 +148,10 @@
 /addon load xicamera
 /addon load ctimers
 /addon load nocombat
+/addon load equipmon
+/addon load simplelog
+/addon load hideparty
+/addon load chains
 /load trenderer
 /addon load thotbar
 /load deeps
