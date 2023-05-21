@@ -103,7 +103,7 @@ local function DrawXp(cur, max, isLocked)
     end
 
     local barColor = ui.Colors.XpBar
-    local title = string.format('XP %4s', ffxi.FormatXp(cur, cur > 9999))
+    local title = string.format('XP %4s', ffxi.FormatXp(cur, false))
     local overlay = ffxi.FormatXp(max - cur, true)
 
     imgui.PushStyleColor(ImGuiCol_PlotHistogram, barColor)
@@ -120,7 +120,7 @@ local function DrawLp(cur, max, isLocked)
     end
 
     local barColor = ui.Colors.LpBar
-    local title = string.format('LP %4s', type, ffxi.FormatXp(cur, cur > 9999))
+    local title = string.format('LP %4s', ffxi.FormatXp(cur, false))
 
     imgui.PushStyleColor(ImGuiCol_PlotHistogram, barColor)
     ui.DrawBar(title, cur, max, ui.Scale(ui.Styles.BarSize, Scale))

@@ -11,12 +11,13 @@ settings["ClickToActivate"] = true;
 settings["ShowSkillchainIcon"] = true;
 settings["HideWhileZoning"] = true;
 settings["HideWhileMap"] = true;
+settings["ShowRecast"] = true;
 settings["ShowName"] = true;
 settings["ShowFade"] = true;
 settings["ShowSkillchainAnimation"] = true;
-settings["ShowRecast"] = true;
-settings["Layout"] = "10x3_750p";
 settings["ShowTrigger"] = true;
+settings["Layout"] = "10x3_750p";
+settings["ShowHotkey"] = true;
 settings["HideWhileCutscene"] = true;
 
 return settings;

@@ -45,6 +45,33 @@ local outboundFishingAction = {
     },
 }
 
+local outboundInventoryDrop = {
+    id = 0x028,
+    name = 'Inventory Drop',
+    parse = nil,
+    make = function(this, quantity, container, slot)
+        return this.id, struct.pack('bbbbibb', 0x00, 0x00, 0x00, 0x00, quantity, container, slot):totable()
+    end,
+}
+
+local outboundTreasureLot = {
+    id = 0x041,
+    name = 'Treasure Lot',
+    parse = nil,
+    make = function(this, slot)
+        return this.id, { 0x00, 0x00, 0x00, 0x00, slot }
+    end,
+}
+
+local outboundTreasurePass = {
+    id = 0x042,
+    name = 'Treasure Pass',
+    parse = nil,
+    make = function(this, slot)
+        return this.id, { 0x00, 0x00, 0x00, 0x00, slot }
+    end,
+}
+
 local inboundZoneIn = {
     id = 0x00A,
     name = 'Zone In',
@@ -57,6 +84,29 @@ local inboundZoneIn = {
         }
 
         return zonein
+    end
+}
+
+local inboundPcUpdate = {
+    id = 0x00D,
+    name = 'PC Update',
+    ---@param packet userdata
+    parse = function(packet)
+        return {
+            player          = ashita.bits.unpack_be(packet,  32, 32),
+            playerIndex     = ashita.bits.unpack_be(packet,  64, 16),
+            updatedPosition = ashita.bits.unpack_be(packet,  80,  1) == 1,
+            updatedStatus   = ashita.bits.unpack_be(packet,  81,  1) == 1,
+            updatedVitals   = ashita.bits.unpack_be(packet,  82,  1) == 1,
+            updatedName     = ashita.bits.unpack_be(packet,  83,  1) == 1,
+            updatedModel    = ashita.bits.unpack_be(packet,  84,  1) == 1,
+            isDespawned     = ashita.bits.unpack_be(packet,  85,  1) == 1,
+            heading         = ashita.bits.unpack_be(packet,  88,  8),
+            -- TODO: finish
+            x               = ashita.bits.unpack_be(packet,  96, 32), -- float
+            y               = ashita.bits.unpack_be(packet, 128, 32), -- float
+            z               = ashita.bits.unpack_be(packet, 160, 32), -- float
+        }
     end
 }
 
@@ -74,6 +124,79 @@ local inboundChatMessage = {
         }
 
         return chatmessage
+    end
+}
+
+local inboundInventorySize = {
+    id = 0x01C,
+    name = 'Inventory Size',
+    ---@param packet string
+    parse = function(packet)
+        local inventories = {}
+        for i = 0, 17 do
+            inventories[i] = {
+                size = struct.unpack('i1', packet, 0x04 + i + 1),
+                usable = struct.unpack('i1', packet, 0x24 + (2 * i) + 1),
+            }
+        end
+
+        return inventories
+    end
+}
+
+local inboundInventoryFinish = {
+    id = 0x01D,
+    name = 'Inventory Finish',
+    ---@param packet string
+    parse = function(packet)
+        return {
+            flag = struct.unpack('i1', packet, 0x04 + 1),
+            container = struct.unpack('i1', packet, 0x05 + 1),
+        }
+    end
+}
+
+local inboundInventoryModify = {
+    id = 0x01E,
+    name = 'Inventory Modify',
+    ---@param packet string
+    parse = function(packet)
+        return {
+            quantity = struct.unpack('i4', packet, 0x04 + 1),
+            container = struct.unpack('i1', packet, 0x08 + 1),
+            slot = struct.unpack('i1', packet, 0x09 + 1),
+        }
+    end
+}
+
+local inboundInventoryAssign = {
+    id = 0x01F,
+    name = 'Inventory Assign',
+    ---@param packet string
+    parse = function(packet)
+        return {
+            quantity = struct.unpack('i4', packet, 0x04 + 1),
+            item = struct.unpack('i2', packet, 0x08 + 1),
+            container = struct.unpack('i1', packet, 0x0a + 1),
+            slot = struct.unpack('i1', packet, 0x0b + 1),
+            flag = struct.unpack('i1', packet, 0x0c + 1),
+        }
+    end
+}
+
+local inboundInventoryItem = {
+    id = 0x020,
+    name = 'Inventory Item',
+    ---@param packet string
+    parse = function(packet)
+        return {
+            container = struct.unpack('i1', packet, 0x0e + 1),
+            slot = struct.unpack('i1', packet, 0x0f + 1),
+            quantity = struct.unpack('i4', packet, 0x04 + 1),
+            price = struct.unpack('i4', packet, 0x08 + 1),
+            item = struct.unpack('i2', packet, 0x0c + 1),
+            -- TODO: there's more stuff but i don't care
+        }
     end
 }
 
@@ -502,10 +625,14 @@ local packets = {
         },
         startSynth = outboundStartSynth,
         fishingAction = outboundFishingAction,
+        inventoryDrop = outboundInventoryDrop,
+        treasureLot = outboundTreasureLot,
+        treasurePass = outboundTreasurePass,
     },
     inbound = {
         sorted = {
             inboundBasic,
+            inboundPcUpdate,
             inboundSpecial,
             inboundAction,
             inboundDeath,
@@ -517,11 +644,22 @@ local packets = {
             inboundSynthAnimation,
             inboundSynthResultPlayer,
             inboundSynthResultOther,
+            inboundInventorySize,
+            inboundInventoryFinish,
+            inboundInventoryModify,
+            inboundInventoryAssign,
+            inboundInventoryItem,
             inboundFishBiteInfo,
             inboundCaughtFish,
         },
         zoneIn = inboundZoneIn,
+        pcUpdate = inboundPcUpdate,
         chatMessage = inboundChatMessage,
+        inventorySize = inboundInventorySize,
+        inventoryFinish = inboundInventoryFinish,
+        inventoryModify = inboundInventoryModify,
+        inventoryAssign = inboundInventoryAssign,
+        inventoryItem = inboundInventoryItem,
         fishCatch = inboundCaughtFish,
         action = inboundAction,
         basic = inboundBasic,

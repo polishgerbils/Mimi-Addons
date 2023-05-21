@@ -3,6 +3,7 @@ local bit = require('bit')
 local ffi = require('ffi')
 local d3d8 = require('d3d8')
 local debounce = require('utils.debounce')
+local packets = require('utils.packets')
 local imgui = require('imgui')
 local ui = require('ui')
 
@@ -179,10 +180,7 @@ local function SortInventory(lhs, rhs)
     return lhs.sortId < rhs.sortId
 end
 
-local function UpdateInventory(bagId)
-    local inv = AshitaCore:GetMemoryManager():GetInventory()
-    local res = AshitaCore:GetResourceManager()
-
+local function UpdateInventory(inv, res, bagId)
     local inventory = T{ }
     local itemCount = inv:GetContainerCountMax(bagId)
 
@@ -198,14 +196,17 @@ local function UpdateInventory(bagId)
             local coolItem = {
                 id = invItem.Id,
                 sortId = itemObj.ResourceId,
+                slotId = invItem.Index,
                 uniqueId = ('%i.%i.%s'):format(bagId, invItem.Index, itemObj.Name[1]),
                 type = itemObj.Type,
                 flags = itemObj.Flags,
                 isUsable = bit.band(1, bit.rshift(itemObj.Flags, 10)) == 1,
+                isLocked = bit.band(1, invItem.Flags) == 1 or bagId > 0,
                 isEquippable = itemObj.Type == 4 or itemObj.Type == 5,
                 name = ('%s [%i]'):format(itemObj.LogNameSingular[1], invItem.Id),
                 shortName = itemObj.Name[1],
-                longName = itemObj.LogNameSingular[1],
+                longNameS = itemObj.LogNameSingular[1],
+                longNameP = itemObj.LogNamePlural[1],
                 desc = itemObj.Description[1],
                 stack = nil,
                 stackCur = invItem.Count,
@@ -236,29 +237,29 @@ local function UpdateInventory(bagId)
 end
 
 local function UpdateInventories()
-    local gil = AshitaCore
-        :GetMemoryManager()
-        :GetInventory()
-        :GetContainerItem(0, 0)
-        .Count
+    local inv = AshitaCore:GetMemoryManager():GetInventory()
+    local res = AshitaCore:GetResourceManager()
+    local gil = inv:GetContainerItem(0, 0)
+    local invSize = inv:GetContainerCountMax(0)
+    if gil == nil or invSize == 0 then return end
 
-    inventories.gil = FormatGil(gil)
+    inventories.gil = FormatGil(gil.Count)
 
-    inventories.bag = UpdateInventory(0)
+    inventories.bag = UpdateInventory(inv, res, 0)
         :sort(SortInventory)
 
-    inventories.wardrobe = UpdateInventory(8)
-        :extend(UpdateInventory(10))
-        :extend(UpdateInventory(11))
-        :extend(UpdateInventory(12))
-        :extend(UpdateInventory(13))
-        :extend(UpdateInventory(14))
-        :extend(UpdateInventory(15))
-        :extend(UpdateInventory(16))
+    inventories.wardrobe = UpdateInventory(inv, res, 8)
+        :extend(UpdateInventory(inv, res, 10))
+        :extend(UpdateInventory(inv, res, 11))
+        :extend(UpdateInventory(inv, res, 12))
+        :extend(UpdateInventory(inv, res, 13))
+        :extend(UpdateInventory(inv, res, 14))
+        :extend(UpdateInventory(inv, res, 15))
+        :extend(UpdateInventory(inv, res, 16))
         :sort(SortInventory)
 
-    inventories.house = UpdateInventory(1)
-        :extend(UpdateInventory(2))
+    inventories.house = UpdateInventory(inv, res, 1)
+        :extend(UpdateInventory(inv, res, 2))
         :sort(SortInventory)
 end
 
@@ -285,6 +286,25 @@ local function TryToEquip(item)
                 AshitaCore:GetChatManager():QueueCommand(1, ('/equip %s "%s"'):format(target, item.shortName))
             end
         end
+    end
+end
+
+local function TryToDrop(item)
+    if imgui.BeginMenu('Drop') then
+        local itemName = item.longNameS
+        if item.stackCur > 1 then
+            itemName = item.longNameP
+        end
+
+        -- TODO: add quantity picker
+
+        local title = ('Drop %i %s'):format(item.stackCur, itemName)
+        if imgui.MenuItem(title) then
+            AshitaCore:GetPacketManager():AddOutgoingPacket(
+                packets.outbound.inventoryDrop:make(item.stackCur, 0, item.slotId))
+        end
+
+        imgui.EndMenu()
     end
 end
 
@@ -326,7 +346,7 @@ end
 
 local function AddContextMenu(item)
     local menuOpened = false
-    if (item.isUsable or item.isEquippable) and imgui.BeginPopupContextItem(item.uniqueId) then
+    if (item.isUsable or item.isEquippable or not item.isLocked) and imgui.BeginPopupContextItem(item.uniqueId) then
         menuOpened = true
 
         if item.isUsable then
@@ -335,6 +355,10 @@ local function AddContextMenu(item)
 
         if item.isEquippable then
             TryToEquip(item)
+        end
+
+        if not item.isLocked then
+            TryToDrop(item)
         end
 
         if imgui.Selectable('Cancel') then
@@ -426,7 +450,12 @@ local inv = {
         end
     end,
     HandlePacket = function(e, options)
-        if e.id >= 0x01C and e.id <= 0x020 then
+        if e.id == 0x01D then
+            local packet = packets.inbound.inventoryFinish.parse(e.data)
+            if packet.flag == 1 then
+                debounce(UpdateInventories)
+            end
+        elseif e.id == 0x01E then
             debounce(UpdateInventories)
         end
     end,
@@ -435,6 +464,13 @@ local inv = {
             if imgui.Checkbox('Enabled', options.isEnabled) and options.isEnabled[1] then
                 UpdateInventories()
             end
+
+            imgui.Checkbox('Visible', options.isVisible)
+
+            if imgui.InputInt2('Position', options.pos) then
+                imgui.SetWindowPos(options.name, options.pos)
+            end
+
             imgui.EndTabItem()
         end
     end,
@@ -443,7 +479,6 @@ local inv = {
         ui.DrawUiWindow(options, gOptions, function()
             imgui.SetWindowFontScale(Scale)
             DrawInventory()
-            imgui.End()
         end)
     end,
 }

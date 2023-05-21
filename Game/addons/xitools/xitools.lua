@@ -1,6 +1,6 @@
 addon.name    = 'xitools'
 addon.author  = 'lin'
-addon.version = '0.12'
+addon.version = '0.17'
 addon.desc    = 'A humble UI toolkit'
 
 require('common')
@@ -25,23 +25,30 @@ local me = require('me')
 local us = require('us')
 local tgt = require('tgt')
 local pet = require('pet')
+local treas = require('treas')
 local inv = require('inv')
 local tracker = require('tracker')
 local crafty = require('crafty')
 local fishe = require('fishe')
 local logger = require('logger')
 
-local tools = {
+local uiWindows = {
     me,
     us,
     tgt,
     pet,
     inv,
     tracker,
+}
+
+local normalWindows = {
+    treas,
     crafty,
     fishe,
     logger,
 }
+
+local tools = T{}:extend(uiWindows):extend(normalWindows)
 
 local defaultOptions = T{
     globals = T{
@@ -49,6 +56,9 @@ local defaultOptions = T{
         hideUnderMap = T{ true },
         hideUnderChat = T{ true },
         hideWhileLoading = T{ true },
+        textColor = T{ 1.00, 1.00, 1.00, 1.0 },
+        backgroundColor = T{ 0.08, 0.08, 0.08, 0.8 },
+        borderColor = T{ 0.69, 0.68, 0.78, 1.0 },
         uiScale = T{ 1.0 },
         baseW = 7,
         baseH = 14,
@@ -66,6 +76,7 @@ local defaultOptions = T{
         us = us.DefaultSettings,
         tgt = tgt.DefaultSettings,
         pet = pet.DefaultSettings,
+        treas = treas.DefaultSettings,
         inv = inv.DefaultSettings,
         tracker = tracker.DefaultSettings,
         crafty = crafty.DefaultSettings,
@@ -87,16 +98,33 @@ local function DrawConfig()
         imgui.Checkbox('Hide while map open', options.globals.hideUnderMap)
         imgui.Checkbox('Hide while chat open', options.globals.hideUnderChat)
         imgui.Checkbox('Hide while loading', options.globals.hideWhileLoading)
+
         if imgui.InputFloat('UI Scale', options.globals.uiScale, 0.01, 0.025) then
             imgui.SetWindowFontScale(options.globals.uiScale[1])
             options.globals.baseH, options.globals.baseH = imgui.CalcTextSize('A')
         end
         imgui.NewLine()
 
+        imgui.Text('UI settings')
+        imgui.Separator()
+        imgui.ColorEdit4("Text Color", options.globals.textColor)
+        imgui.ColorEdit4("Background Color", options.globals.backgroundColor)
+        imgui.ColorEdit4("Border Color", options.globals.borderColor)
+        imgui.NewLine()
+
+        if imgui.BeginTabBar('xitools.config.ui') then
+            for _, tool in ipairs(uiWindows) do
+                tool.DrawConfig(options.tools[tool.Name], options.globals)
+            end
+
+            imgui.EndTabBar()
+        end
+
+        imgui.NewLine()
         imgui.Text('Tool settings')
         imgui.Separator()
-        if imgui.BeginTabBar('xitools.config.tabs') then
-            for i, tool in ipairs(tools) do
+        if imgui.BeginTabBar('xitools.config.normal') then
+            for _, tool in ipairs(normalWindows) do
                 tool.DrawConfig(options.tools[tool.Name], options.globals)
             end
 

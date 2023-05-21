@@ -2,9 +2,9 @@ require('common');
 
 local settings = T{ };
 settings["userSettings"] = T{ };
-settings["userSettings"]["expBarScaleY"] = 1;
+settings["userSettings"]["partyListBackground"] = "GreyGradient.png";
 settings["userSettings"]["showEnemyId"] = true;
-settings["userSettings"]["showGilTracker"] = true;
+settings["userSettings"]["targetBarFontScale"] = 1;
 settings["userSettings"]["partyListBuffScale"] = 1;
 settings["userSettings"]["targetBarFontOffset"] = 0;
 settings["userSettings"]["enemyListIconScale"] = 1;
@@ -48,7 +48,7 @@ settings["userSettings"]["showCastBarBookends"] = false;
 settings["userSettings"]["partyListScaleX"] = 1;
 settings["userSettings"]["patchNotesVer"] = 2;
 settings["userSettings"]["showTargetBarBookends"] = false;
-settings["userSettings"]["targetBarFontScale"] = 1;
+settings["userSettings"]["showGilTracker"] = true;
 settings["userSettings"]["healthBarFlashEnabled"] = true;
 settings["userSettings"]["playerBarFontOffset"] = 0;
 settings["userSettings"]["noBookendRounding"] = 4;
@@ -60,6 +60,6 @@ settings["userSettings"]["alwaysShowHealthPercent"] = true;
 settings["userSettings"]["showTargetBar"] = true;
 settings["userSettings"]["lockPositions"] = false;
 settings["userSettings"]["showTargetBarPercent"] = true;
-settings["userSettings"]["partyListBackground"] = "GreyGradient.png";
+settings["userSettings"]["expBarScaleY"] = 1;
 
 return settings;

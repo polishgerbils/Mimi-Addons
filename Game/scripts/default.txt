@@ -152,10 +152,14 @@
 /addon load simplelog
 /addon load hideparty
 /addon load chains
+/addon load cfhblock
+/addon load ticker
+/addon load hush
 /load trenderer
 /addon load thotbar
 /load deeps
 /wait 5
+/deeps sc
 /fps 0
 /cam d 8
 /cam b 20

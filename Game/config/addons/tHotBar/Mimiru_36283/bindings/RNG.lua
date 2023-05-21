@@ -1,0 +1,61 @@
+return T{
+    Default = T{
+    },
+    Palettes = T{
+        { Name="Base", Bindings = T{
+            ["2"] = {
+                ActionType              = 'Ability',
+                Id                      = 581,
+                Macro                   = T{
+                    "/ja \"Fight\" <t>",
+                },
+                Label                   = "Fight",
+                Image                   = "abilities/69.png",
+                ShowCost                = true,
+                ShowCross               = true,
+                ShowFade                = true,
+                ShowRecast              = true,
+                ShowName                = true,
+                ShowTrigger             = true,
+                ShowSkillchainIcon      = true,
+                ShowSkillchainAnimation = true,
+                ShowHotkey              = true,
+            },
+            ["^3"] = {
+                ActionType              = 'Ability',
+                Id                      = 564,
+                Macro                   = T{
+                    "/ja \"Charm\" <t>",
+                },
+                Label                   = "Charm",
+                Image                   = "abilities/52.png",
+                ShowCost                = true,
+                ShowCross               = true,
+                ShowFade                = true,
+                ShowRecast              = true,
+                ShowName                = true,
+                ShowTrigger             = true,
+                ShowSkillchainIcon      = true,
+                ShowSkillchainAnimation = true,
+                ShowHotkey              = true,
+            },
+            ["1"] = {
+                ActionType              = 'Command',
+                Macro                   = T{
+                    "/ra <t>",
+                },
+                Label                   = "Ra",
+                Image                   = "misc/command.png",
+                ShowCost                = true,
+                ShowCross               = true,
+                ShowFade                = true,
+                ShowRecast              = true,
+                ShowName                = true,
+                ShowTrigger             = true,
+                ShowSkillchainIcon      = true,
+                ShowSkillchainAnimation = true,
+                ShowHotkey              = true,
+            },
+        } },
+    },
+};
