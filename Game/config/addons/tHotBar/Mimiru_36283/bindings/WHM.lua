@@ -25,7 +25,7 @@ return T{
                 ActionType              = 'Spell',
                 Id                      = 137,
                 Macro                   = T{
-                    "/ma \"Sneak\" <me>",
+                    "/ma \"Sneak\" <t>",
                 },
                 Label                   = "Sneak",
                 Image                   = "spells2/whm/sneak.png",
@@ -75,14 +75,14 @@ return T{
                 ShowSkillchainAnimation = true,
                 ShowHotkey              = false,
             },
-            ["^0"] = {
-                ActionType              = 'Ability',
-                Id                      = 530,
+            ["7"] = {
+                ActionType              = 'Spell',
+                Id                      = 53,
                 Macro                   = T{
-                    "/ja \"Benediction\" <me>",
+                    "/ma \"Blink\" <me>",
                 },
-                Label                   = "Benediction",
-                Image                   = "spells2/whm/bene.png",
+                Label                   = "Blink",
+                Image                   = "spells2/whm/blink.png",
                 ShowCost                = true,
                 ShowCross               = true,
                 ShowFade                = true,
@@ -129,14 +129,14 @@ return T{
                 ShowSkillchainAnimation = true,
                 ShowHotkey              = false,
             },
-            ["!0"] = {
+            ["^2"] = {
                 ActionType              = 'Spell',
-                Id                      = 136,
+                Id                      = 126,
                 Macro                   = T{
-                    "/ma \"Invisible\" <me>",
+                    "/ma \"Protectra II\" <me>",
                 },
-                Label                   = "Invisible",
-                Image                   = "spells2/whm/invis.png",
+                Label                   = "Protectra II",
+                Image                   = "spells2/whm/protect.png",
                 ShowCost                = true,
                 ShowCross               = true,
                 ShowFade                = true,
@@ -201,14 +201,14 @@ return T{
                 ShowSkillchainAnimation = true,
                 ShowHotkey              = false,
             },
-            ["^2"] = {
-                ActionType              = 'Spell',
-                Id                      = 126,
+            ["^0"] = {
+                ActionType              = 'Ability',
+                Id                      = 530,
                 Macro                   = T{
-                    "/ma \"Protectra II\" <me>",
+                    "/ja \"Benediction\" <me>",
                 },
-                Label                   = "Protectra II",
-                Image                   = "spells2/whm/protect.png",
+                Label                   = "Benediction",
+                Image                   = "spells2/whm/bene.png",
                 ShowCost                = true,
                 ShowCross               = true,
                 ShowFade                = true,
@@ -219,14 +219,14 @@ return T{
                 ShowSkillchainAnimation = true,
                 ShowHotkey              = false,
             },
-            ["7"] = {
+            ["1"] = {
                 ActionType              = 'Spell',
-                Id                      = 53,
+                Id                      = 1,
                 Macro                   = T{
-                    "/ma \"Blink\" <me>",
+                    "/ma \"Cure\" <t>",
                 },
-                Label                   = "Blink",
-                Image                   = "spells2/whm/blink.png",
+                Label                   = "Cure",
+                Image                   = "spells2/whm/cure.png",
                 ShowCost                = true,
                 ShowCross               = true,
                 ShowFade                = true,
@@ -327,14 +327,14 @@ return T{
                 ShowSkillchainAnimation = true,
                 ShowHotkey              = false,
             },
-            ["1"] = {
+            ["!0"] = {
                 ActionType              = 'Spell',
-                Id                      = 1,
+                Id                      = 136,
                 Macro                   = T{
-                    "/ma \"Cure\" <t>",
+                    "/ma \"Invisible\" <t>",
                 },
-                Label                   = "Cure",
-                Image                   = "spells2/whm/cure.png",
+                Label                   = "Invisible",
+                Image                   = "spells2/whm/invis.png",
                 ShowCost                = true,
                 ShowCross               = true,
                 ShowFade                = true,

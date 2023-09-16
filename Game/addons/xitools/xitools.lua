@@ -1,6 +1,6 @@
 addon.name    = 'xitools'
 addon.author  = 'lin'
-addon.version = '0.17'
+addon.version = '0.20'
 addon.desc    = 'A humble UI toolkit'
 
 require('common')
@@ -28,8 +28,10 @@ local pet = require('pet')
 local treas = require('treas')
 local inv = require('inv')
 local tracker = require('tracker')
+local cast = require('cast')
 local crafty = require('crafty')
 local fishe = require('fishe')
+local week = require('week')
 local logger = require('logger')
 
 local uiWindows = {
@@ -37,14 +39,16 @@ local uiWindows = {
     us,
     tgt,
     pet,
-    inv,
     tracker,
+    cast,
 }
 
 local normalWindows = {
+    inv,
     treas,
     crafty,
     fishe,
+    week,
     logger,
 }
 
@@ -56,6 +60,7 @@ local defaultOptions = T{
         hideUnderMap = T{ true },
         hideUnderChat = T{ true },
         hideWhileLoading = T{ true },
+        isClickThru = T{ false },
         textColor = T{ 1.00, 1.00, 1.00, 1.0 },
         backgroundColor = T{ 0.08, 0.08, 0.08, 0.8 },
         borderColor = T{ 0.69, 0.68, 0.78, 1.0 },
@@ -79,8 +84,10 @@ local defaultOptions = T{
         treas = treas.DefaultSettings,
         inv = inv.DefaultSettings,
         tracker = tracker.DefaultSettings,
+        cast = cast.DefaultSettings,
         crafty = crafty.DefaultSettings,
         fishe = fishe.DefaultSettings,
+        week = week.DefaultSettings,
         logger = logger.DefaultSettings,
     },
 }
@@ -107,6 +114,7 @@ local function DrawConfig()
 
         imgui.Text('UI settings')
         imgui.Separator()
+        imgui.Checkbox('Clickthrough', options.globals.isClickThru)
         imgui.ColorEdit4("Text Color", options.globals.textColor)
         imgui.ColorEdit4("Background Color", options.globals.backgroundColor)
         imgui.ColorEdit4("Border Color", options.globals.borderColor)

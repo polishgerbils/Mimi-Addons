@@ -33,10 +33,10 @@ local AoEBuff = T{
     show = true
 }
 
-local buffs = {
-    -- Currently displayed recast timers
-    buffs = T{},
+
+local buffsByCharacter = T{
 };
+
 
 local BlockedSpells = T{
     24931,
@@ -73,6 +73,58 @@ local AbilityMsgs = T{
     [798] = T{id=797}, -- Maneuvers
 }
 
+local PetMsgs = T{
+	[186] = T{id=0} -- Summoner Ward Pacts
+}
+local PetTypes = T{
+	[13] = T{id=0} -- Summoner Ward Pacts
+}
+
+local PetActionMap = T{
+	-- Pet Action ID => Player BP ID
+	
+
+	[908] = 514, --Shining Ruby
+    [0] = 515, --Glittering Ruby
+    [0] = 526, --Reraise II
+    [0] = 532, --Ecliptic Growl
+    [0] = 533, --Ecliptic Howl
+    [0] = 538, --Heavenward Howl
+    [844] = 548, --Crimson Howl
+    [0] = 553, --Inferno Howl
+    [0] = 554, --Conflag Strike
+    [0] = 560, --Rock Throw
+    [0] = 562, --Rock Buster
+    [0] = 563, --Megalith Throw
+    [0] = 564, --Earthen Ward
+    [0] = 565, --Stone IV
+    [0] = 566, --Mountain Buster
+    [0] = 569, --Earthen Armor
+    [0] = 570, --Crag Throw
+    [0] = 578, --Tail Whip
+    [861] = 579, --Spring Water
+    [0] = 580, --Slowga
+    [0] = 585, --Tidal Roar
+    [0] = 586, --Soothing Current
+    [870] = 595, --Hastega
+    [0] = 596, --Aerial Armor
+    [0] = 601, --Fleet Wind
+    [0] = 602, --Hastega II
+    [0] = 610, --Frost Armor
+    [0] = 611, --Sleepga
+    [0] = 617, --Diamond Storm
+    [0] = 618, --Crystal Blessing
+    [887] = 626, --Rolling Thunder
+    [0] = 628, --Lightning Armor
+    [0] = 633, --Shock Squall
+    [0] = 634, --Volt Strike
+    [0] = 658, --Nightmare
+    [0] = 660, --Noctoshield
+    [0] = 661, --Dream Shroud
+    [0] = 671, --Perfect Defense
+
+}
+
 local AbilityTypes = T{
     [6]  = T{id=6},
     [14] = T{id=14},
@@ -90,6 +142,7 @@ local SpellMsgs = T{
 local SpellTypes = T{
     [4] = T{id=4},
 }
+
 
 local CorsairRolls = T{
     [98]  = T{ id=98, status=310 },
@@ -168,6 +221,9 @@ local AbilityOverride = T{
     [371] = T{ Job=Jobs.RuneFencer, main=535, sub=535 },
 }
 
+local PetOverride = T{
+}
+
 local MultipleAllowed = T{ 
     309, -- Corsair
     523,524,525,526,527,528,529,530, -- Runefencer
@@ -209,6 +265,12 @@ local function GetEffectOverride(spell, type)
         else
             return SpellOverride[spell].sub
         end
+    elseif PetTypes:haskey(type) and PetOverride:haskey(spell) then
+         if mjob == PetOverride[spell].job then
+            return PetOverride[spell].main
+        else
+            return PetOverride[spell].sub
+        end
     end
 
     return nil
@@ -225,16 +287,16 @@ local function InsertBuff(actor, target, effect, name, duration, replace, time)
     local target_index = GetTargetIndex(target)
     if not target_index then return end
 
-    if not buffs.buffs[target] then
-        buffs.buffs[target] = T{}
-        buffs.buffs[target].effects = T{}
+    if not buffsByCharacter[target] then
+        buffsByCharacter[target] = T{}
+        buffsByCharacter[target].effects = T{}
     end
 
-    if not buffs.buffs[target].effects[effect] then
-        buffs.buffs[target].effects[effect] = T{}
+    if not buffsByCharacter[target].effects[effect] then
+        buffsByCharacter[target].effects[effect] = T{}
     end
 
-    local t = buffs.buffs[target].effects[effect]
+    local t = buffsByCharacter[target].effects[effect]
     if replace or not MultipleAllowed:hasval(effect) then
         t[1] = T{ name=name, o_time=o_time, duration=duration, target_id=target,
                   a_index=GetTargetIndex(actor), t_index=target_index, ttl=-1 }
@@ -244,31 +306,37 @@ local function InsertBuff(actor, target, effect, name, duration, replace, time)
     end
 end
 
-local function RemoveBuff(target, target_id)
-    local buffs = buffs.buffs[target]
-    if not buffs then return false end
+-- This doesn't fuly remove the bar,
+-- Merely update the buff to the flashing state.
+local function RemoveBuff(character, target_effect_id)
+    local char_buffs = buffsByCharacter[character]
+	
+    if not char_buffs then return false end
 
+	--print(('Timers: RemoveBuff(Character:[%d],Effect:[%d]) Called'):fmt(character, target_effect_id));
+	
     -- Find the oldest matching buff then reset the time and duration
     -- to indicate that the buff has expired, and when it expired
     -- Any BRD buff matches any other BRD buff
     local least_duration = math.huge
-    local id = nil
-    local idx = nil
-    for b_id, buff_t in pairs(buffs.effects) do
-        if (b_id == target_id) or (IsBardBuff(target_id) and IsBardBuff(b_id)) then
-            for k, v in pairs(buff_t) do
+    local effect_copy_index = nil
+    for effect_id, effects_table in pairs(char_buffs.effects) do
+        if (effect_id == target_effect_id) or (IsBardBuff(target_effect_id) and IsBardBuff(effect_id)) then
+            for k, v in pairs(effects_table) do
                 if v.duration > -1 and (v.duration < least_duration) then
                     least_duration = v.duration
-                    id = b_id
-                    idx = k
+                    target_effect_id = effect_id
+                    effect_copy_index = k
                 end
             end
         end
     end
 
-    if id and idx and buffs.effects[id] and buffs.effects[id][idx] then
-        buffs.effects[id][idx].duration = -1
-        buffs.effects[id][idx].o_time = ashita.time.clock()['ms']
+	-- If we found a copy of the effect to remove..
+    if target_effect_id and effect_copy_index and char_buffs.effects[target_effect_id] and char_buffs.effects[target_effect_id][effect_copy_index] then
+		-- Set it's duraction to -1 and oiginal time to now...?
+        char_buffs.effects[target_effect_id][effect_copy_index].duration = -1
+        char_buffs.effects[target_effect_id][effect_copy_index].o_time = ashita.time.clock()['ms']
         return true
     end
 
@@ -279,7 +347,7 @@ local function GetBustDuration()
     local base = 300 -- 5 Minutes
     local merits = gData.GetMeritCount(0x588)
 
-    return (base - (merits * 10)) * 60
+    return (base - (merits * 10))
 end
 
 local function HandleCorsairBust(spell, target, name, actor)
@@ -288,7 +356,7 @@ local function HandleCorsairBust(spell, target, name, actor)
 
     -- Get the right status and Remove the effect of the roll that busted
     local status = CorsairRolls[spell].status
-    buffs.buffs[target].effects[status] = nil
+    buffsByCharacter[target].effects[status] = nil
 
     InsertBuff(actor, target, bust_effect, name, duration, false)
 end
@@ -305,10 +373,10 @@ local function HandleCorsairRoll(target, effect, spell, actor)
 
     effect = CorsairRolls[spell].status
 
-    local t = buffs.buffs[target].effects[effect]
+    local t = buffsByCharacter[target].effects[effect]
     if t and t[1] then
         -- This is a double-up since the buff already exists
-        local e = buffs.buffs[target].effects[effect][1]
+        local e = buffsByCharacter[target].effects[effect][1]
         local duration = e.duration
         local o_time = e.o_time
 
@@ -323,7 +391,7 @@ local function HandleCorsairRoll(target, effect, spell, actor)
     end
 
     local duration = gDuration.GetAbilityDuration(spell, target)
-    duration = (duration and duration * 60) or nil
+    duration = (duration and duration) or nil
     local o_time = ashita.time.clock()['ms']
 
     if not duration then return end
@@ -332,19 +400,21 @@ local function HandleCorsairRoll(target, effect, spell, actor)
     InsertBuff(actor, target, effect, name, duration, false, o_time)
 
     -- Create a timer for Double-Up
-    t = buffs.buffs[target].effects[308]
+    t = buffsByCharacter[target].effects[308]
     if not t or not t[1] then
-        InsertBuff(actor, target, 308, 'Double-Up Chance', 45*60, true)
+        InsertBuff(actor, target, 308, 'Double-Up Chance', 45, true)
     end
 end
  
 local function ApplyBuff(target, effect, spell, actor, type)
-    if not buffs.buffs[target] then
-        buffs.buffs[target] = T{}
-        buffs.buffs[target].effects = T{}
+    if not buffsByCharacter[target] then
+        buffsByCharacter[target] = T{}
+        buffsByCharacter[target].effects = T{}
     end
 
     local resMan = AshitaCore:GetResourceManager()
+	
+	--print(('ApplyBuff: Target:%d, Effect:%d, Spell:%d, Actor:%d, Type:%d'):fmt(target, effect, spell, actor, type));
 
     -- Create timer
     local duration = nil
@@ -357,19 +427,35 @@ local function ApplyBuff(target, effect, spell, actor, type)
             return
         end
         duration = gDuration.GetAbilityDuration(spell, target)
-        duration = (duration and duration * 60) or nil
+        duration = (duration and duration) or nil
         local a = resMan:GetAbilityById(spell + 512)
         name = (a and a.Name[1]) or 'Unknown'
         if a.AreaRange > 0 then SetAoEBuff(name, effect, duration, o_time) end
     elseif SpellTypes:haskey(type) then
         duration = gDuration.GetSpellDuration(spell, target)
-        duration = (duration and duration * 60) or nil
+        duration = (duration and duration) or nil
         local s = resMan:GetSpellById(spell)
         name = (s and s.Name[1]) or 'Unknown'
         if s.AreaRange > 0 then SetAoEBuff(name, effect, duration, o_time) end
+	elseif PetTypes:haskey(type) then 
+		duration = gDuration.GetPetAbilityDuration(spell, target);
+        duration = (duration and duration) or nil
+		name = 'Unknown';
+		
+		-- Check our map to get the actual player blood pact ability ID
+		if(PetActionMap:haskey(spell)) then
+			local s = resMan:GetAbilityById(PetActionMap[spell] + 512)
+			if(s ~= nil and s.Name[1]) then 
+				name = s.Name[1];
+				
+				if s.AreaRange > 0 then SetAoEBuff(name, effect, duration, o_time) end
+			end
+		end
+		
+		
     else
         local t = GetEntity(GetTargetIndex(actor))
-        local name = (t and t.Name) or nil
+        name = (t and t.Name) or nil
         print(('Timers: Unknown action [%d] with type [%d] used by %s'):fmt(spell, type, name or 'Unknown'))
     end
 
@@ -380,14 +466,26 @@ end
 
 local function HandleAction(act)
     local party = AshitaCore:GetMemoryManager():GetParty()
+	
+	local player = GetPlayerEntity();
+	if (player ~= nil and player.PetTargetIndex ~= 0) then
+		-- Obtain the player pet entity..
+		local petId = player.PetTargetIndex;
+		_pet = AshitaCore:GetMemoryManager():GetEntity():GetServerId(petId);
+	else
+		_pet = nil;
+	end
+
 
     if not party then return end
+
+    if #act.targets == 0 then return end
+    if #act.targets[1].actions == 0 then return end
 
     local message = act.targets[1].actions[1].message
 
     local serverId = party:GetMemberServerId(0)
-    if not serverId or (serverId ~= act.actor_id) then return end
-
+	
     local target = act.targets[1].id
     local spell = act.param
     local param = act.targets[1].actions[1].param
@@ -395,13 +493,21 @@ local function HandleAction(act)
     local actor = act.actor_id
     local type = act['type']
 
-    if not BlockedSpells:hasval(spell) and (AbilityMsgs:haskey(message) or SpellMsgs:haskey(message)) then
-        --print(('%d, %d, %d, %d, %d'):fmt(message, spell, type, effect, param))
+	
+    if not serverId or (serverId ~= act.actor_id and act.actor_id ~= _pet) then 
+		 --print(('Timers: Ignored Spell Cast:[%d] || Effect:[%d] || Param:[%d] || Target:[%d] || Actor:[%d] || Type:[%d]'):fmt(spell,effect,param, target, actor, type))
+		return 
+	end
+
+	--print(('Timers: Accepted Spell Cast:[%d] || Effect:[%d] || Param:[%d] || Target:[%d] || Actor:[%d] || Type:[%d]'):fmt(spell,effect,param, target, actor, type))
+	
+    if not BlockedSpells:hasval(spell) and (AbilityMsgs:haskey(message) or SpellMsgs:haskey(message) or PetMsgs:haskey(message)) then
+        --print(('Timers: Known message: Message:%d, Spell:%d, Type:%d, Effect:%d, Param:%d'):fmt(message, spell, type, effect, param))
         param = (GetEffectOverride(spell) or param)
 
         ApplyBuff(target, param, spell, actor, type)
     else
-        --print(('Timers: Unknown message: %d, %d, %d, %d, %d'):fmt(message, spell, type, effect, param))
+        --print(('Timers: Unknown message: Message:%d, Spell:%d, Type:%d, Effect:%d, Param:%d'):fmt(message, spell, type, effect, param))
     end
 end
 
@@ -417,7 +523,7 @@ local function HandleActionMessage(data)
 
     -- Target died
     if T{6, 20, 113, 406, 605, 646}:hasval(msg.message_id) then
-        buffs.buffs[msg.target_id] = nil
+        buffsByCharacter[msg.target_id] = nil
         
     -- Buff expired or was cancelled.  This may be unnecessary.
     -- Since I'm not sure, it doesn't hurt anything to have it
@@ -427,8 +533,10 @@ local function HandleActionMessage(data)
 end
 
 local function HandlePartyBuffUpdate(e)
-    local updatedBuffs = T{}
+    local packetBuffs = T{}
+	--print('Timers: Party Buff Update');
 
+	-- Here we are compiling a list of all buffs on the party members we recieved data for.
     for i = 0, 4 do
         local memberId = struct.unpack('L', e.data, 0x04 + (i * 0x48) + 1);
         local memberIndex = struct.unpack('H', e.data, 0x08 + (i * 0x48) + 1);
@@ -437,7 +545,7 @@ local function HandlePartyBuffUpdate(e)
         -- memberIndex is a Trust, and we don't get buff updates for Trusts
         if memberIndex > 0x6FF and memberIndex <= 0x8FF then goto continue end
 
-        updatedBuffs[memberId] = T{}
+        packetBuffs[memberId] = T{}
         
         for j = 1, 32 do
             local buff = struct.unpack('B', e.data, 0x14 + (i * 0x48) + j);
@@ -447,17 +555,20 @@ local function HandlePartyBuffUpdate(e)
             local bitMask = ashita.bits.unpack_be(e.data_raw, 0x0C + (i * 0x48), (j - 1) * 2, 2);
             local buff_id = bit.lshift(bitMask, 8) + buff;
 
-            table.insert(updatedBuffs[memberId], buff_id)
+            table.insert(packetBuffs[memberId], buff_id)
         end
         ::continue::
     end
 
-    -- Remove buffs that have worn
-    for target, data in pairs(buffs.buffs) do
-        for id, buff_t in pairs(data.effects) do
-            for _, v in pairs(buff_t) do
-                if updatedBuffs[target] and not updatedBuffs[target]:hasval(id) then
-                    RemoveBuff(target, id)
+    -- Loop our internal table to remove any buffs we no longer need tracked.
+    for target_character, data in pairs(buffsByCharacter) do
+        for effect_id, effects_table in pairs(data.effects) do
+            for effect_copy_index, v in pairs(effects_table) do
+				
+				-- We received packet information on this character, but the buff was missing.
+				-- Ergo, it expired.
+				if packetBuffs[target_character] and not packetBuffs[target_character]:hasval(effect_id) then
+                    RemoveBuff(target, effect_id)
                 end
             end
         end
@@ -470,7 +581,7 @@ local function HandlePartyBuffUpdate(e)
     if not AoEBuff.id or not AoEBuff.show then return end
 
     local actor = AshitaCore:GetMemoryManager():GetParty():GetMemberServerId(0)
-    for target, buff_t in pairs(updatedBuffs) do
+    for target, buff_t in pairs(packetBuffs) do
         for _, v in pairs(buff_t) do
             if v == AoEBuff.id then
                 local e = GetEntity(GetTargetIndex(target))
@@ -489,7 +600,7 @@ function HandleReplaceUtsusemi(server_id, id)
     if utsusemi_table:hasval(id) then
         utsusemi_table:each(function(v)
             if gData.GetBuffActive(v) then
-                local effects = buffs.buffs[server_id].effects
+                local effects = buffsByCharacter[server_id].effects
                 effects[v] = T{}
                 effects[v][1] = effects[id][1]
                 effects[id] = T{}
@@ -501,107 +612,149 @@ function HandleReplaceUtsusemi(server_id, id)
     return new_utsusemi_id
 end
 
-function HandleBuffUpdate()
+function HandleBuffUpdate(e)
     local p_server_id = AshitaCore:GetMemoryManager():GetParty():GetMemberServerId(0)
-
-    if not p_server_id or not buffs.buffs[p_server_id] then return end
-
-    -- Remove timers for buffs we no longer have
-    for id, effect_t in pairs(buffs.buffs[p_server_id].effects) do
-        local buff_count = gPackets.GetBuffCount(id)
-        if buff_count < helpers.table_length(effect_t) then
-            local new_id = HandleReplaceUtsusemi(p_server_id, id)
-            if not new_id then
-                for i = 1, helpers.table_length(effect_t) - buff_count do
-                    RemoveBuff(p_server_id, id)
-                end
-            end
-        end
+    if not p_server_id or not buffsByCharacter[p_server_id] then return end
+	
+	-- We don't know why this packet was sent, but there's two main options we care about.
+	-- A (de)buff was added to us, or a (de)buff was removed.
+	
+	-- In the case of added buffs, we don't know the source of them, and theoretically
+	-- only care about tracking things we applied.
+	
+	-- And so, this only checks for removal.
+	
+	-- Start from full list of locally tracked buffs.
+    for effect_id, effect_t in pairs(buffsByCharacter[p_server_id].effects) do
+	
+		-- Buffs/"effects" can have multiple copies applied to us of the same effect, which can each have unique timers.
+		-- So we have to compare the # of copies of each effect.
+        local real_count = gPackets.GetBuffCount(effect_id)
+		local tracked_count = helpers.table_length(effect_t)
+		
+		local modified_id = HandleReplaceUtsusemi(p_server_id, effect_id)
+			
+		for i = 1, tracked_count - real_count do
+			--print('Timers: Removing Buff via HandleBuffUpdate()');
+			RemoveBuff(p_server_id, effect_id)
+		end
     end
 end
 
 --[[
-    This is a fairly useless function, but there may be some cases
-    where the addon is loaded with buffs already active, and I'd like
-    to make a best effort at picking those up
+    This Function syncs the buffs active on the current player's client with 
+	our table list.  It has no effect with respect to buffs on other players.
 ]]
 function SyncBuffs()
     local target = AshitaCore:GetMemoryManager():GetParty():GetMemberServerId(0)
     local player = AshitaCore:GetMemoryManager():GetPlayer()
 
     if not target or not player then return end
+	
 
-    if not buffs.buffs[target] then
-        buffs.buffs[target] = {}
-        buffs.buffs[target].effects = {}
-    end
+	-- Clear personal buffs table. (Buffs on our character)
+	buffsByCharacter[target] = {}
+	buffsByCharacter[target].effects = {}
 
+	-- Why the fuck are we not using this elsewhere?
     local active_buffs = player:GetBuffs()
     local active_timers = player:GetStatusTimers()
+	
+	
+	-- Must be max of 32 buffs?
     for i=1, 32 do
         local name = AshitaCore:GetResourceManager():GetString('buffs.names', active_buffs[i])
+		
         if name == nil then break end
 
-        local effect_t = buffs.buffs[target].effects[active_buffs[i]]
+        local effect_t = buffsByCharacter[target].effects[active_buffs[i]]
+		local buff_count = gPackets.GetBuffCount(active_buffs[i])
         if effect_t then
-            -- There is already at least one instance of this buff
-            local buff_count = gPackets.GetBuffCount(active_buffs[i])
+            -- We already have an instance of this buff in our locally tracked table.
             if buff_count < helpers.table_length(effect_t) then
                 local duration = helpers.buff_duration(active_timers[i])
                 InsertBuff(target, target, active_buffs[i], name, duration, false)
             end
         else    
+			-- This is a buff we are missing from our locally tracked table.
             local duration = helpers.buff_duration(active_timers[i])
             InsertBuff(target, target, active_buffs[i], name, duration, true)
         end
     end
+	
 end
+
+local _pet = nil;
 
 local function HandlePacket(e)
     if e.blocked then return end
 
     if e.id == 0x028 then
+        -- Obtain the player entitiy..
         HandleAction(ParseActionPacket(e.data_modified))
     elseif e.id == 0x029 then
         HandleActionMessage(e.data_modified)
-    elseif e.id == 0x37 then -- Buffs changed due to Zone, or other
-        HandleBuffUpdate()
-    elseif e.id == 0x076 then
+    elseif e.id == 0x37 then -- Called any time current player's state is updated.
+        HandleBuffUpdate(e)
+    elseif e.id == 0x076 then -- Called whenever a party member's buff/debuff state is updated.
         HandlePartyBuffUpdate(e)
     end
 end
 
+-- Handles updating the actual visual display of the timers.
 local function UpdateBuffs(timers)
     local bars = T{}
 
-    for p_id, data in pairs(buffs.buffs) do
-        for id, effect in pairs(data.effects) do
-            for k, v in pairs(effect) do
-                local t_entity = GetEntity(v.t_index)
-                local a_entity = GetEntity(v.a_index)
+    for character_id, data in pairs(buffsByCharacter) do
+	
+	
+        for effect_id, effects_table in pairs(data.effects) do
+            for effect_copy_index, effect_info in pairs(effects_table) do
+                local effect_target = GetEntity(effect_info.t_index)
+                local effect_source = GetEntity(effect_info.a_index)
 
-                local timer_name = v.name
-                if (t_entity and t_entity.ServerId) ~= (a_entity and a_entity.ServerId) then
-                    timer_name = ("%s (%s)"):fmt(v.name, t_entity.Name)
-                end
+				-- Adjust timer names as needed based on target and source.
+                local timer_name = effect_info.name
+				if(effect_target ~= nil and effect_target.Name ~= nil) then
+					if (effect_target and effect_target.ServerId) ~= (effect_source and effect_source.ServerId) then
+						timer_name = ("%s (%s)"):fmt(effect_info.name, effect_target.Name)
+					end
+				end
 
-                local diff = ((ashita.time.clock()['ms'] - v.o_time) / 1000.0) * 60.0
-                if v.duration == -1 and diff > 120 then -- 2 seconds
-                    buffs.buffs[p_id].effects[id][k] = nil
-                else
-                    local e = AshitaCore:GetMemoryManager():GetEntity()
-                    if bit.band(e:GetRenderFlags0(v.t_index), 0x200) == 0x200 then
-                        v.ttl = -1
-                        local remains = v.duration - diff
-                        table.insert(bars, { name=timer_name, duration=v.duration, remains=remains,
-                                             key=v.t_index .. id, icon_id=id })
-                    else
-                        if v.ttl == -1 then v.ttl = ashita.time.clock()['s'] end
-                        if ashita.time.clock()['s'] - v.ttl > 600 then
-                            buffs.buffs[p_id].effects[id][k] = nil
-                        end
-                    end
-                end
+                local time_active = (ashita.time.clock()['ms'] - effect_info.o_time)
+				local time_remaining = ((effect_info.duration) - time_active);
+				
+				if(effect_info.duration >= 0 and time_remaining <= -5000) then
+					-- Catch case for situations where we've missed all relevant packets for buffs expiring.
+					-- At this point, mark the timer as toast and let the user deal with it.
+					RemoveBuff(character_id, effect_id);
+				end
+				
+				local maxTime = 1000 * 60 * 60; -- Don't track buffs longer than one hour.
+				
+				if(effect_info.duration >= 0 and time_remaining > maxTime) then
+					-- Catch case for extremely long buffs (Ex. Signet) that we most likely don't care about tracking.
+					buffsByCharacter[character_id].effects[effect_id][effect_copy_index] = nil;
+					render = false;
+				end
+				
+				-- Expired buffs
+				local render = true;
+				if(effect_info.duration <= -1) then
+					local expired_time = time_active;
+					if(time_active > 2000 and time_active <= 12000) then
+						effect_info.duration = -2;
+					elseif (time_active > 12000) then
+						buffsByCharacter[character_id].effects[effect_id][effect_copy_index] = nil;
+						render = false;
+					end
+				end
+				
+				if(render) then
+					table.insert(bars, { name=timer_name, duration=effect_info.duration, remains=time_remaining,
+									 key=effect_info.t_index .. effect_id, icon_id=effect_id })
+				end
+
             end
         end
     end
@@ -613,10 +766,13 @@ local function ShowPartyBuffs(show)
     AoEBuff.show = show
 end
 
-buffs.Update = UpdateBuffs
-buffs.HandlePacket = HandlePacket
-buffs.SyncBuffs = SyncBuffs
-buffs.ShowPartyBuffs = ShowPartyBuffs
+local ret = {
+	buffs = buffsByCharacter
+}
+ret.Update = UpdateBuffs
+ret.HandlePacket = HandlePacket
+ret.SyncBuffs = SyncBuffs
+ret.ShowPartyBuffs = ShowPartyBuffs
 
-return buffs
+return ret
 

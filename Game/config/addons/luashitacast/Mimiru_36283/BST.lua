@@ -2,6 +2,7 @@ local profile = {};
 
 local Settings = {
     CurrentLevel = 0,
+	isEnabled = false;
 };
 
 local sets = {
@@ -12,13 +13,13 @@ local sets = {
         Body = 'Kirin\'s Osode',
 		Hands = 'Dusk Gloves',
 		Legs = 'Byakko\'s Haidate',
-        Feet = 'Hct. Leggings',
+
 	},
 	
 	['Town'] = {
         Head = 'Opo-opo Crown',
         Neck = 'Peacock Amulet',
-        Ear1 = 'Ethereal Earring',
+        Ear1 = 'Beastly Earring',
         Ear2 = 'Brutal Earring',
         Body = 'Kirin\'s Osode',
         Hands = 'Hecatomb Mittens',
@@ -27,50 +28,62 @@ local sets = {
 		Back = 'Forager\'s mantle',
         Waist = 'Swift Belt',
         Legs = 'Byakko\'s Haidate',
-        Feet = 'Rutter Sabatons',
+        Feet = 'Armada Sollerets',
 	},
 	
 	['Idle_Priority'] = {
         Head = {'President. Hairpin', 'Shep. Bonnet' },
         Neck = {'Peacock Amulet'},
-        Ear1 = {'Ethereal Earring', 'Beetle Earring +1'},
-        Ear2 = {'Brutal Earring', 'Beetle Earring +1'},
+        Ear1 = {'Beastly Earring'},
+        Ear2 = {'Brutal Earring'},
         Body = {'Kirin\'s Osode', 'Assault Jerkin', 'Shep. Doublet'},
-        Hands = {'Darksteel Mittens', 'Battle Gloves'},
-        Ring1 = {'Coral Ring'},
-        Ring2 = {'Coral Ring', 'Rajas Ring'},
-		Back = {'Forager\'s mantle', 'Ram Mantle'},
+        Hands = {'Darksteel Mittens', 'Savage gauntlets'},
+        Ring1 = {'Merman\'s Ring'},
+        Ring2 = {'Merman\'s Ring', 'Rajas Ring'},
+		Back = {'Forager\'s mantle'},
         Waist = {'Warwolf Belt', 'Swift Belt', 'Tilt Belt'},
-        Legs = {'Darksteel Subligar', 'Republic Subligar'},
+        Legs = {'Darksteel Subligar', 'Savage loincloth'},
         Feet = {'Dst. Leggings', 'Bounding Boots'},
 	},
 	
 	['TP_Priority'] = {
         Head = {'Panther Mask', 'Optical Hat', 'Shep. Bonnet' },
         Neck = {'Peacock Amulet'},
-        Ear1 = {'Diabolos\'s Earring', 'Coral Earring', 'Beetle Earring +1'},
-        Ear2 = {'Brutal Earring', 'Beetle Earring +1'},
+        Ear1 = {'Beastly Earring', 'Coral Earring'},
+        Ear2 = {'Brutal Earring'},
         Body = {'Haubergeon', 'Assault Jerkin', 'Shep. Doublet'},
         Hands = {'Dusk Gloves'},
         Ring1 = {'Toreador\'s Ring'},
         Ring2 = {'Rajas Ring'},
-		Back = {'Forager\'s mantle', 'Ram Mantle'},
-        Waist = {'Swift Belt', 'Tilt Belt'},
+		Back = {'Forager\'s mantle'},
+        Waist = {'Swift Belt'},
         Legs = {'Byakko\'s Haidate', 'Republic Subligar'},
-        Feet = {'Thick Sollerets', 'Bounding Boots'},
+        Feet = {'Armada Sollerets', 'Bounding Boots'},
+	},
+
+	['Haste_Priority'] = {
+        Head = {'Panther Mask'},
+        Ear1 = 'Magnetic Earring',
+        Ear2 = 'Loquac. Earring',
+        Hands = {'Dusk Gloves'},
+        Waist = {'Swift Belt'},
+        Legs = {'Byakko\'s Haidate'},
+        Feet = {'Armada Sollerets'},
 	},
 	
     ['WS_Priority'] = {
+		Head = {'Wyvern Helm'},
         Neck = {'Spike Necklace'},
         Ear1 = {'Bushinomimi'},
         Body = {'Kirin\'s Osode', 'Hecatomb Harness', 'Savage Separates'},
 		Hands = {'Hecatomb Mittens'},
-        Ring1 = {'Flame Ring', 'Puissance Ring'},
+        Ring1 = {'Flame Ring'},
         Waist = {'Warwolf Belt'},
         Feet = {'Hct. Leggings', 'Savage Gaiters'},
     },
 	
     ['WSAcc_Priority'] = {
+		Head = {'Adaman Celata'},
         Neck = {'Peacock Amulet'},
         Ear1 = {'Bushinomimi'},
         Body = {'Haubergeon'},
@@ -88,49 +101,50 @@ local sets = {
 		Hands = {'Hecatomb Mittens'},
         Ring1 = {'Toreador\'s Ring'},
 		Ring2 = {'Rajas Ring'},
-        Waist = {'Life Belt'},
+        Waist = {'Warwolf Belt'},
 		Legs = {'Byakko\'s Haidate'},
         Feet = {'Rutter Sabatons', 'Savage Gaiters'},
     },
 	
     ['Evis_Priority'] = {
 		Head = {'Adaman Celata'},
-        Neck = {'Peacock Amulet'},
-        Ear1 = {'Ethereal Earring'},
+        Neck = {'Soil Gorget'},
+        Ear1 = {'Coral Earring'},
         Ear2 = {'Brutal Earring'},
-        Body = {'Kirin\'s Osode'},
+        Body = {'Haubergeon'},
 		Hands = {'Hecatomb Mittens'},
         Ring1 = {'Toreador\'s Ring'},
 		Ring2 = {'Rajas Ring'},
         Waist = {'Warwolf Belt'},
 		Legs = {'Byakko\'s Haidate'},
-        Feet = {'Hct. Leggings'},
+        Feet = {'Armada Sollerets'},
     },
 	
     ['Resting'] = {
-
+		Ear1 = 'Relaxing Earring',
+		Ear2 = 'Magnetic Earring',
     },
 	
     ['reward'] = {
 		Head = 'Beast Helm',
         Neck = 'Peacock Amulet',
-        Body = 'Beast Jackcoat',		
+        Body = {'Beast Jackcoat'},
 		Hands = 'Ogre Gloves',
 		Legs = 'Savage Loincloth',
 		Waist = 'Ryl.Kgt. Belt',
-        Feet = 'Beast Gaiters',
+        Feet = 'Monster Gaiters',
     },
 	
-    ['charm'] = {
-	    Head = 'Beast Helm',
-        Neck = 'Flower necklace',	
-        Body = 'Beast Jackcoat',
-        Hands = 'Beast gloves',
-		Ring1 = 'Pearl Ring',
-        Ring2 = 'Pearl Ring',
-		Waist = 'Ryl.Kgt. Belt',
+    ['charm_Priority'] = {
+	    Head = 'Monster Helm',
+        Neck = {'Star necklace', 'flower necklace'},	
+        Body = {'Kirin\'s Osode', 'Savage separates'},
+        Ear1 = {'Beastly Earring'},
+        Hands = '',
+        Ring1 = {'Hope Ring'},
+		Ring2 = {'Hope Ring'},
 		Legs = 'Beast Trousers',
-        Feet = 'Beast Gaiters',
+        Feet = {'Savage gaiters'},
     },
 	
     ['octo'] = {
@@ -139,24 +153,24 @@ local sets = {
     },
 	
 	['mp'] = {
-	    Head = 'Gold Hairpin',
+	    Head = 'Faerie Hairpin',
+        Neck = 'Fenrir\'s torque',	
+		Ear1 = 'Relaxing Earring',
+		Ear2 = 'Magnetic Earring',
 		Body = 'Kirin\'s Osode',
         Hands = 'Savage Gauntlets',
         Ring1 = 'Ether Ring',
 		Ring2 = 'Astral Ring',
         Legs = 'Savage Loincloth',
+		Feet = 'River gaiters',
     },
 	
     ['sneakvis'] = {
+        Ear2 = 'Loquac. Earring',
         Hands = 'Dream Mittens +1',
         Feet = 'Dream Boots +1',
     },
 	
-    ['gather'] = {
-        Body = 'Field Tunica',
-        Hands = 'Field Gloves',
-        Feet = 'Field Boots',
-    },
 
 };
 
@@ -168,12 +182,33 @@ profile.Packer = {
 
 profile.OnLoad = function()
     gSettings.AllowAddSet = true;
+    AshitaCore:GetChatManager():QueueCommand(-1, '/bind M /map');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind F9 /lac fwd toggleLac');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind F10 /addon load simplelog');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind F12 /lac disable main');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind z //sneak me');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind x //invisible me');
 end
 
 profile.OnUnload = function()
+    AshitaCore:GetChatManager():QueueCommand(-1, '/unbind M /map');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind F9 /lac fwd toggleLac');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind F10 /addon load simplelog');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind F12 /lac disable main');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind z //sneak me');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind x //invisible me');
 end
 
 profile.HandleCommand = function(args)
+    if (args[1] and args[1]:lower() == 'togglelac') then
+        if (isEnabled) then
+            AshitaCore:GetChatManager():QueueCommand(-1, '/lac disable');
+            isEnabled = false;
+        else
+            AshitaCore:GetChatManager():QueueCommand(-1, '/lac enable');
+            isEnabled = true;
+        end
+    end
 end
 
 profile.HandleDefault = function()
@@ -189,14 +224,11 @@ profile.HandleDefault = function()
 	if (player.Status == 'Engaged') then
 		gFunc.EquipSet(sets.TP);
 		if (player.SubJob == 'WHM') or (player.SubJob == 'BLM') then
-			if (player.MP < 49) then
+			if (player.MP < 50) then
 				gFunc.Equip('Body', 'Gaudy Harness');
 			end
-		elseif (player.SubJob == 'NIN') and (player.HP < 1000) and (party.Count < 3) then
-			gFunc.Equip('Main', 'Rune Axe');
-			gFunc.Equip('Sub', 'Rune Axe');	
-			gFunc.Equip('Body', 'Gaudy Harness');		
-			gFunc.Equip('Hands', 'Ogre Gloves');				
+--		elseif (player. == 'NIN') and (player.HP < 1000) and (party.Count < 3) then
+--			gFunc.Equip('Main', 'Rune Axe');				
 		end
 	elseif (player.Status == 'Resting') then
 		gFunc.EquipSet(sets.Resting);
@@ -210,7 +242,7 @@ profile.HandleDefault = function()
 		gFunc.EquipSet(sets.Idle);
 		gFunc.LockStyle(sets.Style);
 		if (player.SubJob == 'WHM') or (player.SubJob == 'BLM') then
-			if (player.MP < 49) then
+			if (player.MP < 50) then
 			gFunc.Equip('Body', 'Gaudy Harness');
 			end				
 		end
@@ -238,6 +270,14 @@ profile.HandleAbility = function()
 		gFunc.EquipSet(sets.charm);
 	elseif (action.Name == 'Tame') then
 		gFunc.Equip('Head', 'Beast Helm');
+	elseif (action.Name == 'Fight') then
+		gFunc.Equip('Feet', 'Monster Gaiters');
+	elseif (action.Name == 'Heel') then
+		gFunc.Equip('Feet', 'Monster Gaiters');
+	elseif (action.Name == 'Stay') then
+		gFunc.Equip('Feet', 'Monster Gaiters');
+	elseif (action.Name == 'Lamb Chop') then
+		gFunc.Equip('Feet', 'Monster Gaiters');
 	end
 end
 
@@ -253,6 +293,8 @@ profile.HandlePrecast = function()
 	local action = gData.GetAction();
 	if (action.Name == 'Sneak') or (action.Name == 'Invisible') or (action.Name == 'Tonko: Ichi') or (action.Name == 'Tonko: Ni') then
 		gFunc.EquipSet(sets.sneakvis);
+	elseif (action.Name == 'Utsusemi: Ichi') or (action.Name == 'Utsusemi: Ni') then
+		gFunc.EquipSet(sets.Haste)
 	end
 end
 

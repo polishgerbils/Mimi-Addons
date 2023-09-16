@@ -2,8 +2,11 @@ require('common');
 
 local settings = T{ };
 settings["clocks"] = T{ };
+settings["clocks"][1] = T{ };
 settings["font"] = T{ };
 settings["font"]["background"] = T{ };
+settings["clocks"][1][1] = "EST";
+settings["clocks"][1][2] = -5;
 settings["format"] = "[%I:%M:%S]";
 settings["font"]["font_height"] = 16;
 settings["font"]["font_family"] = "Arial";

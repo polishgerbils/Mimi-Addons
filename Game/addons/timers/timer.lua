@@ -131,11 +131,19 @@ function table.length(t)
 end
 
 local function format_timestamp(timer)
-    if timer >= 600 then -- 10 seconds or more remaining
-        local t = timer / 60;
-        local h = math.floor(t / (60 * 60));
-        local m = math.floor(t / 60 - h * 60);
-        local s = math.ceil(t - (m + h * 60) * 60);
+    if timer >= 10 * 1000 then -- 10 seconds or more remaining
+		
+		local second = 1000;
+		local minute = second * 60;
+		local hour = minute * 60;
+		
+		local h = math.floor(timer / hour);
+		local rem = timer % hour;
+		local m = math.floor(rem / minute);
+		rem = rem % minute;
+		local s = math.ceil(rem / second);
+		
+		
         local f = ''
         if h ~= 0 then
             f = string.format('%02i:', h)
@@ -155,7 +163,7 @@ local function format_timestamp(timer)
 
         return ('%s%02i:%02i'):fmt(f, m, s);
     else
-        return ('%.2fs'):fmt(timer / 60.0)
+        return ('%.2fs'):fmt(timer / 1000.0)
     end
 end
 
@@ -255,6 +263,7 @@ function Timer:update()
             pct = (self.remains / self.duration)
             if self.remains <= 0 then pct = 0 end
         end
+		
         self.bg.border_color = 0x80000000 -- Ensure that the border color is reset to the normal value
         self.flash_frame = 0
     end
@@ -295,7 +304,7 @@ function Timer:update()
     end
     self.fg.height = self.bg.height
 
-    local s_left = self.remains / 60.0
+    local s_left = self.remains
     if s_left >= self.thresholds.t75 then
         self.fg.color = self.colors.color100
     elseif s_left >= self.thresholds.t50 then
@@ -327,6 +336,9 @@ function Timer:update()
                                   self.bg.position_y - self.time_font.background.height) + self.timer_font_offset_y
     self.time_font.right_justified = true
     self.time_font:render()
+	
+	
+	--print(('Update: [%s] :: [%d] :: [%s]'):fmt(self.name, self.remains, format_timestamp(self.remains)));
 
     return true
 end

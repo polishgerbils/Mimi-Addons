@@ -21,7 +21,7 @@
 
 addon.name      = 'equipmon';
 addon.author    = 'atom0s';
-addon.version   = '1.0';
+addon.version   = '1.2';
 addon.desc      = 'Displays the players equipment onscreen at all times.';
 addon.link      = 'https://ashitaxi.com/';
 
@@ -218,6 +218,20 @@ local function get_equipped_item(slot)
 end
 
 --[[
+* Returns the items max stack count.
+*
+* @param {number} itemid - The item id to obtain the max stack size of.
+* @return {number} The items max stack count.
+--]]
+local function get_item_max_stack_size(itemid)
+    local item = AshitaCore:GetResourceManager():GetItemById(itemid);
+    if (item == nil) then
+        return 1;
+    end
+    return item.StackSize;
+end
+
+--[[
 * Updates the current equipment textures.
 --]]
 local function update_equipment_textures()
@@ -250,19 +264,28 @@ local function render_editor()
             imgui.TextColored({ 1.0, 0.65, 0.26, 1.0 }, 'Main Settings');
             imgui.BeginChild('settings_main', { 0, 135, }, true);
 
-                imgui.Checkbox('Visible', eqmon.settings.visible);
+                if (imgui.Checkbox('Visible', eqmon.settings.visible)) then
+                    settings.save();
+                end
                 imgui.ShowHelp('Toggles if EquipMon is visible or not.');
-                imgui.SliderFloat('Opacity', eqmon.settings.opacity, 0.125, 1.0, '%.3f');
+                if (imgui.SliderFloat('Opacity', eqmon.settings.opacity, 0.125, 1.0, '%.3f')) then
+                    settings.save();
+                end
                 imgui.ShowHelp('The opacity of the equipment slots and icons.');
-                imgui.DragFloat('Padding', eqmon.settings.padding, 0.1, 0.0, 200.0, '%.2f');
+                if (imgui.DragFloat('Padding', eqmon.settings.padding, 0.1, 0.0, 200.0, '%.2f')) then
+                    settings.save();
+                end
                 imgui.ShowHelp('The padding between equipment slots.\n\nClick and drag to change the value.\nOr double-click to edit directly.');
-                imgui.DragFloat('Scale', eqmon.settings.scale, 0.1, 0.1, 5.0, '%.2f');
+                if (imgui.DragFloat('Scale', eqmon.settings.scale, 0.1, 0.1, 5.0, '%.2f')) then
+                    settings.save();
+                end
                 imgui.ShowHelp('The scaling of the EquipMon object.\n\nClick and drag to change the value.\nOr double-click to edit directly.');
 
                 local pos = { eqmon.settings.x[1], eqmon.settings.y[1] };
                 if (imgui.InputInt2('Position', pos)) then
                     eqmon.settings.x[1] = pos[1];
                     eqmon.settings.y[1] = pos[2];
+                    settings.save();
                 end
                 imgui.ShowHelp('The position of EquipMon on screen.');
 
@@ -301,6 +324,7 @@ local function render_editor()
 
                 if (imgui.Checkbox('Background Visible', { eqmon.settings.background.visible })) then
                     eqmon.settings.background.visible = not eqmon.settings.background.visible;
+                    settings.save();
                 end
                 imgui.ShowHelp('Toggles if the overall background is visible or not.');
 
@@ -312,6 +336,8 @@ local function render_editor()
                     if (eqmon.background ~= nil) then
                         eqmon.background.color = eqmon.settings.background.color;
                     end
+
+                    settings.save();
                 end
                 imgui.ShowHelp('The color of the overall background behind the EquipMon object.');
 
@@ -378,6 +404,7 @@ local function render_editor()
                 -- Apply any font changes..
                 if (need_font_update and eqmon.font ~= nil) then
                     eqmon.font:apply(eqmon.settings.ammo_font);
+                    settings.save();
                 end
 
             imgui.EndChild();
@@ -534,12 +561,14 @@ ashita.events.register('command', 'command_cb', function (e)
     -- Handle: /equipmon show - Shows the EquipMon object.
     if (#args >= 2 and args[2]:any('show')) then
         eqmon.settings.visible[1] = true;
+        settings.save();
         return;
     end
 
     -- Handle: /equipmon hide - Hides the EquipMon object.
     if (#args >= 2 and args[2]:any('hide')) then
         eqmon.settings.visible[1] = false;
+        settings.save();
         return;
     end
 
@@ -651,7 +680,7 @@ ashita.events.register('d3d_present', 'present_cb', function ()
         -- Update and render the slots ammo count..
         if (eqmon.settings.slots.show_ammo_count[1] and v.slot == 3) then
             local id, cnt = get_equipped_item(3);
-            if (id ~= nil and cnt ~= nil) then
+            if (id ~= nil and cnt ~= nil and get_item_max_stack_size(id) > 1) then
                 eqmon.font.text = cnt:str();
 
                 -- Align the text to the bottom right corner of the object..
@@ -721,6 +750,8 @@ ashita.events.register('mouse', 'mouse_cb', function (e)
             if (eqmon.move.dragging) then
                 eqmon.move.dragging = false;
 
+                settings.save();
+
                 e.blocked = true;
             end
         end):cond(is_dragging),
@@ -728,6 +759,8 @@ ashita.events.register('mouse', 'mouse_cb', function (e)
         -- Event: Mouse Right Button Down
         [516] = (function ()
             eqmon.settings.slots.show_bg[1] = not eqmon.settings.slots.show_bg[1];
+
+            settings.save();
 
             e.blocked = true;
         end):cond(hit_test:bindn(e.x, e.y)),
@@ -745,6 +778,8 @@ ashita.events.register('mouse', 'mouse_cb', function (e)
                 eqmon.settings.opacity[1] = eqmon.settings.opacity[1] + 0.125;
             end
             eqmon.settings.opacity[1] = eqmon.settings.opacity[1]:clamp(0.125, 1);
+
+            settings.save();
 
             e.blocked = true;
         end):cond(hit_test:bindn(e.x, e.y)),

@@ -11,13 +11,35 @@ This version of Nameplate requires ***Ashita 4 interface 4.15***.
 
 ## Usage
 
-`/load Nameplate` to load the plugin. This version does not have any
-in-game commands.
+`/load Nameplate` to load the plugin.  `/nameplate help` to read the
+in-game command help.
 
 The font size can be configured via the `FontSizeInPx` setting in
-`config\\nameplate\\defaults.ini`.
+`config\nameplate\defaults.ini`.
 
-Job Mastery stars can be hidden setting `HideStars=1` in the configuration.
+Job Mastery stars can be hidden by setting `HideStars=1` in the configuration.
+
+Nameplate visibility modes can be changed via the `NameMode` setting.
+
+| command                        | description                                                                        |
+|--------------------------------|------------------------------------------------------------------------------------|
+| /nameplate help                | You're reading it!                                                                 |
+| /nameplate load                | Load configuration from `config\nameplate\defaults.ini`                            |
+| /nameplate save                | Save current configuration to `config\nameplate\defaults.ini`                      |
+| /nameplate fontsize `<number>` | Set the nameplate font size to `<number>` pixels                                   |
+| /nameplate hidestars           | Hide all Job Mastery stars                                                         |
+| /nameplate showstars           | Re-enable displaying Job Mastery stars                                             |
+| /nameplate mode all            | Show all nameplates                                                                |
+| /nameplate mode none           | Hide all nameplates                                                                |
+| /nameplate mode hideself       | Hide your own nameplate                                                            |
+| /nameplate mode hidepc         | Hide all player nameplates, except when charmed                                    |
+| /nameplate mode hidepcself     | Hide all player nameplates, except when charmed, but also always keep yours hidden |
+| /nameplate mode hidenpc        | Hide all non-player nameplates                                                     |
+| /nameplate mode hidenpcself    | Hide all non-player nameplates, but also always keep yours hidden                  |
+
+## For More Information
+
+https://ffxi.somepage.org/
 
 ## Legal
 

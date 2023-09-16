@@ -112,20 +112,35 @@ module.get_utcstamp = function()
 end
 
 module.buff_duration = function(raw_duration)
-    local vana_base_stamp = 0x3C307D70
-    local base_offset = 572662306
-    local timestamp = module.get_utcstamp()
-
     if (raw_duration == INFINITE_DURATION) then
         return -1;
     end
 
-    raw_duration = (raw_duration / 60) + base_offset + vana_base_stamp;
-    if (raw_duration > timestamp and ((raw_duration - timestamp) / 3600) <= 99) then
-        return (raw_duration - timestamp) * 60
+    --Get time since vana'diel epoch
+    local vana_base_stamp = 0x3C307D70
+    local offset = module.get_utcstamp() - vana_base_stamp;    
+
+    --Multiply it by 60 to create like terms
+    local comparand = offset * 60;
+
+    --Emulate overflow..
+    comparand = bit.band(comparand, 0xFFFFFFFF);
+
+    --Get actual time remaining..
+    local real_duration = raw_duration - comparand;
+
+    --Emulate underflow..
+    if (real_duration < -2147483648) then
+        real_duration = real_duration + 0xFFFFFFFF;
     end
 
-    return 0;
+    if (real_duration < 0) then
+        return 0;
+    end
+
+    --Convert to real world miliseconds
+	real_duration = real_duration * (100.0/6.0);
+    return real_duration;
 end
 
 function module.table_length(t) 

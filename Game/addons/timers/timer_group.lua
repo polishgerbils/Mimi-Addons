@@ -286,6 +286,11 @@ function TimerGroup:update_settings()
     self:update_timer_settings()
 end
 
+
+function timerSort(pipe1, pipe2) 
+  return pipe1.remains < pipe2.remains
+end
+
 --[[
     Param is a table with the structure:
     {name=<name>, duration=<duration>, remains=<remains>, mode=<mode>, key=<key>, icon_id=<id>}
@@ -299,9 +304,14 @@ function TimerGroup:render(timers)
     else
         self:show()
     end
+	
+	-- Sort timers by remaining time.
+	table.sort(timers, timerSort);
 
     for i = 1, #timers do
         if i > 32 then break end
+		
+		--print(self.timers[i].remains);
 
         local next_y_pos = self.bg.position_y + self.settings.padding[2] +
             ((self.timers[i]:get_height() + self.settings.padding[4]) * i)

@@ -86,22 +86,22 @@ local function ApplyDebuff(target, effect, spell, actor, type, param)
     if T{ 201,202,203,312 }:hasval(spell) and type == 14 then
         -- Steps
         duration = gDuration.GetAbilityDuration(spell, target)
-        duration = (duration and duration * 60) or nil
+        duration = (duration and duration) or nil
         local a = resMan:GetAbilityById(spell + 512)
         name = (a and a.Name[1]) or 'Unknown'
         name = ('%s [%d]'):fmt(name, param)
         if debuffs.debuffs[target].effects[effect] and duration then
             local e = debuffs.debuffs[target].effects[effect]
-            duration = math.min(120 * 60, e.duration + (30 * 60))
+            duration = math.min(120, e.duration + (30)) * 1000;
         end
     elseif type == 3 or type == 14 then
         duration = gDuration.GetAbilityDuration(spell, target)
-        duration = (duration and duration * 60) or nil
+        duration = (duration and duration) or nil
         local a = resMan:GetAbilityById(spell + 512)
         name = (a and a.Name[1]) or 'Unknown'
     elseif type == 4 then
         duration = gDuration.GetSpellDuration(spell, target)
-        duration = (duration and duration * 60) or nil
+        duration = (duration and duration) or nil
         local s = resMan:GetSpellById(spell)
         name = (s and s.Name[1]) or 'Unknown'
     else 
@@ -120,6 +120,10 @@ local function ApplyDebuff(target, effect, spell, actor, type, param)
 end
 
 local function HandleAction(act)
+
+    if #act.targets == 0 then return end
+    if #act.targets[1].actions == 0 then return end
+
     local message = act.targets[1].actions[1].message
 
     if not ActionIsLocal(act.actor_id) then return end
@@ -188,12 +192,15 @@ local function UpdateDebuffs(timers)
                 local t_name = (t_entity and t_entity.Name) or 'Unknown'
 
                 local timer_name = ("%s (%s)"):fmt(effect.name, t_name)
-                local diff = ((ashita.time.clock()['ms'] - effect.o_time) / 1000.0) * 60.0
-                if effect.duration == -1 and diff > 120 then -- 2 seconds
+                
+				local diff = ((ashita.time.clock()['ms'] - effect.o_time))
+				
+				
+                if effect.duration == -1 and diff > 2000 then -- 2 seconds
                     -- Being an elseif, this causes us to lose one frame of display.  I don't think it's an
                     -- issue though
                     debuffs.debuffs[target].effects[id].duration = -2
-                elseif effect.duration == -2 and diff > 720 then
+                elseif effect.duration == -2 and diff > 12000 then
                     -- Wait an additional 10 seconds before retiring the debuff from the display
                     debuffs.debuffs[target].effects[id] = nil
                 else 

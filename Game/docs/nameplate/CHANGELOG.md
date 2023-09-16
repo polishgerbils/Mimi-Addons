@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.40 - 2023-01-21
+
+`NameMode` added
+
+Commands for updating settings added
+
 ## 0.03 - 2023-01-07
 
 Fixed defect preventing loading from startup scripts

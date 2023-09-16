@@ -140,12 +140,22 @@ local function GetMemoryMod(recastId)
 end
  
 local function ProcessReady(timer)
+	-- Timer value coming in is an integer in miliseconds of recast time remaining.
+
     --Memory modifier stores the number of seconds shaved off of initial 90 second recast.
     local readyId = 0x66;
     local reduction = GetMemoryMod(readyId);
     
-    --Multiplying by 60 to get the same format as timer is stored in.
-    local baseRecast = 60 * (90 + reduction);
+	
+	-- Okay, the way ready works is that the real 'recast' is 3x the value of a singleton cast.
+	-- But the Ready Reduction is stored in 1/60 second unit format.
+	-- But our TIMER is in Miliseconds (1/1000 second unit format)
+    --local baseRecastSeconds = ((45 * 3) + reduction);
+	--local baseRecastMiliseconds = baseRecastSeconds * 1000;
+	
+	-- On Horizon, Ready is 45s timer, 3 charges.  Measured in MS to match the incoming value.
+	local baseRecast = (45 * 3) * 1000; 
+	
     
     --Charges are treated as evenly divided between remaining recast by the server.
     local chargeValue = baseRecast / 3;
@@ -162,8 +172,8 @@ local function ProcessQuickDraw(timer)
     local quickDrawId = 0xC3;
     local reduction = GetMemoryMod(quickDrawId);
 
-    --Multiplying by 60 to get the same format as timer is stored in.
-    local baseRecast = 60 * (120 + reduction);
+    local baseRecastSeconds = (120 + reduction);
+	local baseRecastMiliseconds = baseRecastSeconds * 1000;
 
     --Charges are treated as evenly divided between remaining recast by the server.
     local chargeValue = baseRecast / 2;
@@ -172,7 +182,7 @@ local function ProcessQuickDraw(timer)
     local remainingCharges = math.floor((baseRecast - timer) / chargeValue);
     local timeUntilNextCharge = math.fmod(timer, chargeValue);
 
-    return ('Quick Draw [%d]'):fmt(remainingCharges), timeUntilNextCharge
+    return ('Quick Draw [%d]'):fmt(remainingCharges),  timeUntilNextCharge
 end
 
 local function ProcessStratagems(timer)
@@ -196,13 +206,13 @@ local function ProcessStratagems(timer)
     local charges = 0;
     if (lvl == 99 and gPackets.GetJobPointTotal(20) >= 550) then
         recast = 33;
-        charges = math.floor((165 - (timer / 60)) / recast);
+        charges = math.floor((165 - (timer / 1000)) / recast);
     else
-        charges = math.floor((240 - (timer / 60)) / recast);
+        charges = math.floor((240 - (timer / 1000)) / recast);
     end
 
     local abil = {}
-    timer = math.ceil(timer % (recast * 60))
+    timer = math.ceil(timer % (recast * 1000))
 
     return ('Strategems [%d]'):fmt(charges), timer
 end
@@ -225,7 +235,10 @@ local function UpdateRecasts(timers)
     local mmRecast  = AshitaCore:GetMemoryManager():GetRecast()
     for i = 0,31 do
         local id = mmRecast:GetAbilityTimerId(i)
-        local timer = mmRecast:GetAbilityTimer(i)
+		
+		-- 100/6 converts our timers into real people miliseconds instead of 1/60 ticks
+        local timer = mmRecast:GetAbilityTimer(i) * 100/6 
+		
         if ((id ~= 0 or i == 0) and timer > 0 and (AbilityBlocks:contains(id) == false)) then
             local abil = {}
             if id == 0xC3 then -- Quick Draw
@@ -255,7 +268,7 @@ local function UpdateRecasts(timers)
 
     local swapSpells = {};
     for i = 0, 1024 do
-        local timer = mmRecast:GetSpellTimer(i);
+        local timer = mmRecast:GetSpellTimer(i) * 100/6;
 
         if (timer > 0) then
             local spell = {}

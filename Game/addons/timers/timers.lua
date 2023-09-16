@@ -18,10 +18,10 @@
 --]]
 
 addon.name      = 'Timers';
-addon.author    = 'The Mystic';
-addon.version   = '1.0.1';
-addon.desc      = 'Displays the duration of spells and abilities you\'ve used';
-addon.link      = 'https://github.com/lenonk/Timers';
+addon.author    = 'Lunaretic, Shiyo, The Mystic';
+addon.version   = '1.0.3.3';
+addon.desc      = 'Displays the duration of spells and abilities you\'ve used.  Updated and Modified for Horizon Private Server usage.';
+addon.link      = 'https://github.com/Lunaretic/Timers';
 
 require('common');
 require('ffi')
@@ -164,11 +164,6 @@ ashita.events.register('unload', 'unload_cb', function ()
     if timers.recasts.timers then timers.recasts.timers:destroy() end
     if timers.debuffs.timers then timers.debuffs.timers:destroy() end
     if timers.buffs.timers then timers.buffs.timers:destroy() end
-
-    local pm = AshitaCore:GetPointerManager();
-    if (pm:Get(REALUTCSTAMP_ID) ~= 0) then
-        pm:Delete(REALUTCSTAMP_ID);
-    end
 end);
 
 --[[

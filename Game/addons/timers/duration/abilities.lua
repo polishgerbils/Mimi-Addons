@@ -248,7 +248,7 @@ local function FillAbilityTable(abilityTable)
     --Boost
     abilityTable[39] = function(targetId)
         --NOTE: This varies with delay and could technically be calculated.  I don't think it's a priority since you can get duration from statustimers/etc.
-        return nil;
+        return 30;
     end
 
     --Counterstance
@@ -399,7 +399,7 @@ local function FillAbilityTable(abilityTable)
             end
         end
         duration = duration + gData.EquipSum(additiveModifiers);
-        return nil;
+        return duration;
     end
 
     --Warding Circle

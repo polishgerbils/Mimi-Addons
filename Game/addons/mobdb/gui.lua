@@ -16,6 +16,7 @@ local SettingsGui = {
 
 local TokenHelpData = {
     { Token='$name', Explanation='The name of your current target.'},
+    { Token='$ph', Explanation='Displays if selected target is a placeholder for a NM,'},
     { Token='$index', Explanation='The zone-specific index of your current target.'},
     { Token='$hexindex', Explanation='The zone-specific index of your current target, in hex notation.'},
     { Token='$hexid', Explanation='The game-specific id of your current target, in hex notation.'},
@@ -102,11 +103,25 @@ function SettingsGui:Render()
                     self.Parent:ToggleCharacterSpecific();
                     self.SubWindows = T{};
                 end
-                imgui.TextColored(self.Theme.Header, 'Draw Scale');
+                local details = { self.Parent.DetailView };
+                imgui.TextColored(self.Theme.Header, 'Detailed View')
+                if (imgui.Checkbox('Enabled##MobDB Detailed View', details)) then
+                    self.Parent.DetailView = details[1];
+                    self.Parent:Save(self.Parent.CharacterSpecific);
+                end
+                imgui.TextColored(self.Theme.Header, 'Draw Scale (Bar)');
                 local scale = { self.Parent.Scale };
-                if (imgui.SliderFloat('##Scale', scale, 0.5, 3.0, '%.2f', ImGuiSliderFlags_AlwaysClamp)) then
+                if (imgui.SliderFloat('##BarScale', scale, 0.5, 3.0, '%.2f', ImGuiSliderFlags_AlwaysClamp)) then
                     if (scale[1] ~= self.Parent.Scale) then
                         self.Parent.Scale = scale[1];
+                        self.Parent:Save(self.Parent.CharacterSpecific);
+                    end
+                end
+                imgui.TextColored(self.Theme.Header, 'Draw Scale (Details)');
+                local scale = { self.Parent.DetailScale };
+                if (imgui.SliderFloat('##DetailScale', scale, 0.5, 3.0, '%.2f', ImGuiSliderFlags_AlwaysClamp)) then
+                    if (scale[1] ~= self.Parent.DetailScale) then
+                        self.Parent.DetailScale = scale[1];
                         self.Parent:Save(self.Parent.CharacterSpecific);
                     end
                 end
