@@ -1,6 +1,6 @@
 addon.name      = 'loggers'
 addon.author    = 'lin'
-addon.version   = '1.0'
+addon.version   = '1.1'
 addon.desc      = 'Logs raw packet data to a file'
 
 require('common')
@@ -68,7 +68,7 @@ local function LogPacket(prefix, packet)
         ashita.fs.create_dir(logDir)
     end
 
-    local logName = string.format('%s.log', date)
+    local logName = string.format('%s.loggers', date)
     local logFile = io.open(string.format('%s/%s', logDir, logName), 'a')
     if logFile ~= nil then
         logFile:write(line)

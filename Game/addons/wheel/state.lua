@@ -73,6 +73,7 @@ end)
 
 local wheel = {
     level = 'Ni',
+    alt = 'Ichi',
     position = 0,
     spokes = {
         [0] = { Name = 'Doton',  Ichi = 329, Ni = 330, San = 331 },
@@ -108,8 +109,8 @@ function wheel.get_timer(i, level)
     local id = wheel.spokes[i][level]
     local remaining = recast:GetSpellTimer(id)
 
-    if remaining >= 60 then
-        return string.format('%i', math.floor(remaining / 60))
+    if remaining > 0 then
+        return string.format('%.1f', remaining / 60)
     end
 
     return nil

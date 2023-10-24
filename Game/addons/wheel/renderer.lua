@@ -35,9 +35,11 @@ end
 local function Spoke()
     return {
         icon = nil,
-        recast3 = nil,
-        recast2 = nil,
-        recast1 = nil,
+        recast = {
+            Ichi = nil,
+            Ni   = nil,
+            San  = nil,
+        },
         tools = 0,
         pos = { 0, 0 },
         tl = { -24, -24 },
@@ -104,16 +106,16 @@ function renderer.calc(state)
 
         -- multiply out the partial rotation
         drawing.rotation = drawing.rotation + animation.progress * animation.distance * turn
-
-        -- just so we don't increment forever, chop off any excess circumferences
-        if drawing.rotation > circumference then
-            drawing.rotation = drawing.rotation - circumference
-        end
     -- if we've finished animating, reset the animation state
     elseif animation.progress ~= nil and animation.progress > animation.speed then
         animation.current = nil
         animation.progress = nil
         animation.distance = nil
+
+        -- just so we don't increment forever, chop off any excess circumferences
+        if drawing.rotation > circumference then
+            drawing.rotation = drawing.rotation - circumference
+        end
     end
 
     -- move on to figuring out offsets and recasts for each spoke
@@ -124,9 +126,9 @@ function renderer.calc(state)
 
         drawing.spokes[i].pos = { posX, posY }
         drawing.spokes[i].tools = state.get_tools(i)
-        drawing.spokes[i].recast1 = state.get_timer(i, 'Ichi')
-        drawing.spokes[i].recast2 = state.get_timer(i, 'Ni')
-        drawing.spokes[i].recast3 = state.get_timer(i, 'San')
+        drawing.spokes[i].recast.Ichi = state.get_timer(i, 'Ichi')
+        drawing.spokes[i].recast.Ni = state.get_timer(i, 'Ni')
+        drawing.spokes[i].recast.San = state.get_timer(i, 'San')
     end
 end
 
@@ -148,10 +150,10 @@ function renderer.draw(state)
             local tl = { drawing.center[1] + spoke.pos[1] + spoke.tl[1], drawing.center[2] + spoke.pos[2] + spoke.tl[2] }
             local br = { drawing.center[1] + spoke.pos[1] + spoke.br[1], drawing.center[2] + spoke.pos[2] + spoke.br[2] }
 
-            if spoke.recast2 ~= nil then
+            if spoke.recast[state.level] ~= nil then
                 draw:AddImage(icon, tl, br, { 0, 0 }, { 1, 1 }, transparent)
-                draw:AddText({ tl[1] + 9, tl[2] + 9 }, shadow, spoke.recast2)
-                draw:AddText({ tl[1] + 8, tl[2] + 8 }, white, spoke.recast2)
+                draw:AddText({ tl[1] + 9, tl[2] + 9 }, shadow, spoke.recast[state.level])
+                draw:AddText({ tl[1] + 8, tl[2] + 8 }, white, spoke.recast[state.level])
             elseif spoke.tools == 0 then
                 draw:AddImage(icon, tl, br, { 0, 0 }, { 1, 1 }, transparent)
             else
@@ -168,14 +170,14 @@ function renderer.draw(state)
                 local finalPos = io.MousePos
 
                 if InBox(startPos, tl, br) and InBox(finalPos, tl, br) then
-                    state.cast(i, 'Ni')
+                    state.cast(i, state.level)
                 end
             elseif rClick and clickable then
                 local startPos = io.MouseClickedPos[2]
                 local finalPos = io.MousePos
 
                 if InBox(startPos, tl, br) and InBox(finalPos, tl, br) then
-                    state.cast(i, 'Ichi')
+                    state.cast(i, state.alt)
                 end
             end
         end

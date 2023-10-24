@@ -8,7 +8,7 @@ local imgui = require('imgui')
 local ui = require('ui')
 
 local textures = { }
-local inventories = T{ bag = T{}, house = T{}, wardrobe = T{}, gil = 0, }
+local inventories = T{ bag = T{}, satchel = T{}, house = T{}, wardrobe = T{}, gil = 0, }
 local gfxDevice = d3d8.get_device()
 local fontWidth = imgui.CalcTextSize('A')
 
@@ -267,6 +267,9 @@ local function UpdateInventories()
     inventories.bag = UpdateInventory(inv, res, 0)
         :sort(SortInventory)
 
+    inventories.satchel = UpdateInventory(inv, res, 5)
+        :sort(SortInventory)
+
     inventories.wardrobe = UpdateInventory(inv, res, 8)
         :extend(UpdateInventory(inv, res, 10))
         :extend(UpdateInventory(inv, res, 11))
@@ -344,8 +347,11 @@ end
 
 local function AddTooltip(item)
     imgui.BeginTooltip()
+
+    imgui.PushTextWrapPos(fontWidth * 64)
     imgui.Text(item.name)
     imgui.Text(item.desc)
+    imgui.PopTextWrapPos()
 
     if item.stack then
         imgui.Text(item.stack)
@@ -390,7 +396,14 @@ local function AddContextMenu(item)
     return menuOpened
 end
 
-local function DrawItem(item)
+local contextMenus = {
+    bag      = AddContextMenu,
+    satchel  = function() return false end,
+    house    = function() return false end,
+    wardrobe = AddContextMenu,
+}
+
+local function DrawItem(item, addCtxMenu)
     local iconSize = 32
     local curX, curY = imgui.GetCursorScreenPos()
     local drawList = imgui.GetWindowDrawList()
@@ -406,7 +419,7 @@ local function DrawItem(item)
         AddTooltip(item)
     end
 
-    if AddContextMenu(item) then
+    if addCtxMenu(item) then
         AddHighlight(curX, curY, iconSize, drawList)
     end
 end
@@ -419,7 +432,7 @@ local function DrawBag(bagId)
             imgui.SameLine()
         end
 
-        DrawItem(item)
+        DrawItem(item, contextMenus[bagId])
     end
 end
 
@@ -433,13 +446,18 @@ local function DrawInventory()
             imgui.EndTabItem()
         end
 
-        if imgui.BeginTabItem('house') then
-            DrawBag('house')
+        if imgui.BeginTabItem('satchel') then
+            DrawBag('satchel')
             imgui.EndTabItem()
         end
 
-        if imgui.BeginTabItem('wardrobe') then
+        if imgui.BeginTabItem('ward') then
             DrawBag('wardrobe')
+            imgui.EndTabItem()
+        end
+
+        if imgui.BeginTabItem('house') then
+            DrawBag('house')
             imgui.EndTabItem()
         end
     end

@@ -24,7 +24,8 @@ function ffxi.GetMenuName()
     end
     local menuHeader = ashita.memory.read_uint32(subValue + 4)
     local menuName = ashita.memory.read_string(menuHeader + 0x46, 16)
-    return string.gsub(menuName, '\x00', '')
+    local cleanedName = string.gsub(menuName, '\x00', '')
+    return cleanedName
 end
 
 --- Determines if the map is open in game.
@@ -34,6 +35,38 @@ function ffxi.IsMapOpen()
     return menuName:match('menu%s+map.*') ~= nil
         or menuName:match('menu%s+scanlist.*') ~= nil
         or menuName:match('menu%s+cnqframe') ~= nil
+end
+
+-- event system signature courtesy of Velyn
+local eventSystem = ashita.memory.find('FFXiMain.dll', 0, "A0????????84C0741AA1????????85C0741166A1????????663B05????????0F94C0C3", 0, 0)
+
+function ffxi.IsEventHappening()
+    if eventSystem == 0 then
+        return false
+    end
+
+    local ptr = ashita.memory.read_uint32(eventSystem + 1)
+    if ptr == 0 then
+        return false
+    end
+
+    return ashita.memory.read_uint8(ptr) == 1
+end
+
+-- interface hidden signature courtesy of Velyn
+local interfaceHidden = ashita.memory.find('FFXiMain.dll', 0, "8B4424046A016A0050B9????????E8????????F6D81BC040C3", 0, 0)
+
+function ffxi.IsInterfaceHidden()
+    if interfaceHidden == 0 then
+        return false
+    end
+
+    local ptr = ashita.memory.read_uint32(interfaceHidden + 10)
+    if ptr == 0 then
+        return false
+    end
+
+    return ashita.memory.read_uint8(ptr + 0xB4) == 1
 end
 
 return ffxi

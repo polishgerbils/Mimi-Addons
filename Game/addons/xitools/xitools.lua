@@ -1,6 +1,6 @@
 addon.name    = 'xitools'
 addon.author  = 'lin'
-addon.version = '0.20'
+addon.version = '0.22'
 addon.desc    = 'A humble UI toolkit'
 
 require('common')
@@ -8,6 +8,7 @@ local ffxi = require('utils.ffxi')
 local imgui = require('imgui')
 local settings = require('settings')
 local ui = require('ui')
+local migrations = require('migrations')
 
 ---@class xitool
 ---@field Name            string
@@ -55,11 +56,14 @@ local normalWindows = {
 local tools = T{}:extend(uiWindows):extend(normalWindows)
 
 local defaultOptions = T{
+    version = nil,
     globals = T{
         showDemo = T{ false },
         hideUnderMap = T{ true },
         hideUnderChat = T{ true },
         hideWhileLoading = T{ true },
+        hideDuringEvent = T{ true },
+        hideWithInterface = T{ true },
         isClickThru = T{ false },
         textColor = T{ 1.00, 1.00, 1.00, 1.0 },
         backgroundColor = T{ 0.08, 0.08, 0.08, 0.8 },
@@ -105,6 +109,8 @@ local function DrawConfig()
         imgui.Checkbox('Hide while map open', options.globals.hideUnderMap)
         imgui.Checkbox('Hide while chat open', options.globals.hideUnderChat)
         imgui.Checkbox('Hide while loading', options.globals.hideWhileLoading)
+        imgui.Checkbox('Hide during events', options.globals.hideDuringEvent)
+        imgui.Checkbox('Hide with game interface', options.globals.hideWithInterface)
 
         if imgui.InputFloat('UI Scale', options.globals.uiScale, 0.01, 0.025) then
             imgui.SetWindowFontScale(options.globals.uiScale[1])
@@ -144,8 +150,9 @@ local function DrawConfig()
 end
 
 settings.register('settings', 'settings_update', function (s)
-    if (s ~= nil) then
+    if s ~= nil then
         options = s
+        migrations.run(options, addon.version)
     end
 
     settings.save()
@@ -158,6 +165,10 @@ settings.register('settings', 'settings_update', function (s)
 end)
 
 ashita.events.register('load', 'load_handler', function()
+    if migrations.run(options, addon.version) then
+        settings.save()
+    end
+
     for _, tool in ipairs(tools) do
         if tool.Load ~= nil then
             tool.Load(options.tools[tool.Name], options.globals)
@@ -178,7 +189,9 @@ ashita.events.register('d3d_present', 'd3d_present_handler', function()
 
     if (options.globals.hideUnderChat[1] and ffxi.IsChatExpanded())
     or (options.globals.hideUnderMap[1] and ffxi.IsMapOpen())
-    or (options.globals.hideWhileLoading[1] and GetPlayerEntity() == nil) then
+    or (options.globals.hideWhileLoading[1] and GetPlayerEntity() == nil)
+    or (options.globals.hideDuringEvent[1] and ffxi.IsEventHappening())
+    or (options.globals.hideWithInterface[1] and ffxi.IsInterfaceHidden()) then
         return
     end
 

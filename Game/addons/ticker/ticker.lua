@@ -33,10 +33,10 @@ local defaults = T{
 	font_family = 'Arial',
 	font_height = 24,
 	color = 0xFFFFFFFF,
-	position_x = 704,
-	position_y = 1397,
+	position_x = 705,
+	position_y = 1400,
 	background = T{
-		visible = true,
+		visible = false,
 		color = 0xFF000000,
 	}
 };
