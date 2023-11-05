@@ -298,8 +298,7 @@ local function register_dynamic_entity(data)
 	local nameflag = 0x08
 	
 	-- check if flags contain rename flag and is in "dynamic entity" range
-	-- dynamic entity range may change to start at 0x700 in the future
-	if bit.band(flags, nameflag) and targid >= 0x800 then
+	if bit.band(flags, nameflag) and targid >= 0x700 then
 		local zoneId = getZoneId()
 		local fullid = 0x1000000 + bit.lshift(zoneId, 12) + targid
 

@@ -243,18 +243,6 @@ function details:Render()
         local id = entMgr:GetServerId(index);
         imgui.Text(string.format('%u[0x%08X]', id, id));
 
-        local PH = 'None';
-        if resource then
-            for k, v in pairs(phList, id) do
-                if k == id then PH = v end
-            end
-        end
-        if not PH == 'None' then
-            imgui.TextColored(self.Header, 'PH:');
-            imgui.SameLine();
-            imgui.Text(PH);
-        end
-
         imgui.TextColored(self.Header, 'Position:');
         imgui.SameLine();
         imgui.Text(GetPosition(index));

@@ -1,4 +1,3 @@
-require("id_data");
 local memMgr = AshitaCore:GetMemoryManager();
 local entMgr = memMgr:GetEntity();
 local partyMgr = memMgr:GetParty();
@@ -194,14 +193,6 @@ return {
             local name = entMgr:GetName(mob);
             if (name ~= nil) then
                 gTokenState:DrawText(name);
-            end
-        end
-    end,
-    ['$ph'] = function(mob, resource)
-        if resource then
-            iddata = entMgr:GetServerId(mob);
-            for k, v in pairs(phList, iddata) do
-                if k == iddata then gTokenState:DrawText('[PH: '..v..'] ') end
             end
         end
     end,

@@ -153,14 +153,14 @@
 /addon load hideparty
 /addon load chains
 /addon load cfhblock
-/addon load ticker
 /addon load hush
 /addon load nolock
 /addon load petme
 /addon load logs
-/addon load timers
+/addon load meteorologist
 /load trenderer
 /addon load thotbar
+/addon load hticks
 /load deeps
 /load shorthand
 /wait 5

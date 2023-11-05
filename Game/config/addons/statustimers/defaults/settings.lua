@@ -1,0 +1,32 @@
+require('common');
+
+local settings = T{ };
+settings["icons"] = T{ };
+settings["icons"]["size"] = T{ };
+settings["split_bars"] = T{ };
+settings["font"] = T{ };
+settings["visual_aid"] = T{ };
+settings["visual_aid"]["filters"] = T{ };
+settings["visual_aid"]["filters"]["ids"] = T{ };
+settings["visual_aid"]["thresholds"] = T{ };
+settings["visual_aid"]["thresholds"]["t25"] = T{ };
+settings["visual_aid"]["thresholds"]["t75"] = T{ };
+settings["visual_aid"]["thresholds"]["t50"] = T{ };
+settings["icons"]["size"]["main"] = 24;
+settings["icons"]["size"]["target"] = 16;
+settings["icons"]["theme"] = "-default-";
+settings["ui_scale"] = 1;
+settings["split_bars"]["enabled"] = false;
+settings["font"]["background"] = 1912602624;
+settings["font"]["color"] = 4294967295;
+settings["visual_aid"]["color25"] = 4294901760;
+settings["visual_aid"]["filters"]["mode"] = "blacklist";
+settings["visual_aid"]["color50"] = 4294944333;
+settings["visual_aid"]["color100"] = 4278255360;
+settings["visual_aid"]["enabled"] = false;
+settings["visual_aid"]["thresholds"]["t25"][1] = 10;
+settings["visual_aid"]["thresholds"]["t75"][1] = 30;
+settings["visual_aid"]["thresholds"]["t50"][1] = 20;
+settings["visual_aid"]["color75"] = 4294967091;
+
+return settings;

@@ -16,7 +16,6 @@ local SettingsGui = {
 
 local TokenHelpData = {
     { Token='$name', Explanation='The name of your current target.'},
-    { Token='$ph', Explanation='Displays if selected target is a placeholder for a NM,'},
     { Token='$index', Explanation='The zone-specific index of your current target.'},
     { Token='$hexindex', Explanation='The zone-specific index of your current target, in hex notation.'},
     { Token='$hexid', Explanation='The game-specific id of your current target, in hex notation.'},

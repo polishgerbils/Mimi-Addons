@@ -87,11 +87,15 @@ end
 state.AutoLoadProfile = function()
     gState.UnloadProfile();
     
-    local profilePath = ('%sconfig\\addons\\luashitacast\\%s_%u\\%s.lua'):fmt(AshitaCore:GetInstallPath(), gState.PlayerName, gState.PlayerId, AshitaCore:GetResourceManager():GetString("jobs.names_abbr", gState.PlayerJob));
+    local jobString = AshitaCore:GetResourceManager():GetString("jobs.names_abbr", gState.PlayerJob);
+    if type(jobString) == 'string'then
+        jobString = jobString:trimend('\x00');
+    end
+    local profilePath = ('%sconfig\\addons\\luashitacast\\%s_%u\\%s.lua'):fmt(AshitaCore:GetInstallPath(), gState.PlayerName, gState.PlayerId, jobString);
     if (not ashita.fs.exists(profilePath)) then
-        profilePath = ('%sconfig\\addons\\luashitacast\\%s_%s.lua'):fmt(AshitaCore:GetInstallPath(), gState.PlayerName, AshitaCore:GetResourceManager():GetString("jobs.names_abbr", gState.PlayerJob));
+        profilePath = ('%sconfig\\addons\\luashitacast\\%s_%s.lua'):fmt(AshitaCore:GetInstallPath(), gState.PlayerName, jobString);
         if (not ashita.fs.exists(profilePath)) then
-            print(chat.header('LuAshitacast') .. chat.error('Profile not found matching: ') .. chat.color1(2, gState.PlayerName .. '_' .. AshitaCore:GetResourceManager():GetString("jobs.names_abbr", gState.PlayerJob)));
+            print(chat.header('LuAshitacast') .. chat.error('Profile not found matching: ') .. chat.color1(2, gState.PlayerName .. '_' .. jobString));
             return;
         end
     end
@@ -181,21 +185,10 @@ state.Reset = function()
             newGlobs:append(key);
         end
     end
-    local newPackages = T{};
-    for packageName,_ in pairs(package.loaded) do
-        if (gPreservedPackages[packageName] == nil) then
-            newPackages:append(packageName);
-        end
-    end
 
     --Get rid of all new globals..
     for _,glob in ipairs(newGlobs) do
         _G[glob] = nil;
-    end
-
-    --Get rid of all new packages..
-    for _,packageName in ipairs(newPackages) do
-        package.loaded[packageName] = nil;
     end
 
     gSettings = {};
