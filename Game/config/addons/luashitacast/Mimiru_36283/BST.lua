@@ -21,7 +21,7 @@ local sets = {
         Neck = 'Peacock Amulet',
         Ear1 = 'Beastly Earring',
         Ear2 = 'Brutal Earring',
-        Body = 'Kirin\'s Osode',
+        Body = 'Haubergeon',
         Hands = 'Hecatomb Mittens',
         Ring1 = 'Toreador\'s Ring',
         Ring2 = 'Rajas Ring',
@@ -127,7 +127,6 @@ local sets = {
     },
 	
     ['reward'] = {
-		Head = 'Beast Helm',
         Neck = 'Peacock Amulet',
         Body = 'Beast Jackcoat',
 		Hands = 'Ogre Gloves',
@@ -276,8 +275,6 @@ profile.HandleAbility = function()
 		end
 	elseif (action.Name == 'Charm') then
 		gFunc.EquipSet(sets.charm);
-	elseif (action.Name == 'Tame') then
-		gFunc.Equip('Head', 'Beast Helm');
 	elseif (action.Name == 'Fight') then
 		gFunc.Equip('Feet', 'Mst. Gaiters +1');
 	elseif (action.Name == 'Heel') then

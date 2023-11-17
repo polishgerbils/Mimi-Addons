@@ -147,12 +147,17 @@ local Sets = {
         Body = 'Assault Jerkin',
         Hands = 'Dusk Gloves',
         Ring1 = 'Toreador\'s ring',
-        Ring2 = 'Rajas Ring',
+        Ring2 = 'Fencer\'s ring',
 		Back = 'Forager\'s mantle',
         Waist = 'Swift Belt',
         Legs = 'Duelist\'s tights',
         Feet = 'Dusk Ledelsens'
     },
+	   
+	['Kclub'] = {
+		Main = 'Enhancing Sword',
+        Sub = 'Octave Club',
+	},
 	
     ['Savage'] = {
 		Head = 'Opo-opo Crown',
@@ -201,7 +206,7 @@ local Sets = {
         Neck = 'Peacock Amulet',
         Ear1 = 'Stealth Earring',
         Ear2 = 'Brutal Earring',
-        Body = 'Duelist\'s Tabard',
+        Body = 'Scp. Harness +1',
         Hands = 'Dusk Gloves',
         Ring1 = 'Toreador\'s ring',
         Ring2 = 'Fencer\'s ring',
@@ -214,7 +219,7 @@ local Sets = {
     ['HPdown'] = {
         Head = 'Zenith crown',
         Neck = 'Star necklace',
-        Body = 'Assault jerkin',
+        Body = 'Flora cotehardie',
         Hands = 'Zenith mitts',
         Ring1 = 'Ether ring',
         Ring2 = '',
@@ -278,6 +283,8 @@ profile.OnLoad = function()
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind x //invisible <t>');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind c //stoneskin me');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind v //blink me');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind q /lac fwd swordMode');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind e /lac fwd zdpsMode');
 end
 
 profile.OnUnload = function()
@@ -289,6 +296,8 @@ profile.OnUnload = function()
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind x');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind c');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind v');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind q');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind e');
 end
 
 -- Method that checks a list for a specific spell string, returns true if found
@@ -341,12 +350,33 @@ profile.HandleCommand = function(args)
             isEnabled = true;
         end
     end
+	--Enhancing Sword Toggle
+    if (args[1] == 'swordMode') then
+        if (Settings.swordMode == 1) then
+            gFunc.Echo(158, "Enhancing Sword Mode OFF")
+            Settings.swordMode = 0
+        else
+            gFunc.Echo(158, "Enhancing Sword Mode ON")
+            Settings.swordMode = 1
+        end
+    end	
+	
+	--ZDPS Toggle
+    if (args[1] == 'zdpsMode') then
+        if (Settings.zdpsMode == 1) then
+            gFunc.Echo(158, "ZDPS Mode OFF")
+            Settings.zdpsMode = 0
+        else
+            gFunc.Echo(158, "ZDPS Mode ON")
+            Settings.zdpsMode = 1
+        end
+    end
 end
 
 profile.HandleDefault = function()
     local player = gData.GetPlayer();
     local loc = gData.GetEnvironment().Area;
-	local EnspellID = T{96, 97};
+	local EnspellID = T{94, 95, 96, 97, 98, 99};
 
 	local myLevel = player.MainJobSync;
     if (myLevel ~= Settings.CurrentLevel) then
@@ -367,8 +397,13 @@ profile.HandleDefault = function()
         gFunc.EquipSet(Sets.TP); 
         Settings.RestTimer = 0;
 		if GetEnSpellActive() == true then
-			gFunc.EquipSet(Sets.Enspell);
-			if (player.HP > 899) then
+			if Settings.swordMode == 1 then
+				gFunc.EquipSet(Sets.Kclub);
+			end
+			if Settings.zdpsMode == 1 then
+				gFunc.EquipSet(Sets.Enspell);
+			end
+			if (player.HP > 905) then
 				gFunc.EquipSet(Sets.HPdown);
 			end
 		end

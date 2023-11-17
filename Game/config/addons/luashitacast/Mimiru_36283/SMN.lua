@@ -34,7 +34,7 @@ local sets = {
     ['Idle_Priority'] = {
         Main = {'Terra\'s Staff', 'Dragon Staff'},
         Ammo = 'Hedgehog Bomb',
-        Head = {'Faerie Hairpin', 'Shep. Bonnet'},
+        Head = {'Summoner\'s horn', 'Shep. Bonnet'},
         Neck = 'Uggalepih pendant',
         Ear1 = {'Magnetic Earring', 'Morion earring'},
         Ear2 = {'Loquac. Earring', 'Morion earring'},
@@ -98,7 +98,7 @@ local sets = {
 	},
 		
     ['BPDown'] = {
-		Head = "Austere Hat",
+		Head = "Summoner\'s horn",
 		Body = 'Yinyang Robe',
         Hands = 'Smn. Bracers +1',
 		Legs = 'Summoner\'s Spats',

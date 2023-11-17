@@ -50,7 +50,9 @@ local Sets = {
 
 		Head = 'Sorcerer\'s petas.',
         Body = 'Igqira weskit',
-		Legs = 'Sorcerer\'s tonban',
+		Hands = 'Savage gauntlets',
+		Legs = 'Zenith slacks',
+		Feet = 'Savage gaiters', 
 
 	},
 	
@@ -232,6 +234,8 @@ profile.OnUnload = function()
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind x');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind c');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind v');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind q');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind e');
 end
 
 -- Method that checks a list for a specific spell string, returns true if found
