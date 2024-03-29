@@ -49,6 +49,7 @@
 /addon load instantah
 /addon load luashitacast
 /addon load timestamp
+/addon load NoLock
 # --HORIZON_ADDONS_STOP--
 #
 # DO NOT TOUCH THIS BLOCK OR THE FILE WILL BE OVERRIDDEN - LAUNCHER EDITS ONLY
@@ -217,6 +218,8 @@
 /alias add /SNK //sneak
 /alias add /deo //deodorize
 /alias add /DEO //deodorize
+/alias add /rr //reraise
+/alias add /RR //reraise
 
 /alias add /pyna //paralyna
 /alias add /PYNA //paralyna
@@ -478,20 +481,24 @@
 /addon load simplelog
 /addon load hideparty
 /addon load chains
-/addon load cfhblock
 /addon load hush
 /addon load nolock
 /addon load petme
 /addon load logs
+/addon load parse
 /addon load meteorologist
-/load trenderer
 /addon load thotbar
 /addon load hticks
-/load deeps
+/addon load zonename
+/addon load mipmap
+/addon load instantchat
+/addon load ttimers
+/addon load rcheck
 /load shorthand
+/load stylist
 /wait 5
-/deeps sc
 /fps 0
 /cam d 8
 /cam b 20
 /time add EST -5
+/sl self

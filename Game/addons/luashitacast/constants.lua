@@ -501,8 +501,8 @@ constants.BasicAugments = {
     [77] = { Stat='Delay:', Offset=33, Multiplier=-1, Percent=true},
     [78] = { Stat='HP', Offset=1, Multiplier=2},
     [79] = { Stat='HP', Offset=1, Multiplier=3},
-    [80] = { Multi=true, [1] = { Stat='Mag. Acc', Offset=1}, [2] = { Stat='Magic Damage ', Offset=1} };
-    [81] = { Multi=true, [1] = { Stat='Eva.', Offset=1}, [2] = { Stat='Mag. Eva.', Offset=1} };
+    [80] = { Multi=true, [1] = { Stat='Mag. Acc.', Offset=1}, [2] = { Stat='Magic Damage', Offset=1} };
+    [81] = { Multi=true, [1] = { Stat='Evasion', Offset=1}, [2] = { Stat='Mag. Evasion', Offset=1} };
     [82] = { Stat='MP', Offset=1, Multiplier=2},
     [83] = { Stat='MP', Offset=1, Multiplier=3},
     [96] = { Multi=true, [1] = { Stat='Pet: Accuracy', Offset=1}, [2] = { Stat='Pet: Rng. Acc.', Offset=1} };

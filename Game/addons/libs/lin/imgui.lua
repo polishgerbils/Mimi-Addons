@@ -99,11 +99,11 @@ function Imgui.Lin.DrawWindow(name, size, pos, drawStuff)
 
         Imgui.PopStyleVar()
         Imgui.PopStyleColor()
-        Imgui.End()
     else
         Imgui.PopStyleColor(3)
     end
 
+    Imgui.End()
     Imgui.PopStyleVar(2)
 end
 

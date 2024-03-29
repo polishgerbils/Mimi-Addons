@@ -1,43 +1,46 @@
 --[[
-* Addons - Copyright (c) 2021 Ashita Development Team
-* Contact: https://www.ashitaxi.com/
-* Contact: https://discord.gg/Ashita
-*
-* This file is part of Ashita.
-*
-* Ashita is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Ashita is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with Ashita.  If not, see <https://www.gnu.org/licenses/>.
+Copyright 2023 Thorny
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 --]]
 
 addon.name      = 'tHotBar';
 addon.author    = 'Thorny';
-addon.version   = '1.12';
+addon.version   = '2.08';
 addon.desc      = 'Displays macros as visible and clickable elements.';
 addon.link      = 'https://ashitaxi.com/';
 
 require('common');
-chat = require('chat');
 
-local isInitialized = false;
-local isUnloading = false;
+local jit = require('jit');
+jit.off();
+local chat = require('chat');
+local gdi  = require('gdifonts.include');
+
+function Error(text)
+    local color = ('\30%c'):format(68);
+    local highlighted = color .. string.gsub(text, '$H', '\30\01\30\02');
+    highlighted = string.gsub(highlighted, '$R', '\30\01' .. color);
+    print(chat.header(addon.name) .. highlighted .. '\30\01');
+end
+
+
+function Message(text)
+    local color = ('\30%c'):format(106);
+    local highlighted = color .. string.gsub(text, '$H', '\30\01\30\02');
+    highlighted = string.gsub(highlighted, '$R', '\30\01' .. color);
+    print(chat.header(addon.name) .. highlighted .. '\30\01');
+end
 
 ashita.events.register('load', 'load_cb', function ()
-    if (AshitaCore:GetPluginManager():IsLoaded('tRenderer') == true) then
-        isInitialized = require('initializer');
-    else
-        print(chat.header(addon.name) .. chat.color1(2, 'tRenderer') .. chat.error(' plugin must be loaded to use this addon!'));
-        isInitialized = false;
-    end
+    gdi:set_auto_render(false);
+    gInitializer = require('initializer');
+    require('callbacks');
+    require('commands');
 end);
 
 --[[
@@ -45,58 +48,6 @@ end);
 * desc : Event called when the addon is being unloaded.
 --]]
 ashita.events.register('unload', 'unload_cb', function ()
-    if (isInitialized) then
-        if (gInterface ~= nil) then
-            gInterface:Destroy();
-        end
-    end
-end);
-
-ashita.events.register('command', 'command_cb', function (e)
-    local args = e.command:args();
-    if (#args == 0 or string.lower(args[1]) ~= '/tb') then
-        return;
-    end
-    e.blocked = true;
-
-    if (#args == 1) then
-        gConfigGUI:Show();
-        return;
-    end
-
-    if (#args > 1) and (string.lower(args[2]) == 'activate') then
-        if (#args > 2) then
-            local macroIndex = tonumber(args[3]);
-            gInterface:GetSquareManager():Activate(macroIndex);
-        end
-        return;
-    end
-    
-    if (#args > 1) and (string.lower(args[2]) == 'palette') then
-        gBindings:HandleCommand(args);
-        return;
-    end
-
-    if (gInterface ~= nil) then
-        gInterface:Initialize(args[2]);
-    end
-end);
-
-ashita.events.register('d3d_present', 'd3d_present_cb', function ()
-    -- Destroy addon if renderer isn't present or initialization failed.
-    if (not isInitialized) or (isUnloading) or (AshitaCore:GetPluginManager():IsLoaded('tRenderer') == false) then
-        if (not isUnloading) then
-            AshitaCore:GetChatManager():QueueCommand(-1, string.format('/addon unload %s', addon.name));
-            isUnloading = true;
-        end
-        return;
-    end
-
-    gBindingGUI:Render();
-    
-    gConfigGUI:Render();
-    
-    if (gInterface ~= nil) then
-        gInterface:Tick();
-    end
+    gDisplay:Destroy();
+    gdi:destroy_interface();
 end);

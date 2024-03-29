@@ -2,7 +2,7 @@ require('common')
 local bit = require('bit')
 local imgui = require('imgui')
 local ui = require('ui')
-local packets = require('utils.packets')
+local packets = require('utils/packets')
 
 local TextBaseWidth = imgui.CalcTextSize('A')
 local Scale = 1.0
@@ -200,6 +200,11 @@ local treas = {
         pos = T{ 100, 100 },
         flags = bit.bor(ImGuiWindowFlags_NoResize),
     },
+    HandleCommand = function (args, options, gOptions)
+        if #args == 0 then
+            options.isVisible[1] = not options.isVisible[1]
+        end
+    end,
     DrawConfig = function(options, gOptions)
         if imgui.BeginTabItem('treas') then
             imgui.Checkbox('Enabled', options.isEnabled)

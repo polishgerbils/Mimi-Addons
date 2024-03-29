@@ -6,6 +6,16 @@ local CurrentJob = 0;
 local CurrentLevel = 0;
 local inventoryManager = AshitaCore:GetMemoryManager():GetInventory();
 local resourceManager = AshitaCore:GetResourceManager();
+local encoding = require('encoding');
+local japanese = (AshitaCore:GetConfigurationManager():GetInt32('boot', 'ashita.language', 'ashita', 2) == 1);
+
+local UpdateJobLevel = function()    
+    CurrentJob = AshitaCore:GetMemoryManager():GetPlayer():GetMainJob();
+    CurrentLevel = AshitaCore:GetMemoryManager():GetPlayer():GetJobLevel(CurrentJob);
+    if (gSettings.AllowSyncEquip == false) then
+        CurrentLevel = AshitaCore:GetMemoryManager():GetPlayer():GetMainJobLevel();
+    end
+end
 
 --Gets current equipment based on outgoing packet history
 local GetCurrentEquip = function(slot)
@@ -217,7 +227,10 @@ local CheckItem = function(set, container, item)
     if (CheckResource(resource) == false) then
         return;
     end
-    local resourceName = string.lower(resource.Name[1]);
+    local resourceName = encoding:ShiftJIS_To_UTF8(resource.Name[1]);
+    if not japanese then
+        resourceName = string.lower(resourceName);
+    end
 
     --Check if item fits any equip slots
     for slot,equipTable in pairs(set) do
@@ -236,7 +249,10 @@ local CheckItemMatch = function(container, item, equipTable)
     if (CheckResource(resource) == false) then
         return false;
     end
-    local resourceName = string.lower(resource.Name[1]);
+    local resourceName = encoding:ShiftJIS_To_UTF8(resource.Name[1]);
+    if not japanese then
+        resourceName = string.lower(resourceName);
+    end
 
     --Check if item name matches (lua uses pointer internally so very cheap)
     if (equipTable.Name ~= resourceName) then
@@ -411,7 +427,7 @@ local ProcessEquip = function(equipInfo, set)
             internalEntry.Container = equipEntry.Container;
             internalEntry.Item = inventoryManager:GetContainerItem(equipEntry.Container, equipEntry.Index);
         end
-        internalEntry.Timer = os.clock() + 2;
+        internalEntry.Timer = os.clock() + 0.2;
         Internal[equipEntry.Slot + 1] = internalEntry;
         if (gSettings.Debug) then
             if (equipEntry.Index == 0) then
@@ -452,7 +468,7 @@ local ProcessEquipSet = function(equipInfo, set)
             internalEntry.Container = equipEntry.Container;
             internalEntry.Item = inventoryManager:GetContainerItem(equipEntry.Container, equipEntry.Index);
         end
-        internalEntry.Timer = os.clock() + 2;
+        internalEntry.Timer = os.clock() + 0.2;
         Internal[equipEntry.Slot + 1] = internalEntry;
 
         if (gSettings.Debug) then
@@ -486,7 +502,7 @@ local Unequip = function(slot, container)
     local internalEntry = {};
     internalEntry.Container = 0;
     internalEntry.Item = nil;
-    internalEntry.Timer = os.clock() + 2;
+    internalEntry.Timer = os.clock() + 0.2;
     Internal[slot] = internalEntry;
 end
 
@@ -511,13 +527,7 @@ end
 
 
 local EquipSet = function(set, style)
-    --Grab job/etc once for easy access
-    CurrentJob = AshitaCore:GetMemoryManager():GetPlayer():GetMainJob();
-    CurrentLevel = AshitaCore:GetMemoryManager():GetPlayer():GetJobLevel(CurrentJob);    
-    if (gSettings.AllowSyncEquip == false) then
-        CurrentLevel = AshitaCore:GetMemoryManager():GetPlayer():GetMainJobLevel();
-    end
-
+    UpdateJobLevel();
     if (type(set) ~= 'table') then
         return;
     end
@@ -557,12 +567,12 @@ local EquipSet = function(set, style)
     end
 
     --Handle displaced items
-    for k,v in ipairs(set) do
+    for k,v in pairs(set) do
         if (v.Index == -1) then
             local internalEntry = {};
             internalEntry.Container = 0;
             internalEntry.Item = nil;
-            internalEntry.Timer = os.clock() + 2;
+            internalEntry.Timer = os.clock() + 0.2;
             Internal[k] = internalEntry;
         end
     end
@@ -655,7 +665,11 @@ local LockStyle = function(set)
                             if containerItem ~= nil and containerItem.Count > 0 and containerItem.Id > 0 then
                                 local resource = resourceManager:GetItemById(containerItem.Id);
                                 if (resource ~= nil) then
-                                    if (string.lower(resource.Name[1]) == equip) and (bit.band(resource.Slots, math.pow(2, i - 1)) ~= 0) then
+                                    local resourceName = encoding:ShiftJIS_To_UTF8(resource.Name[1]);
+                                    if not japanese then
+                                        resourceName = string.lower(resourceName);
+                                    end
+                                    if (resourceName == equip) and (bit.band(resource.Slots, math.pow(2, i - 1)) ~= 0) then
                                         local offset = 8 + (count * 8) + 1;
                                         packet[offset] = index;
                                         packet[offset + 1] = i - 1;
@@ -696,6 +710,7 @@ local exports = {
     ProcessBuffer = ProcessBuffer,
     ProcessImmediateBuffer = ProcessImmediateBuffer,
     UnequipSlot = UnequipSlot,
+    UpdateJobLevel = UpdateJobLevel,
 };
 
 return exports;

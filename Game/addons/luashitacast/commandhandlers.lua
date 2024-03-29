@@ -26,6 +26,7 @@ commands.HandleCommand = function(e)
     end
     e.blocked = true;
     if (#args < 2) then
+        gConfigGUI:Show();
         return;
     end
     args[2] = string.lower(args[2]);
@@ -166,6 +167,12 @@ commands.HandleCommand = function(e)
         return;
     end
     
+    if (args[2] == 'safecall') then
+        gSettings.SafeCall = not gSettings.SafeCall;
+        print(chat.header('LuAshitacast') .. chat.message('Safecall ') .. chat.color1(2, gSettings.SafeCall and 'enabled' or 'disabled') .. chat.message('.'));
+        return;
+    end
+    
     if (args[2] == 'newlua') then
         local path = ('%sconfig\\addons\\luashitacast\\%s_%u\\'):fmt(AshitaCore:GetInstallPath(), gState.PlayerName, gState.PlayerId);
         if (#args == 2) then
@@ -187,6 +194,15 @@ commands.HandleCommand = function(e)
         return;
     end
 
+    
+    if (args[2] == 'edit') then
+        if (gProfile ~= nil) then
+            ashita.misc.execute(gProfile.FilePath, '');
+        else
+            print(chat.header('LuAshitacast') .. chat.error("No profile loaded."));
+        end
+        return;
+    end
     
     if (args[2] == 'reload') then
         if (gProfile ~= nil) then

@@ -1,3 +1,4 @@
+local encoding = require('encoding');
 local ffi = require("ffi");
 ffi.cdef[[
     int32_t memcmp(const void* buff1, const void* buff2, size_t count);
@@ -7,16 +8,17 @@ local packethandlers = {};
 
 packethandlers.HandleIncoming0x0A = function(e)
     local id = struct.unpack('L', e.data, 0x04 + 1);
-    local name = struct.unpack('c16', e.data, 0x84 + 1);
-    local i,j = string.find(name, '\0');
-    if (i ~= nil) then
-        name = string.sub(name, 1, i - 1);
-    end
+    local name = struct.unpack('c16', e.data, 0x84 + 1):trim('\0');
     local job = struct.unpack('B', e.data, 0xB4 + 1);
     if (gState.PlayerJob ~= job) or (gState.PlayerId ~= id) or (gState.PlayerName ~= name) then
         gState.PlayerId = id;
         gState.PlayerName = name;
         gState.PlayerJob = job;
+        local configPath = string.format('%sconfig\\addons\\luashitacast\\%s_%u\\?.lua;', AshitaCore:GetInstallPath(), gState.PlayerName, gState.PlayerId);
+        package.path = configPath .. gState.BasePath;
+        if (gProfile == nil) then
+            coroutine.sleep(0.5);
+        end
         gState.AutoLoadProfile();
     end
     gState.ZoneTimer = os.clock() + 10;
@@ -124,7 +126,7 @@ packethandlers.HandleIncoming0x28 = function(e)
                     gState.PetAction.Type = 'MobSkill';
                     gState.PetAction.Name = AshitaCore:GetResourceManager():GetString("monsters.abilities", actionId - 256);
                     if type(gState.PetAction.Name) == 'string'then
-                        gState.PetAction.Name = gState.PetAction.Name:trimend('\x00');
+                        gState.PetAction.Name = encoding:ShiftJIS_To_UTF8(gState.PetAction.Name:trimend('\x00'));
                     end
                 else
                     gState.PetAction.Type = 'Ability';
@@ -140,13 +142,13 @@ packethandlers.HandleIncoming0x28 = function(e)
     end
 end
 
-packethandlers.HandleActionPacket = function(packet)
+packethandlers.HandleActionPacket = function(packet, resend)
     local category = struct.unpack('H', packet, 0x0A + 0x01);
     local actionId = struct.unpack('H', packet, 0x0C + 0x01);
     local targetIndex = struct.unpack('H', packet, 0x08 + 0x01);
     if (category == 0x03) then
         gState.DelayedEquip = {};
-        gState.PlayerAction = { Block = false };
+        gState.PlayerAction = { Block = false, Resend = resend };
         gState.PlayerAction.Packet = packet:totable();
         gState.PlayerAction.Target = targetIndex;
         gState.PlayerAction.Type = 'Spell';
@@ -157,7 +159,7 @@ packethandlers.HandleActionPacket = function(packet)
         gState.HandleEquipEvent('HandlePrecast', 'set');
     elseif (category == 0x07) then
         gState.DelayedEquip = {};
-        gState.PlayerAction = { Block = false };
+        gState.PlayerAction = { Block = false, Resend = resend };
         gState.PlayerAction.Packet = packet:totable();
         gState.PlayerAction.Target = targetIndex;
         gState.PlayerAction.Type = 'Weaponskill';
@@ -166,7 +168,7 @@ packethandlers.HandleActionPacket = function(packet)
         gState.HandleEquipEvent('HandleWeaponskill', 'auto');
     elseif (category == 0x09) then
         gState.DelayedEquip = {};
-        gState.PlayerAction = { Block = false };
+        gState.PlayerAction = { Block = false, Resend = resend };
         gState.PlayerAction.Packet = packet:totable();
         gState.PlayerAction.Target = targetIndex;
         gState.PlayerAction.Type = 'Ability';
@@ -175,7 +177,7 @@ packethandlers.HandleActionPacket = function(packet)
         gState.HandleEquipEvent('HandleAbility', 'auto');
     elseif (category == 0x10) then
         gState.DelayedEquip = {};
-        gState.PlayerAction = { Block = false };
+        gState.PlayerAction = { Block = false, Resend = resend };
         gState.PlayerAction.Packet = packet:totable();
         gState.PlayerAction.Target = targetIndex;
         gState.PlayerAction.Type = 'Ranged';
@@ -183,7 +185,6 @@ packethandlers.HandleActionPacket = function(packet)
         gState.PlayerAction.Completion = os.clock() + rangedBase + gSettings.RangedOffset;
         gState.HandleEquipEvent('HandlePreshot', 'set');
     else
-        gState.Inject(0x1A, packet:totable());
         return;
     end
 
@@ -206,14 +207,14 @@ packethandlers.HandleActionPacket = function(packet)
     end
 end
 
-packethandlers.HandleItemPacket = function(packet)
+packethandlers.HandleItemPacket = function(packet, resend)
     local itemIndex = struct.unpack('B', packet, 0x0E + 0x01);
     local itemContainer = struct.unpack('B', packet, 0x10 + 0x01);
     local targetIndex = struct.unpack('H', packet, 0x0C + 0x01);
     local item = AshitaCore:GetMemoryManager():GetInventory():GetContainerItem(itemContainer, itemIndex);
     
     gState.DelayedEquip = {};
-    gState.PlayerAction = { Block = false };
+    gState.PlayerAction = { Block = false, Resend = resend };
     gState.PlayerAction.Packet = packet:totable();
     gState.PlayerAction.Target = targetIndex;
     gState.PlayerAction.Type = 'Item';
@@ -231,6 +232,17 @@ packethandlers.HandleItemPacket = function(packet)
     end
     
     gState.Inject(0x37, gState.PlayerAction.Packet);
+end
+
+--Check for duplicate packets..   
+local packetBuffer = ffi.new('uint8_t[?]', 512);
+local function CheckDuplicate(chunk, offset, size)
+    local ptr = ffi.cast('uint8_t*', chunk) + offset;
+    if (ffi.C.memcmp(packetBuffer, ptr, size) == 0) then
+        return true;
+    end
+    ffi.copy(packetBuffer, ptr, size);
+    return false;
 end
 
 packethandlers.HandleOutgoingChunk = function(e)
@@ -258,12 +270,20 @@ packethandlers.HandleOutgoingChunk = function(e)
         local id    = ashita.bits.unpack_be(e.chunk_data_raw, offset, 0, 9);
         local size  = ashita.bits.unpack_be(e.chunk_data_raw, offset, 9, 7) * 4;
         if (id == 0x1A) then
-            gPacketHandlers.HandleActionPacket(struct.unpack('c' .. size, e.chunk_data, offset + 1));
+            local isResend = CheckDuplicate(e.chunk_data_raw, offset, size);
+            local sequencer = (AshitaCore:GetPluginManager():Get('Sequencer') ~= nil);
+            if (not isResend) or (sequencer) then
+                gPacketHandlers.HandleActionPacket(struct.unpack('c' .. size, e.chunk_data, offset + 1), isResend);
+            end
         elseif (id == 0x15) then
             newPositionX = struct.unpack('f', e.chunk_data, offset + 0x04 + 1);
             newPositionY = struct.unpack('f', e.chunk_data, offset + 0x0C + 1);
         elseif (id == 0x37) then
-            gPacketHandlers.HandleItemPacket(struct.unpack('c' .. size, e.chunk_data, offset + 1));
+            local isResend = CheckDuplicate(e.chunk_data_raw, offset, size);
+            local sequencer = (AshitaCore:GetPluginManager():Get('Sequencer') ~= nil);
+            if (not isResend) or (sequencer) then
+                gPacketHandlers.HandleItemPacket(struct.unpack('c' .. size, e.chunk_data, offset + 1), isResend);
+            end
         end
         offset = offset + size;
     end
@@ -298,13 +318,17 @@ packethandlers.HandleIncomingPacket = function(e)
     end
 end
 
+local handledCategories = T{0x03, 0x07, 0x09, 0x10};
 packethandlers.HandleOutgoingPacket = function(e)
     --Handle packets that are being injected by anything else in real time.
     if (e.injected == true) then
         if (gState.Injecting == false) then
             if (e.id == 0x1A) then
-                gPacketHandlers.HandleActionPacket(struct.unpack('c' .. e.size, e.data, 1));
-                e.blocked = true;
+                local category = struct.unpack('H', e.data, 0x0A + 0x01);
+                if handledCategories:contains(category) then
+                    gPacketHandlers.HandleActionPacket(struct.unpack('c' .. e.size, e.data, 1));
+                    e.blocked = true;
+                end
             elseif (e.id == 0x37) then
                 gPacketHandlers.HandleItemPacket(struct.unpack('c' .. e.size, e.data, 1));
                 e.blocked = true;
@@ -318,9 +342,19 @@ packethandlers.HandleOutgoingPacket = function(e)
         gPacketHandlers.HandleOutgoingChunk(e);
     end
 
-    --Block all action and item packets that aren't injected.
+    --Block all action packets that LAC triggers on.
     --HandleOutgoingChunk will automatically reinject them if keeping them.
-    if (e.id == 0x1A) or (e.id == 0x37) then
+    if (e.id == 0x1A) then
+        local category = struct.unpack('H', e.data, 0x0A + 0x01);
+        if handledCategories:contains(category) then
+            e.blocked = true;
+            return;
+        end
+    end
+
+    --Block item use packets.
+    --HandleOutgoingChunk will automatically reinject them if keeping them.
+    if (e.id == 0x37) then
         e.blocked = true;
         return;
     end

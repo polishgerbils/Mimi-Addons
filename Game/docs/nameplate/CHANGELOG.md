@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.50 - 2023-12-03
+
+`DamageFontSizeInPx` and `/nameplate damagefontsize` added
+
 ## 0.40 - 2023-01-21
 
 `NameMode` added

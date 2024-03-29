@@ -6,8 +6,8 @@ local d3d8_device = d3d8.get_device()
 local imgui = require('imgui')
 local ui = require('ui')
 
-local ffxi = require('utils.ffxi')
-local zones = require('utils.zones')
+local ffxi = require('utils/ffxi')
+local zones = require('utils/zones')
 
 local Scale = 1.0
 
@@ -52,8 +52,14 @@ local Alliances = { }
 ---@field windowPos        integer[]
 ---@field statusIds        integer[]
 
+---@param statusId number
 ---@param icon userdata
-local function CreateTexture(icon)
+local function CreateTexture(statusId, icon)
+    if icon == nil then
+        print('xitools error: no icon for status ' .. tostring(statusId))
+        return nil
+    end
+
     -- Courtesy of Thorny's partybuffs
     local dx_texture_ptr = ffi.new('IDirect3DTexture8*[1]')
     if ffi.C.D3DXCreateTextureFromFileInMemoryEx(d3d8_device, icon.Bitmap, icon.ImageSize, 0xFFFFFFFF, 0xFFFFFFFF, 1, 0, ffi.C.D3DFMT_A8R8G8B8, ffi.C.D3DPOOL_MANAGED, ffi.C.D3DX_DEFAULT, ffi.C.D3DX_DEFAULT, 0xFF000000, nil, nil, dx_texture_ptr) == ffi.C.S_OK then
@@ -63,7 +69,7 @@ local function CreateTexture(icon)
     end
 end
 
-local function GetStatusEffects(party, serverId)
+local function GetBuffs(party, serverId)
     -- courtesy of Thorny and Heals
     for i = 0, 4 do
         local sId = party:GetStatusIconsServerId(i)
@@ -99,12 +105,24 @@ local function GetStatusEffects(party, serverId)
     return { }
 end
 
+local function FilterBuffs(buffList)
+    local buffs = {}
+
+    for _, buff in ipairs(buffList) do
+        if buff ~= nil and buff > 0 then
+            table.insert(buffs, buff)
+        end
+    end
+
+    return buffs
+end
+
 local function IsSubTargetActive(target)
     local flags = target:GetSubTargetFlags()
     if flags == 0xFFFFFFFF then
-        return target:GetActive(1) == 1
+        return target:GetIsActive(1) == 1
     else
-        return target:GetActive(0) == 1
+        return target:GetIsActive(0) == 1
     end
 end
 
@@ -112,7 +130,7 @@ local function GetPlayer(options, target, party, stal)
     local player = AshitaCore:GetMemoryManager():GetPlayer()
 
     local serverId = party:GetMemberServerId(0)
-    local buffs = player:GetBuffs()
+    local buffs = FilterBuffs(player:GetBuffs())
 
     return {
         entity = GetEntity(party:GetMemberTargetIndex(0)),
@@ -147,7 +165,7 @@ end
 ---@return PartyMember
 local function GetMember(i, window, target, party, stal)
     local serverId = party:GetMemberServerId(i)
-    local buffs = GetStatusEffects(party, serverId)
+    local buffs = FilterBuffs(GetBuffs(party, serverId))
 
     return {
         entity = GetEntity(party:GetMemberTargetIndex(i)),
@@ -264,7 +282,8 @@ end
 
 ---@param player PartyMember
 local function DrawZone(player)
-    imgui.TextDisabled(zones[player.zoneId])
+    local zone = zones[player.zoneId] or string.format('??? ZONEID %s', tostring(player.zoneId))
+    imgui.TextDisabled(zone)
 end
 
 ---@param player PartyMember
@@ -312,19 +331,18 @@ end
 ---@param player PartyMember
 local function DrawBuffs(player)
     imgui.PushStyleVar(ImGuiStyleVar_ItemSpacing, ui.Scale({ 2, 2 }, Scale))
-    for i = 1, 32 do
-        local buffId = player.statusIds[i]
-        if buffId ~= nil and buffId >= 0 then
-            if Textures[buffId] == nil then
-                local icon = AshitaCore:GetResourceManager():GetStatusIconByIndex(buffId)
-                Textures[buffId] = CreateTexture(icon)
-            end
+    imgui.NewLine()
 
-            if i ~= 1 and i ~= 32 then
-                imgui.SameLine()
-            end
+    for _, buffId in ipairs(player.statusIds) do
+        if Textures[buffId] == nil then
+            local icon = AshitaCore:GetResourceManager():GetStatusIconByIndex(buffId)
+            Textures[buffId] = CreateTexture(buffId, icon)
+        end
 
-            local img = tonumber(ffi.cast("uint32_t", Textures[buffId]))
+        local buffIcon = Textures[buffId]
+        if buffIcon then
+            imgui.SameLine()
+            local img = tonumber(ffi.cast("uint32_t", buffIcon))
             imgui.Image(img, ui.Scale({ 16, 16 }, Scale))
         end
     end

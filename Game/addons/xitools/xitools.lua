@@ -1,10 +1,10 @@
 addon.name    = 'xitools'
 addon.author  = 'lin'
-addon.version = '0.22'
+addon.version = '0.23'
 addon.desc    = 'A humble UI toolkit'
 
 require('common')
-local ffxi = require('utils.ffxi')
+local ffxi = require('utils/ffxi')
 local imgui = require('imgui')
 local settings = require('settings')
 local ui = require('ui')
@@ -33,7 +33,6 @@ local cast = require('cast')
 local crafty = require('crafty')
 local fishe = require('fishe')
 local week = require('week')
-local logger = require('logger')
 
 local uiWindows = {
     me,
@@ -50,7 +49,6 @@ local normalWindows = {
     crafty,
     fishe,
     week,
-    logger,
 }
 
 local tools = T{}:extend(uiWindows):extend(normalWindows)
@@ -92,15 +90,12 @@ local defaultOptions = T{
         crafty = crafty.DefaultSettings,
         fishe = fishe.DefaultSettings,
         week = week.DefaultSettings,
-        logger = logger.DefaultSettings,
     },
 }
 
 local options = settings.load(defaultOptions)
 
 local function DrawConfig()
-    if not options.tools.config.isVisible then return end
-
     ui.DrawNormalWindow(options.tools.config, options.globals, function()
         imgui.PushStyleVar(ImGuiStyleVar_FramePadding, ui.Styles.FramePaddingSome)
 
@@ -126,7 +121,7 @@ local function DrawConfig()
         imgui.ColorEdit4("Border Color", options.globals.borderColor)
         imgui.NewLine()
 
-        if imgui.BeginTabBar('xitools.config.ui') then
+        if imgui.BeginTabBar('##xitools.config.ui', ImGuiTabBarFlags_NoCloseWithMiddleMouseButton) then
             for _, tool in ipairs(uiWindows) do
                 tool.DrawConfig(options.tools[tool.Name], options.globals)
             end
@@ -137,7 +132,7 @@ local function DrawConfig()
         imgui.NewLine()
         imgui.Text('Tool settings')
         imgui.Separator()
-        if imgui.BeginTabBar('xitools.config.normal') then
+        if imgui.BeginTabBar('##xitools.config.normal', ImGuiTabBarFlags_NoCloseWithMiddleMouseButton) then
             for _, tool in ipairs(normalWindows) do
                 tool.DrawConfig(options.tools[tool.Name], options.globals)
             end

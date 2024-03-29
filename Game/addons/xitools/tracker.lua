@@ -2,8 +2,8 @@ require('common')
 local bit = require('bit')
 local imgui = require('imgui')
 local ui = require('ui')
-local ffxi = require('utils.ffxi')
-local packets = require('utils.packets')
+local ffxi = require('utils/ffxi')
+local packets = require('utils/packets')
 
 local Scale = 1.0
 
@@ -147,7 +147,7 @@ local function DrawTrackers(trackers)
             end
         end
 
-        imgui.Unindent(10)
+        imgui.Unindent(10 * Scale)
     end
 end
 

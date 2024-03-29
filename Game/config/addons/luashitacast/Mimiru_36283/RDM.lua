@@ -4,6 +4,7 @@ local Settings = {
     isFast = false,
     isMDT = false,
     isPDT = false,
+    isMP = false,
 	isEnabled = false,
     Subslot = 'Default',
     RestTimer = 0,
@@ -11,10 +12,10 @@ local Settings = {
 }
 
 local EleStaffTable = {
-    ['Fire'] = 'Fire Staff',
+    ['Fire'] = 'Vulcan\'s Staff',
     ['Earth'] = 'Terra\'s Staff',
     ['Water'] = 'Water Staff',
-    ['Wind'] = 'Wind Staff',
+    ['Wind'] = 'Auster\'s Staff',
     ['Ice'] = 'Aquilo\'s Staff',
     ['Thunder'] = 'Jupiter\'s Staff',
     ['Light'] = 'Light Staff',
@@ -24,16 +25,19 @@ local EleStaffTable = {
 local Spells = {
     Healing = T{"Cure", "Cure II", "Cure III", "Cure IV", "Curaga", "Curaga II", "Erase"},
 
-    MndEnfeebling = {"Slow", "Slow II", "Paralyze", "Paralyze II", "Poison", "Poison II", "Banish", "Banish II"},
+    MndSkill = {"Dia", "Dia II", "Banish", "Banish II"},
+	
+	MndEnfeebling = {"Paralyze", "Paralyze II", "Slow", "Slow II"},
 
-    IntEnfeebling = {"Sleep", "Sleep II", "Bind", "Gravity", "Blind", "Blaze Spikes", "Ice Spikes",
-        "Shock Spikes"},
+    IntEnfeebling = {"Blind", "Blaze Spikes", "Ice Spikes", "Shock Spikes", "Rasp", "Drown", "Frost", "Burn", "Choke", "Shock"},
+		
+	AccEnfeebling = {"Sleep", "Sleep II", "Bind", "Gravity", "Poison", "Poison II", "Dispel", "Silence"},
 		
 	Dark = {"Bio", "Bio II", "Drain", "Aspir"},
 	 
-    EleDebuffs = {"Rasp", "Drown", "Frost", "Burn", "Choke", "Shock"},
+    EleDebuffs = {},
 
-    Enhancing = {"Phalanx", "Stoneskin", "Enthunder", "Enstone", "Enaero"},
+    Enhancing = {"Phalanx", "Enthunder", "Enstone", "Enaero"},
 	    
     Buffs = {"Protect", "Protect II", "Protect III", "Protect IV", "Protectra", "Protectra II", "Protectra III",
      "Protectra IV", "Protectra V", "Shell", "Shell II", "Shell III", "Shell IV", "Shellra", "Shellra II",
@@ -51,26 +55,27 @@ local Sets = {
         Main = 'Terra\'s Staff',
         Sub = '',
         Ammo = 'Hedgehog Bomb',
-        Head = 'Duelist\'s Chapeau',
+        Head = 'Dls. Chapeau +1',
         Neck = 'Uggalepih pendant',
         Ear1 = 'Loquac. Earring',
         Ear2 = {'Magnetic Earring', 'Morion Earring'},
-        Body = {'Duelist\'s Tabard', 'Savage separates'},
+        Body = {'Dalmatica', 'Savage separates'},
         Hands = 'Duelist\'s Gloves',
         Ring1 = 'Merman\'s Ring',
         Ring2 = 'Merman\'s Ring',
         Back = 'Hexerei Cape',
         Waist = {'Hierarch Belt', 'Swift belt'},
         Legs = {'Blood cuisses', 'Savage loincloth'},
-        Feet = {'River gaiters', 'Mannequin Pumps'},
+        Feet = {'River gaiters'},
     },
 
     ['Healing'] = {
 	    Ammo = 'Hedgehog Bomb',
-        Neck = 'Justice badge',
+        Neck = 'Promise Badge', 
         Body = 'Errant Hpl.',
-        Ear2 = 'Loquac. Earring',
-        Hands = 'Savage gauntlets',
+        Ear1 = 'Loquac. Earring',
+		Ear2 = 'Novia earring',
+        Hands = 'Devotee\'s Mitts',
         Ring1 = 'Aqua Ring',
         Ring2 = 'Aqua Ring',
         Back = 'Rainbow Cape',		
@@ -89,14 +94,29 @@ local Sets = {
         Back = 'Rainbow Cape',
         Legs = 'Baron\'s slops',
     },
-
-    ['MndEnfeebling'] = {
-        Head = 'Duelist\'s Chapeau',
+	
+    ['MndSkill'] = {
+        Head = 'Dls. Chapeau +1',
         Neck = 'Enfeebling Torque', 
         Ear1 = 'Cmn. Earring',
         Ear2 = 'Coral Earring',
         Body = 'Warlock\'s Tabard',
-        Hands = 'Savage gauntlets',
+        Hands = 'Devotee\'s Mitts',
+        Ring1 = 'Aqua Ring',
+        Ring2 = 'Aqua Ring',
+        Back = 'Rainbow Cape',
+        Waist = 'Penitent\'s rope',
+        Legs = 'Nashira Seraweels',
+        Feet = 'Duelist\'s Boots +1'
+    },
+	
+    ['MndEnfeebling'] = {
+        Head = 'Dls. Chapeau +1',
+        Neck = 'Promise Badge', 
+        Ear1 = 'Cmn. Earring',
+        Ear2 = 'Coral Earring',
+        Body = 'Errant Hpl.',
+        Hands = 'Devotee\'s Mitts',
         Ring1 = 'Aqua Ring',
         Ring2 = 'Aqua Ring',
         Back = 'Rainbow Cape',
@@ -107,7 +127,7 @@ local Sets = {
 
     ['IntEnfeebling'] = {
         Ammo = 'Phtm. Tathlum',
-        Head = 'Duelist\'s Chapeau',
+        Head = 'Dls. Chapeau +1',
         Neck = 'Enfeebling Torque', 
         Ear1 = 'Morion Earring',
         Ear2 = 'Morion Earring',
@@ -115,9 +135,25 @@ local Sets = {
         Hands = 'Duelist\'s Gloves',
         Ring1 = 'Snow Ring',
         Ring2 = 'Snow Ring',
-        Back = {'Rainbow Cape', 'Red Cape'},
+        Back = {'Rainbow Cape'},
         Waist = 'Penitent\'s rope',
         Legs = 'Mahatma Slops',
+        Feet = 'River gaiters'
+    },
+	
+    ['AccEnfeebling'] = {
+        Ammo = 'Phtm. Tathlum',
+        Head = 'Dls. Chapeau +1',
+        Neck = 'Enfeebling Torque', 
+        Ear1 = 'Morion Earring',
+        Ear2 = 'Morion Earring',
+        Body = 'Warlock\'s Tabard',
+        Hands = 'Duelist\'s Gloves',
+        Ring1 = 'Snow Ring',
+        Ring2 = 'Snow Ring',
+        Back = {'Rainbow Cape'},
+        Waist = 'Penitent\'s rope',
+        Legs = 'Nashira Seraweels',
         Feet = 'River gaiters'
     },
 
@@ -131,7 +167,7 @@ local Sets = {
         Hands = 'Zenith Mitts',
         Ring1 = 'Snow Ring',
         Ring2 = 'Snow Ring',
-        Back = {'Rainbow Cape', 'Red Cape'},
+        Back = {'Rainbow Cape'},
         Waist = 'Penitent\'s rope',
         Legs = 'Mahatma Slops',
         Feet = 'Duelist\'s Boots +1'
@@ -142,21 +178,23 @@ local Sets = {
         Sub = 'Genbu\'s Shield',
         Head = 'Optical Hat',
         Neck = 'Peacock Amulet',
-        Ear1 = 'Coral Earring',
+        Ear1 = 'Merman\'s Earring',
         Ear2 = 'Brutal Earring',
-        Body = 'Assault Jerkin',
+        Body = 'Scp. Harness +1',
         Hands = 'Dusk Gloves',
         Ring1 = 'Toreador\'s ring',
-        Ring2 = 'Fencer\'s ring',
+        Ring2 = 'Rajas ring',
 		Back = 'Forager\'s mantle',
         Waist = 'Swift Belt',
-        Legs = 'Duelist\'s tights',
+        Legs = 'Nashira Seraweels',
         Feet = 'Dusk Ledelsens'
     },
 	   
 	['Kclub'] = {
 		Main = 'Enhancing Sword',
         Sub = 'Octave Club',
+        Ear1 = 'Stealth Earring',
+        Ring2 = 'Fencer\'s ring',
 	},
 	
     ['Savage'] = {
@@ -181,7 +219,9 @@ local Sets = {
     },
 
     ['HasteCast'] = {
+        Ear1 = 'Loquac. Earring',
         Hands = 'Dusk Gloves', -- +3% haste
+        Legs = 'Nashira Seraweels',
         Feet = 'Dusk Ledelsens', -- +2% haste
         Waist = 'Swift Belt' -- +4% haste
     },
@@ -212,13 +252,13 @@ local Sets = {
         Ring2 = 'Fencer\'s ring',
 		Back = '',
         Waist = 'Swift Belt',
-        Legs = 'Duelist\'s tights',
+        Legs = 'Nashira Seraweels',
         Feet = 'Dusk Ledelsens'
     },
 	
     ['HPdown'] = {
         Head = 'Zenith crown',
-        Neck = 'Star necklace',
+        Neck = '',
         Body = 'Flora cotehardie',
         Hands = 'Zenith mitts',
         Ring1 = 'Ether ring',
@@ -226,7 +266,7 @@ local Sets = {
 		Back = '',
         Waist = 'Penitent\'s rope',
         Legs = 'Zenith slacks',
-        Feet = 'Errant pigaches'
+        Feet = 'Zenith pumps'
     },
 	
     ['DarkMagic'] = {
@@ -237,20 +277,22 @@ local Sets = {
 
     },
 
-    ['PlusMP'] = {
+    ['PlusMP'] = {-- 999 with this set on to 872 in refresh idle, 698 after standing up from resting
         Main = '',
         Sub = '', 
         Ammo = 'Hedgehog Bomb', -- +30 mp
-        Head = 'Warlock\'s Chapeau', -- 20 mp
-        Neck = '',
-        Body = 'Warlock\'s Tabard', -- +14 mp
-        Hands = 'Errant Cuffs', -- -20 hp +20 mp
-        Ring1 = 'Tamas Ring', -- 30mp
-        Ring2 = 'Peace Ring', -- 10 hp>mp
-        Back = '',
+        Head = 'Zenith Crown', -- +50 mp
+        Neck = 'Uggalepih Pendant', -- +20 mp
+        Ear1 = 'Loquac. Earring', -- +30 mp
+        Ear2 = 'Magnetic Earring', -- +20 mp
+        Body = 'Dalmatica', -- +50 mp
+        Hands = 'Zenith mitts', -- +50 mp
+        Ring1 = 'Ether Ring', -- +30 mp
+        Ring2 = 'Bomb Queen Ring', -- +75 HP
+        Back = 'Hexerei Cape', -- +8 mp
         Waist = 'Hierarch Belt', -- +48 mp
-        Legs = 'Savage loincloth', -- +32 mp
-        Feet = 'Errant Pigaches' -- -20hp +20mp
+        Legs = 'Blood cuisses', -- +50 mp
+        Feet = 'Zenith pumps' -- - +50 mp
     },
 
     ['MDT'] = {
@@ -285,6 +327,7 @@ profile.OnLoad = function()
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind v //blink me');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind q /lac fwd swordMode');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind e /lac fwd zdpsMode');
+    AshitaCore:GetChatManager():QueueCommand(-1, '/bind r /lac fwd plusmp');
 end
 
 profile.OnUnload = function()
@@ -298,6 +341,27 @@ profile.OnUnload = function()
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind v');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind q');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind e');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/unbind r');
+end
+
+-- Method that cycles through player abilities to match the correct ability for recast time
+profile.GetRecastTimer = function(abilityRecastId)
+    local memRecast  = AshitaCore:GetMemoryManager():GetRecast();
+    
+    if (abilityRecastId == 0) then
+        return memRecast:GetAbilityTimer(0);
+    end
+    
+    -- Searches player's recasts
+    for x = 0, 31 do
+        local id = memRecast:GetAbilityTimerId(x);
+        if (id == abilityRecastId) then
+            return memRecast:GetAbilityTimer(x);
+        end
+    end
+    
+    -- if ability wasn't found 
+    return -1;
 end
 
 -- Method that checks a list for a specific spell string, returns true if found
@@ -338,6 +402,14 @@ profile.CheckCity = function(loc)
     end
 end
 
+profile.EquipMP = function(player)
+    if ((Settings.isMP) and (player.MP < 836)) then
+        gFunc.EquipSet(Sets.Idle);
+    elseif (Settings.isMP) then
+        gFunc.EquipSet(Sets.PlusMP);
+    end
+end
+
 
 
 profile.HandleCommand = function(args)
@@ -369,6 +441,17 @@ profile.HandleCommand = function(args)
         else
             gFunc.Echo(158, "ZDPS Mode ON")
             Settings.zdpsMode = 1
+        end
+    end
+	
+	-- PlusMp toggle
+    if (args[1] == 'plusmp') then
+        if (Settings.isMP == true) then
+            Settings.isMP = false;
+            gFunc.Echo(158, 'Plus MP set OFF');
+        else
+            Settings.isMP = true;
+            gFunc.Echo(158, 'Plus MP set ON');
         end
     end
 end
@@ -403,30 +486,39 @@ profile.HandleDefault = function()
 			if Settings.zdpsMode == 1 then
 				gFunc.EquipSet(Sets.Enspell);
 			end
-			if (player.HP > 905) then
+			if (player.HP > 965) then
 				gFunc.EquipSet(Sets.HPdown);
 			end
 		end
     elseif (player.Status == 'Resting') then
         if Settings.RestTimer == 0 then
-            Settings.RestTimer = os.clock() + 18;
+			Settings.RestTimer = os.clock() + 18;
         end
-
         if (os.clock() > Settings.RestTimer) then
             gFunc.EquipSet(Sets.Resting);
-            if (player.SubJob == 'BLM') then
-                gFunc.Equip('Back', 'Wizard\'s mantle');
-            end
         end
-    else
-        gFunc.EquipSet(Sets.Idle); 
-		--gFunc.LockStyle(Sets.Style);
-        Settings.RestTimer = 0;
+	else
+		gFunc.EquipSet(Sets.Idle); 
+		Settings.RestTimer = 0;
+	end
+    if (player.Status ~= 'Resting') then 
+        profile.EquipMP(player);
     end
     profile.CheckCity(loc);
 end
 
 profile.HandleAbility = function()
+    local action = gData.GetAction();
+    local distance = tonumber(('%.1f'):fmt(math.sqrt(gData.GetActionTarget().Distance)));
+    local ability = AshitaCore:GetResourceManager():GetAbilityByName(action.Name, 2);
+    local abilityCooldown = profile.GetRecastTimer(ability.RecastTimerId)/60;
+    
+    if((abilityCooldown < 0.6) and (distance <= ability.Range)) then
+        if (ability.Name[3] == "Convert") then
+            Settings.isMP = true;
+            gFunc.EquipSet(Sets.PlusMP);
+        end
+    end
 end
 
 profile.HandleItem = function()
@@ -438,41 +530,57 @@ profile.HandlePrecast = function()
     local distance = tonumber(('%.1f'):fmt(math.sqrt(gData.GetActionTarget().Distance)));
     local spellCooldown = AshitaCore:GetMemoryManager():GetRecast():GetSpellTimer(action.Id)/60;
 
-    -- TODO gate for mp amount before equipping fast cast set so plusMP set can maintain extra mp after convert
-
-    if((spellCooldown < 0.6) and (distance <= 20.4)) then
+    if ((spellCooldown < 0.6) and (distance <= 20.4) and not (Settings.isMP)) then
         -- Precast equips FastCast set and switches into appropriate set during HandleMidcast method
-		gFunc.EquipSet(Sets.FastCast);
+        gFunc.EquipSet(Sets.FastCast);
+    elseif ((Settings.isMP) and (player.MP < 873)) then
+        gFunc.EquipSet(Sets.FastCast);
     end
 
 end
 
 profile.HandleMidcast = function()
+    local player = gData.GetPlayer();
     local action = gData.GetAction();
     local distance = tonumber(('%.1f'):fmt(math.sqrt(gData.GetActionTarget().Distance)));
     local spell = AshitaCore:GetResourceManager():GetSpellById(action.Id);
     local spellCooldown = AshitaCore:GetMemoryManager():GetRecast():GetSpellTimer(action.Id)/60;
 
-    if ((spellCooldown < 0.6) and (distance <= 20.4)) then
-         -- TODO same mp gate function as in HandlePrecast method before moving on
+    if ((spellCooldown < 0.6) and (distance <= 20.4) and ((not Settings.isMP) or (Settings.isMP and (player.MP < 873))) ) then
+
         -- Buffs 
         if (profile.CheckForSpell(Spells.Buffs, action.Name) and not (string.match(action.Name, "Stoneskin"))) then
             gFunc.EquipSet(Sets.HasteCast);
+			
+        -- Stoneskin
+        elseif (string.match(action.Name, "Stoneskin")) then
+            gFunc.EquipSet(Sets.MndEnfeebling);
 
-        -- Mind Enfeebling
+        -- Mnd Enfeebling
         elseif (profile.CheckForSpell(Spells.MndEnfeebling, action.Name)) then
             gFunc.EquipSet(Sets.MndEnfeebling);
 			if (conquest.settings.regionControl == false) then
 				gFunc.Equip('hands', 'Mst.Cst. Bracelets');
 			end
+			
+        -- Mnd Skill
+        elseif (profile.CheckForSpell(Spells.MndSkill, action.Name)) then
+            gFunc.EquipSet(Sets.MndSkill);
 
         -- Int Enfeebling
-        elseif ((profile.CheckForSpell(Spells.IntEnfeebling, action.Name)) or (profile.CheckForSpell(Spells.EleDebuffs, action.Name))) then
+        elseif (profile.CheckForSpell(Spells.IntEnfeebling, action.Name)) then
             gFunc.EquipSet(Sets.IntEnfeebling);
 			if (conquest.settings.regionControl == false) then
 				gFunc.Equip('hands', 'Mst.Cst. Bracelets');
 			end
-			
+
+        -- Acc Enfeebling
+        elseif (profile.CheckForSpell(Spells.AccEnfeebling, action.Name)) then
+            gFunc.EquipSet(Sets.AccEnfeebling);
+			if (conquest.settings.regionControl == false) then
+				gFunc.Equip('hands', 'Mst.Cst. Bracelets');
+			end
+						
 		-- Shadows
 		elseif (action.Name == 'Utsusemi: Ichi') or (action.Name == 'Utsusemi: Ni') then
 			gFunc.EquipSet(Sets.HasteCast)
@@ -512,8 +620,10 @@ profile.HandleMidcast = function()
 
         -- Equips appropriate Elemental Staff
         profile.EquipEleStaff(action.Element, action.Name);
-    end
-
+	else
+        profile.EquipEleStaff(action.Element, action.Name);
+	end
+	
 end
 
 profile.HandlePreshot = function()

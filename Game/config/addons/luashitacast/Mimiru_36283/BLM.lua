@@ -11,10 +11,10 @@ local Settings = {
 }
 
 local EleStaffTable = {
-    ['Fire'] = 'Fire Staff',
+    ['Fire'] = 'Vulcan\'s Staff',
     ['Earth'] = 'Terra\'s Staff',
     ['Water'] = 'Water Staff',
-    ['Wind'] = 'Wind Staff',
+    ['Wind'] = 'Auster\'s Staff',
     ['Ice'] = 'Aquilo\'s Staff',
     ['Thunder'] = 'Jupiter\'s Staff',
     ['Light'] = 'Light Staff',
@@ -60,18 +60,18 @@ local Sets = {
         Main = 'Terra\'s Staff',
         Sub = '',
         Ammo = 'Phtm. Tathlum',
-        Head = '',
+        Head = 'Wizard\'s petasos',
 		Neck = {'Uggalepih pendant', 'Checkered Scarf'},
         Ear1 = {'Loquac. Earring', 'Morion Earring'},
         Ear2 = {'Magnetic Earring', 'Morion Earring'},
-        Body = {'Black cloak', 'Wizard\'s coat'},
+        Body = {'Dalmatica', 'Wizard\'s coat'},
         Hands = {'Sorcerer\'s gloves','Wizard\'s gloves'},
         Ring1 = 'Merman\'s Ring',
         Ring2 = 'Merman\'s Ring',
         Back = 'Hexerei cape',
         Waist = {'Hierarch Belt', 'Swift belt'},
         Legs = {'Mahatma slops', 'Savage loincloth'},
-        Feet = {'River gaiters', 'Wizard\'s sabots', 'Mannequin Pumps'},
+        Feet = {'River gaiters'},
     },
 
     ['Healing'] = {
@@ -181,15 +181,12 @@ local Sets = {
     ['Enmity'] = {
 	    Ammo = 'Hedgehog Bomb',
         Head = 'Wizard\'s petasos',
+		Ear2 = 'Novia earring',
         Body = 'Errant Hpl.',
         Hands = 'Sorcerer\'s gloves',
         Waist = 'Penitent\'s rope',
         Legs = 'Mahatma Slops',
-		Feet = 'Wizard\'s sabbots', 
-    },
-
-    ['PlusMP'] = {
-
+		Feet = 'Sorcerer\'s sabbots', 
     },
 
     ['MDT'] = {
@@ -333,9 +330,6 @@ profile.HandleDefault = function()
 
         if (os.clock() > Settings.RestTimer) then
             gFunc.EquipSet(Sets.Resting);
-            if (player.SubJob == 'BLM') then
-                gFunc.Equip('Back', 'Wizard\'s mantle');
-            end
         end
     else
         gFunc.EquipSet(Sets.Idle); 
@@ -357,8 +351,6 @@ profile.HandlePrecast = function()
     local distance = tonumber(('%.1f'):fmt(math.sqrt(gData.GetActionTarget().Distance)));
     local spellCooldown = AshitaCore:GetMemoryManager():GetRecast():GetSpellTimer(action.Id)/60;
 
-    -- TODO gate for mp amount before equipping fast cast set so plusMP set can maintain extra mp after convert
-
     if((spellCooldown < 0.6) and (distance <= 20.4)) then
         -- Precast equips FastCast set and switches into appropriate set during HandleMidcast method
 		gFunc.EquipSet(Sets.FastCast);
@@ -373,7 +365,6 @@ profile.HandleMidcast = function()
     local spellCooldown = AshitaCore:GetMemoryManager():GetRecast():GetSpellTimer(action.Id)/60;
 
     if ((spellCooldown < 0.6) and (distance <= 20.4)) then
-         -- TODO same mp gate function as in HandlePrecast method before moving on
         -- Buffs 
         if (profile.CheckForSpell(Spells.Buffs, action.Name) and not (string.match(action.Name, "Stoneskin"))) then
             gFunc.EquipSet(Sets.HasteCast);

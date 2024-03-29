@@ -55,12 +55,39 @@ state.Init = function()
         state.Encumbrance[i] = false;
     end
     
+    local configPath = string.format('%sconfig\\addons\\luashitacast\\?.lua;', AshitaCore:GetInstallPath());
+    package.path = configPath .. package.path;
+    gState.BasePath = package.path;
+    
     if (AshitaCore:GetMemoryManager():GetParty():GetMemberIsActive(0) == 1) then
         gState.PlayerId = AshitaCore:GetMemoryManager():GetParty():GetMemberServerId(0);
         gState.PlayerName = AshitaCore:GetMemoryManager():GetParty():GetMemberName(0);
         gState.PlayerJob = AshitaCore:GetMemoryManager():GetPlayer():GetMainJob();
+        configPath = string.format('%sconfig\\addons\\luashitacast\\%s_%u\\?.lua;', AshitaCore:GetInstallPath(), gState.PlayerName, gState.PlayerId);
+        package.path = configPath .. gState.BasePath;
         gState.AutoLoadProfile();
-    end    
+    end
+end
+
+state.ResetSettings = function(currentSettings)
+    gSettings = {};
+    for k,v in pairs(gDefaultSettings) do
+        if (type(v) == 'table') then
+            gSettings[k] = {};
+            for subK,subV in pairs(v) do
+                gSettings[k][subK] = subV;
+            end
+        else
+            gSettings[k] = v;
+        end
+    end
+    for k,v in pairs(gActiveSettings) do
+        if (type(currentSettings) == 'table') and (currentSettings[k] ~= nil) then
+            gSettings[k] = currentSettings[k];
+        else
+            gSettings[k] = v;
+        end
+    end
 end
 
 state.LoadProfile = function(profilePath)
@@ -74,6 +101,7 @@ state.LoadProfile = function(profilePath)
 	end
 	gProfile = success();
 	if (gProfile ~= nil) then
+        state.ResetSettings();
         print(chat.header('LuAshitacast') .. chat.message('Loaded profile: ') .. chat.color1(2, shortFileName));
         if (gProfile.OnLoad ~= nil) and (type(gProfile.OnLoad) == 'function') then
             gProfile.FilePath = profilePath;
@@ -138,8 +166,15 @@ state.UnloadProfile = function()
     gState.Reset();
 end
 
+local defaultParsed = false;
 state.HandleEquipEvent = function(eventName, equipStyle)
     if (gProfile ~= nil) then
+        if (eventName == 'HandleDefault') then
+            if (gSettings.HorizonMode) and (defaultParsed) then
+                return;
+            end
+        end
+
         local event = gProfile[eventName];
         if (event ~= nil) and (type(event) == 'function') then
             gEquip.ClearBuffer();
@@ -147,6 +182,7 @@ state.HandleEquipEvent = function(eventName, equipStyle)
             gState.SafeCall(eventName);
             if (eventName == 'HandleDefault') then
                 gEquip.ProcessBuffer(equipStyle);
+                defaultParsed = true;
             elseif (gState.PlayerAction ~= nil) and (gState.PlayerAction.Block ~= true) then
                 if (gState.DelayedEquip.Timer ~= nil) and ((eventName == 'HandleMidcast') or (eventName == 'HandleMidshot')) then
                     gState.DelayedEquip.Tag = eventName .. 'Delayed';
@@ -191,27 +227,22 @@ state.Reset = function()
         _G[glob] = nil;
     end
 
-    gSettings = {};
-    for k,v in pairs(gDefaultSettings) do
-        if (type(v) == 'table') then
-            gSettings[k] = {};
-            for subK,subV in pairs(v) do
-                gSettings[k][subK] = subV;
-            end
-        else
-            gSettings[k] = v;
-        end
-    end
+    state.ResetSettings();
 end
 
 state.SafeCall = function(name,...)
     if (gProfile ~= nil) then
         if (type(gProfile[name]) == 'function') then
-            local success,err = pcall(gProfile[name],...);
-            if (not success) then
-                print(chat.header('LuAshitacast') .. chat.error('Error in profile function: ') .. chat.color1(2, name));
-                print(chat.header('LuAshitacast') .. chat.error(err));
+            if (gSettings.SafeCall) then
+                local success,err = pcall(gProfile[name],...);
+                if (not success) then
+                    print(chat.header('LuAshitacast') .. chat.error('Error in profile function: ') .. chat.color1(2, name));
+                    print(chat.header('LuAshitacast') .. chat.error(err));
+                end
+            else
+                gProfile[name](...);
             end
+            defaultParsed = false;
         elseif (gProfile[name] ~= nil) then
             print(chat.header('LuAshitacast') .. chat.error('Profile member exists but is not a function: ') .. chat.color1(2, name));
         end

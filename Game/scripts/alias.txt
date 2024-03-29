@@ -114,6 +114,9 @@
 /alias add /SNK //sneak
 /alias add /deo //deodorize
 /alias add /DEO //deodorize
+/alias add /rr //reraise
+/alias add /RR //reraise
+
 
 /alias add /pyna //paralyna
 /alias add /PYNA //paralyna

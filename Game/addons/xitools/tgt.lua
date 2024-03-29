@@ -2,7 +2,7 @@ require('common')
 local bit = require('bit')
 local imgui = require('imgui')
 local ui = require('ui')
-local packets = require('utils.packets')
+local packets = require('utils/packets')
 
 local Scale = 1.0
 
@@ -596,7 +596,7 @@ local function HandleAction(debuffs, action)
 end
 
 ---@param debuffs table
----@param basic any
+---@param basic string
 local function HandleBasic(debuffs, basic)
     -- if we're tracking a mob that dies, reset its status
     if basic.message == 6 and debuffs[basic.target] then
@@ -852,11 +852,10 @@ local tgt = {
     DrawMain = function(options, gOptions)
         local tgt = AshitaCore:GetMemoryManager():GetTarget()
         local targetId = tgt:GetTargetIndex(0)
-        local targetActive = tgt:GetActive(0) == 1
+        local targetActive = tgt:GetIsActive(0) == 1
         local subTargetId = tgt:GetTargetIndex(1)
         local subTargetActive = tgt:GetIsSubTargetActive() == 1
         local totId = 0
-
 
         -- the target struct appears to be a stack, so when we have two targets
         -- that means the subtarget is actually in [0] and main moves to [1]
