@@ -9,9 +9,11 @@ defaults.text_speed = 100
 defaults.theme = 'default'
 defaults.scale = 1
 defaults.portraits = true
-defaults.filter = {
-    timed_battle = true,
-    timed_message = true,
+defaults.always_on_top = true
+defaults.in_combat = false
+
+defaults.additional_chat_modes = {
+    144
 }
 
 local scaling = require('scaling')

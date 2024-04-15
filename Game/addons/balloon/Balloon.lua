@@ -1,6 +1,6 @@
 addon.name      = 'balloon'
 addon.author    = 'Originally by Hando, English support added by Yuki & Kenshi, themes added by Ghosty, ported to Ashita v4 by onimitch.'
-addon.version   = '4.0.4'
+addon.version   = '4.2.1'
 addon.desc      = 'Displays NPC chat logs in a UI Balloon, similar to FFXIV.'
 addon.link      = 'https://github.com/onimitch/ffxi-balloon-ashitav4'
 
@@ -29,7 +29,6 @@ local chat_color_codes = defines.chat_color_codes
 local balloon = {
     debug = 'off',
     debug_closing = false,
-    debug_142 = false,
     waiting_to_close = false,
     close_timer = 0,
     last_text = '',
@@ -43,12 +42,7 @@ local balloon = {
     in_mog_menu = false,
     in_menu = false,
     drag_offset = nil,
-    accepted_chat_modes = S{
-        chat_modes.message,
-        chat_modes.system,
-        chat_modes.timed_battle,
-        chat_modes.timed_message,
-    },
+    accepted_chat_modes = {},
 }
 
 -- parses a string into char[hex bytecode]
@@ -74,36 +68,52 @@ local function is_chat_open()
     return menu_name:match('menu[%s]+inline')
 end
 
--------------------------------------------------------------------------------
-
-balloon.initialize = function()
-    -- Get game language
-    local lang = AshitaCore:GetConfigurationManager():GetInt32('boot', 'ashita.language', 'playonline', 2)
-    balloon.lang_code = 'en'
-    if lang == 1 then
-        balloon.lang_code = 'ja'
+local pEventSystem = ashita.memory.find('FFXiMain.dll', 0, 'A0????????84C0741AA1????????85C0741166A1????????663B05????????0F94C0C3', 0, 0)
+local function is_event_system_active()
+    if (pEventSystem == 0) then
+        return false
+    end
+    local ptr = ashita.memory.read_uint32(pEventSystem + 1)
+    if (ptr == 0) then
+        return false
     end
 
+    return (ashita.memory.read_uint8(ptr) == 1)
+end
+
+-------------------------------------------------------------------------------
+
+balloon.initialize = function(new_settings)
+    -- Get game language
+    local lang = AshitaCore:GetConfigurationManager():GetInt32('boot', 'ashita.language', 'playonline', 2)
+    balloon.lang_code = lang == 1 and 'ja' or 'en'
+
+    -- Default chat modes that are always on
     balloon.accepted_chat_modes = S{
         chat_modes.message,
         chat_modes.system,
     }
-    if balloon.settings.filter.timed_battle then
-        balloon.accepted_chat_modes:add(chat_modes.timed_battle)
-    end
-    if balloon.settings.filter.timed_message then
-        balloon.accepted_chat_modes:add(chat_modes.timed_message)
-    end
-    local chat_mode_list = balloon.accepted_chat_modes:concat('/')
 
-	balloon.apply_theme()
+    -- Get additional chat modes from settings
+    local additional_chat_modes = balloon.settings.additional_chat_modes or {}
+    for _, v in ipairs(additional_chat_modes) do
+        balloon.accepted_chat_modes:add(v)
+    end
+    local chat_mode_list = balloon.accepted_chat_modes:concat(' ')
 
-	if balloon.theme_options ~= nil then
-        print(chat.header(addon.name):append(chat.message('Theme "%s", language: %s'):format(balloon.settings.theme, balloon.lang_code)))
+    -- Remove old filter setting
+    if balloon.settings.filter ~= nil then
+        balloon.settings.filter = nil
+    end
+
+	balloon.load_theme()
+
+    if balloon.theme_options ~= nil and new_settings == nil then
+        print(chat.header(addon.name):append(chat.message('Theme "%s", language: %s, chat modes: %s'):format(balloon.settings.theme, balloon.lang_code, chat_mode_list)))
     end
 end
 
-balloon.apply_theme = function()
+balloon.load_theme = function()
     -- Load the theme
     balloon.theme_options = theme.load(balloon.settings.theme, balloon.lang_code)
     if balloon.theme_options == nil then
@@ -210,18 +220,29 @@ balloon.process_incoming_message = function(e)
 	-- blank prompt line that auto-continues itself,
 	-- usually used to clear a space for a scene change?
 	if e.message:endswith(defines.AUTO_PROMPT_CHARS) then
-        LogManager:Log(5, 'Balloon', 'Closed from ending with Auto prompt characters: ' .. parse_codes(e.message))
-        if balloon.debug_closing then print('Closing from auto prompt chars') end
+        if balloon.debug_closing then 
+            print('Closing from auto prompt chars')
+            LogManager:Log(5, 'Balloon', 'Closed from ending with Auto prompt characters: ' .. parse_codes(e.message))
+        end
 		balloon.close()
 		return
 	end
 
 	if balloon.settings.display_mode >= 1 then
-		e.message_modified = balloon.process_balloon(e.message, mode)
-
-        if balloon.debug_142 and mode == defines.chat_modes.timed_battle then
-            e.message_modified = '(142) ' .. e.message_modified
+        -- Do we need to check if the player is in combat?
+        -- We only check if the player is engaged (has weapon out) but this should be enough for our use case.
+        if not balloon.settings.in_combat and not is_event_system_active() then
+            local entity = AshitaCore:GetMemoryManager():GetEntity()
+            local party = AshitaCore:GetMemoryManager():GetParty()
+            if entity ~= nil and party ~= nil then
+                local player_index = party:GetMemberTargetIndex(0)
+                if player_index ~= nil and entity:GetStatus(player_index) == 1 then
+                    return
+                end
+            end
         end
+
+        e.message_modified = balloon.process_balloon(e.message, mode)
     end
 end
 
@@ -238,12 +259,6 @@ balloon.process_balloon = function(message, mode)
         end
     end
     local timed = (not balloon.in_menu and not ends_with_prompt)
-
-	-- local timed = true
-	-- if (S{chat_modes.message, chat_modes.system}[mode] and message:endswith(defines.PROMPT_CHARS[1]))
-    --     or balloon.in_menu then -- or balloon.in_mog_menu 
-	-- 	timed = false
-	-- end
 
 	-- Extract speaker name
     local npc_prefix_start, npc_prefix_end = message:find('.- : ')
@@ -285,7 +300,6 @@ balloon.process_balloon = function(message, mode)
     -- strip the NPC name from the start of the message
     if npc_prefix ~= '' then
         message = message:sub(npc_prefix_end)
-        -- message = message:gsub(npc_prefix:gsub('-', '--'), '')
     end
 
     -- log debug info
@@ -310,12 +324,6 @@ balloon.process_balloon = function(message, mode)
     -- Strip out prompt characters
     message = message:gsub(defines.auto_prompt_chars_pattern, '')
     message = message:gsub(defines.prompt_chars_pattern, '')
-    -- for _, prompt_chars in ipairs(defines.PROMPT_CHARS) do
-    --     local prompt_pos, _ = message:find(prompt_chars, -4, true)
-    --     if prompt_pos ~= nil then
-    --          message = message:sub(1, prompt_pos - 1)
-    --     end
-    -- end
 
     message = message:gsub(chat_color_codes.standard, '[BL_c1]') --color code 1 (black/reset)
     message = message:gsub(chat_color_codes.item, '[BL_c2]') --color code 2 (green/regular items)
@@ -328,8 +336,7 @@ balloon.process_balloon = function(message, mode)
     message = message:gsub(chat_color_codes.emote, '') --cutscene emote color code (handled by the message type instead)
 
     message = message:gsub('^?([%w%.\'(<“])', '%1')
-    message = message:gsub('(%w)(%.%.%.+)([%w“])', '%1%2 %3') --add a space after elipses to allow better line splitting
-    message = message:gsub('([%w”])%-%-([%w%p])', '%1-- %2') --same for double dashes
+    message = message:gsub('%f[-]%-%-%f[^-]', '—') --replace -- with em dashes
 
     message = message:gsub('%[BL_c1]', '\\cr')
     message = message:gsub('%[BL_c2]', '\\cs('..ui._type.items..')')
@@ -437,6 +444,8 @@ local function print_help(isError)
         { '/balloon speed <chars per second>', 'Speed that text is displayed, in characters per second.' },
         { '/balloon portrait', 'Toggle the display of character portraits, if the theme has settings for them.' },
         { '/balloon move_closes', 'Toggle balloon auto-close on player movement.' },
+        { '/balloon always_on_top', 'Toggle always on top (IMGUI mode).' },
+        { '/balloon in_combat', 'Toggle displaying balloon during combat.' },
         { '/balloon test <name> <lang> <mode>', 'Display a test bubble. Lang: - (auto), en or ja. Mode: 1 (dialogue), 2 (system). "/balloon test" to see the list of available tests.' },
     }
 
@@ -497,7 +506,7 @@ ashita.events.register('command', 'balloon_command_cb', function(e)
 
             balloon.settings.theme = args[3]
 
-            balloon.apply_theme()
+            balloon.load_theme()
             if balloon.theme_options ~= nil then
                 print(chat.header(addon.name):append(chat.message('Theme changed: ')):append(chat.success(balloon.settings.theme)))
             else
@@ -538,7 +547,7 @@ ashita.events.register('command', 'balloon_command_cb', function(e)
 
 		if #args > 2 then
             local old_val = balloon.settings[setting_key]
-			balloon.settings[setting_key] = tonumber(args[3])
+			balloon.settings[setting_key] = tonumber(args[3]) or 0
 
             -- Some additional logic we need to run depending on the setting change
             if setting_key == 'scale' then
@@ -558,7 +567,7 @@ ashita.events.register('command', 'balloon_command_cb', function(e)
     -- Handle toggle options
     -- Handle: /balloon portrait
     -- Handle: /balloon move_closes
-    if (#args == 2 and args[2]:any('portrait', 'portraits', 'move_closes', 'move_close')) then
+    if (#args == 2 and args[2]:any('portrait', 'portraits', 'move_closes', 'move_close', 'always_on_top', 'in_combat')) then
         local setting_key_alias = {
             portrait = 'portraits',
             move_closes = 'move_close',
@@ -566,6 +575,8 @@ ashita.events.register('command', 'balloon_command_cb', function(e)
         local setting_names = {
             portraits = 'Display portraits',
             move_close = 'Close balloons on player movement',
+            always_on_top = 'Always on top (IMGUI mode)',
+            in_combat = 'Display in combat',
         }
         local setting_key = setting_key_alias[args[2]] or args[2]
         local setting_name = setting_names[setting_key] or args[2]
@@ -575,7 +586,7 @@ ashita.events.register('command', 'balloon_command_cb', function(e)
 
         -- Some additional logic we need to run depending on the setting change
         if setting_key == 'portraits' then
-            balloon.apply_theme()
+            balloon.load_theme()
         end
 
         print(chat.header(addon.name):append(chat.message('%s changed: '):format(setting_name)):append(chat.success(balloon.settings[setting_key] and 'on' or 'off')))
@@ -616,7 +627,7 @@ ashita.events.register('command', 'balloon_command_cb', function(e)
         print(chat.header(addon.name):append(chat.message('Test: %s (%s)'):format(test_name, lang)))
         local message = test_entry[lang_index]
         local mode = (args[5] == '2' or npc_name == '') and chat_modes.system or chat_modes.message
-        local message_prefix = (npc_name .. ' : ') and npc_name ~= '' or ''
+        local message_prefix = npc_name ~= '' and (npc_name .. ' : ') or ''
         balloon.process_balloon(message_prefix .. message, mode)
         return
     end
@@ -631,11 +642,11 @@ ashita.events.register('load', 'balloon_load', function()
 
     balloon.initialize()
 
-    -- Register for future settings updates
+    -- Register for settings updates
     settings.register('settings', 'balloon_settings_update', function(s)
         if (s ~= nil) then
             balloon.settings = s
-            balloon.initialize()
+            balloon.initialize(s)
         end
     end)
 end)
@@ -736,7 +747,12 @@ ashita.events.register('d3d_present', 'balloon_d3d_present', function()
     balloon.handle_player_movement(player_ent)
 
     if not ui:hidden() then
-        ui:render(delta_time)
+
+        if balloon.settings.always_on_top then
+            ui:render_imgui(delta_time)
+        else
+            ui:render(delta_time)
+        end
     end
 end)
 

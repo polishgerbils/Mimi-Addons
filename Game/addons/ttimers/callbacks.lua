@@ -58,7 +58,9 @@ ashita.events.register('d3d_present', 'd3d_present_cb', function ()
     end
     for i = #trackers,1,-1 do
         local panel = gPanels[trackers[i].Name];
-        panel:RenderTooltip(sprite);
+        if panel:RenderTooltip(sprite) then
+            break;
+        end
     end
     sprite:End();
 end);
@@ -101,13 +103,13 @@ ashita.events.register('command', 'command_cb', function (e)
                 local duration;
                 if type(args[4]) == 'string' then
                     local multiplier = 1;
-                    local trail = string.lower(string.sub(args[4], -1, -1));
-                    if trail == 's' then
+                    local durationTrail = string.lower(string.sub(args[4], -1, -1));
+                    if durationTrail == 's' then
                         args[4] = args[4]:sub(1, -2);
-                    elseif (trail == 'm') then
+                    elseif (durationTrail == 'm') then
                         multiplier = 60;
                         args[4] = args[4]:sub(1, -2);
-                    elseif (trail == 'h') then
+                    elseif (durationTrail == 'h') then
                         multiplier = 3600;
                         args[4] = args[4]:sub(1, -2);
                     end
@@ -115,6 +117,8 @@ ashita.events.register('command', 'command_cb', function (e)
                     if type(time) == 'number' then
                         duration = time * multiplier;
                     end
+                elseif type(args[4]) == 'number' then
+                    duration = args[4];
                 end
                 if (type(duration) == 'number') then
                     local newCustomTimer = {
@@ -124,8 +128,117 @@ ashita.events.register('command', 'command_cb', function (e)
                         Expiration = os.clock() + duration,
                         TotalDuration = duration;
                     };
+                    -- Optional arguments 
                     if (#args > 4) then
-                        newCustomTimer.Tooltip = args[5];
+                        for i=5,#args do
+                            -- Makes timer repeatable
+                            if (string.lower(args[i]) == 'r') then
+                                newCustomTimer.Repeat = true;
+                                if not newCustomTimer.Loops then
+                                    newCustomTimer.Loops = 0;
+                                end
+                                newCustomTimer.Stop = false;
+                            -- Adds # of loops completed
+                            elseif (type(args[i]) == 'number' or tonumber(args[i])) then
+                                newCustomTimer.Loops = args[i];
+                            else
+                                local stringTrail = string.lower(string.sub(args[i], -1, -1));
+                                local timeSlice = args[i]:sub(1, -2);
+                                -- Adds a delay to the inital timer duration
+                                if (stringTrail == 'd' and tonumber(timeSlice)) then
+                                    newCustomTimer.Local.InitialDuration = newCustomTimer.TotalDuration;
+                                    newCustomTimer.Delay = tonumber(timeSlice);
+                                    newCustomTimer.Expiration = os.clock() + newCustomTimer.Delay;
+                                    newCustomTimer.TotalDuration = newCustomTimer.Delay;
+                                -- Creates a timer at specified time HH:MM:SS
+                                elseif (stringTrail == "t" and (string.find(timeSlice, ":") == 3 and string.find(timeSlice, ":", 4) == 6)) then
+                                    local inputHours = tonumber(string.sub(timeSlice, 1, 2));
+                                    local inputMins = tonumber(string.sub(timeSlice, 4, 5));
+                                    local inputSecs = tonumber(string.sub(timeSlice, 7, 8));
+                                    local currentHours = tonumber(os.date("%H"));
+                                    local currentMins = tonumber(os.date("%M"));
+                                    local currentSecs = tonumber(os.date("%S"));
+                                    local hourDiff = inputHours - currentHours;
+                                    local minModifier;
+                                    local secModifier;
+                                    local hourMult;
+                                    local minMult;
+                                    local secMult;
+                                    local timeUntil;
+                                    if (currentMins) then
+                                        minModifier = 60 - currentMins;
+                                    else    
+                                        minModifier = 0;
+                                    end
+                                    if (currentSecs) then
+                                        secModifier = 60 - currentSecs;
+                                    else
+                                        secModifier = 0;
+                                    end
+
+                                    -- Seconds
+                                    if (currentSecs < inputSecs) then
+                                        secMult = inputSecs - currentSecs;
+                                    elseif (currentSecs == inputSecs) then
+                                        secMult = 0;
+                                    else
+                                        secMult = secModifier + inputSecs;
+                                    end
+                                    -- Minutes
+                                    if (minModifier) then 
+                                        if (currentSecs > inputSecs) then
+                                            minMult = (minModifier - 1) + inputMins;
+                                        elseif (currentSecs < inputSecs) then
+                                            minMult = minModifier + inputMins;
+                                        end
+                                        if (inputHours == currentHours or currentMins < inputMins) then
+                                            minMult = minMult - 60;
+                                        end
+                                    else
+                                        minMult = inputMins;
+                                        if (currentSecs > inputSecs) then
+                                            minMult = minMult - 1;
+                                        end
+                                    end
+                                    -- Hours
+                                    if (inputHours == currentHours or (inputHours - currentHours == 1 and (currentMins > inputMins or (currentMins == inputMins and currentSecs > inputSecs)))) then
+                                        hourMult = 0;
+                                    else
+                                        if (inputHours < currentHours) then
+                                            inputHours = inputHours + 24; 
+                                            hourDiff = inputHours - currentHours;       
+                                        end
+                                        if (currentMins < inputMins or (currentMins == inputMins and currentSecs < inputSecs)) then
+                                            hourMult = hourDiff;
+                                        else
+                                            hourMult = hourDiff - 1;
+                                        end
+                                    end
+                                    if (currentMins == 0 and currentSecs == 0) then
+                                        if ((inputHours - currentHours) > 0) then
+                                            hourMult = hourMult + 1;
+                                        end
+                                    end
+                                    if (minMult == 60) then
+                                        minMult = 0;
+                                    end
+                                    if (secMult == 60) then
+                                        secMult = 0;
+                                    end
+                                    timeUntil = (hourMult * 3600) + (minMult * 60) + (secMult);
+                                    newCustomTimer.Timecode = timeSlice;
+                                    newCustomTimer.Local.InitialDuration = newCustomTimer.TotalDuration;
+                                    newCustomTimer.Expiration = os.clock() + timeUntil;
+                                    newCustomTimer.TotalDuration = timeUntil;
+                                elseif (type(args[i]) == 'string') then
+                                    newCustomTimer.Tooltip = args[i];
+                                end
+                            end
+                        end
+                    end
+                    if (newCustomTimer.Delay or newCustomTimer.Timecode) then
+                        newCustomTimer.Local.InitialLoops = newCustomTimer.Loops;
+                        newCustomTimer.Loops = 'DELAY';
                     end
                     customTracker:AddTimer(newCustomTimer);
                 end

@@ -1,8 +1,8 @@
 require('common');
 
 local settings = T{ };
-settings["ForceEnableBags"] = T{ };
 settings["EquipBags"] = T{ };
+settings["ForceEnableBags"] = T{ };
 settings["ForceDisableBags"] = T{ };
 settings["FastCast"] = 0;
 settings["ItemBase"] = 8;
@@ -11,6 +11,7 @@ settings["AbilityDelay"] = 2.5;
 settings["RangedOffset"] = 0.5;
 settings["PetskillDelay"] = 4;
 settings["AllowSyncEquip"] = true;
+settings["ItemOffset"] = 1;
 settings["RangedBase"] = 10;
 settings["HorizonMode"] = false;
 settings["Snapshot"] = 0;
@@ -25,7 +26,6 @@ settings["EquipBags"][8] = 16;
 settings["EquipBags"][9] = 0;
 settings["WeaponskillDelay"] = 3;
 settings["EnableNomadStorage"] = false;
-settings["ItemOffset"] = 1;
 settings["AddSetEquipScreenOrder"] = true;
 settings["SpellOffset"] = 1;
 

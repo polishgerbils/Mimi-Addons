@@ -3,12 +3,18 @@ local profile = {};
 local Settings = {
     isFast = false,
     isMDT = false,
-    isPDT = false,
     isMP = false,
 	isEnabled = false,
     Subslot = 'Default',
     RestTimer = 0,
     CurrentLevel = 0,
+	Subjob = {
+		WHM = false,
+		BLM = false,
+		NIN = false,
+		WAR = false
+	}
+
 }
 
 local EleStaffTable = {
@@ -59,7 +65,7 @@ local Sets = {
         Neck = 'Uggalepih pendant',
         Ear1 = 'Loquac. Earring',
         Ear2 = {'Magnetic Earring', 'Morion Earring'},
-        Body = {'Dalmatica', 'Savage separates'},
+        Body = 'Dalmatica',
         Hands = 'Duelist\'s Gloves',
         Ring1 = 'Merman\'s Ring',
         Ring2 = 'Merman\'s Ring',
@@ -130,7 +136,7 @@ local Sets = {
         Head = 'Dls. Chapeau +1',
         Neck = 'Enfeebling Torque', 
         Ear1 = 'Morion Earring',
-        Ear2 = 'Morion Earring',
+        Ear2 = 'Morion Earring +1',
         Body = 'Warlock\'s Tabard',
         Hands = 'Duelist\'s Gloves',
         Ring1 = 'Snow Ring',
@@ -162,7 +168,7 @@ local Sets = {
         Head = 'Warlock\'s Chapeau',
         Neck = 'Elemental Torque',
         Ear1 = 'Moldavite Earring',
-        Ear2 = 'Morion Earring',
+        Ear2 = 'Morion Earring +1',
         Body = 'Errant Hpl.',
         Hands = 'Zenith Mitts',
         Ring1 = 'Snow Ring',
@@ -271,10 +277,22 @@ local Sets = {
 	
     ['DarkMagic'] = {
 		Body = 'Glamor jupon',
+		Hands = 'Crimson Fng. Gnt.',
+        Legs = 'Nashira Seraweels',
     },	
 
     ['Enmity'] = {
-
+        Ammo = 'Happy Egg',
+		Head = 'Baron\'s Chapeau',
+		Neck = 'Harmonia\'s torque',
+        Body = 'Dst. Harness +1',
+		Hands = 'Dst. mittens +1',
+		Ear1 = 'Titanis Earring',
+		Ear2 = 'Magnetic Earring',
+        Ring2 = 'Bomb Queen Ring',
+        Waist = 'Warwolf Belt',
+		Legs = 'Dst. subligar +1',
+        Feet = 'Dst. leggings +1',
     },
 
     ['PlusMP'] = {-- 999 with this set on to 872 in refresh idle, 698 after standing up from resting
@@ -296,26 +314,41 @@ local Sets = {
     },
 
     ['MDT'] = {
-        Ear1 = 'Coral Earring',
-        Ear2 = 'Coral Earring',
+        Ear1 = 'Merman\'s Earring',
+        Ear2 = 'Merman\'s Earring',
+        Hands = 'Duelist\'s Gloves',
         Ring1 = 'Merman\'s Ring',
         Ring2 = 'Merman\'s Ring',
-        Back = 'Gramary Cape',
-        Hands = 'Duelist\'s Gloves',
+        Back = 'Hexerei Cape',
         Legs = 'Coral Cuisses +1',
     },
 
     ['PDT'] = {
         Main = 'Terra\'s Staff',
-        Back = 'Cheviot Cape'
+        Ammo = 'Happy Egg',
+		Head = 'Darksteel cap +1',
+        Neck = 'Promise Badge', 
+        Ear1 = 'Merman\'s Earring',
+        Ear2 = 'Merman\'s Earring',
+        Body = 'Dst. Harness +1',
+		Hands = 'Dst. mittens +1',
+        Ring1 = 'Merman\'s Ring',
+        Ring2 = 'Bomb Queen Ring',
+        Back = 'Hexerei Cape',
+        Waist = 'Warwolf Belt',
+		Legs = 'Dst. subligar +1',
+        Feet = 'Dst. leggings +1',
     },
 
 };
+
+profile.Sets = Sets;
 
 profile.Packer = {
 };
 
 profile.OnLoad = function()
+	local player = gData.GetPlayer();
     gSettings.AllowAddSet = true;
     AshitaCore:GetChatManager():QueueCommand(-1, '/bind M /map');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind F9 /lac fwd toggleLac');
@@ -326,7 +359,7 @@ profile.OnLoad = function()
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind c //stoneskin me');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind v //blink me');
 	AshitaCore:GetChatManager():QueueCommand(-1, '/bind q /lac fwd swordMode');
-	AshitaCore:GetChatManager():QueueCommand(-1, '/bind e /lac fwd zdpsMode');
+	AshitaCore:GetChatManager():QueueCommand(-1, '/bind e /lac fwd Tank');
     AshitaCore:GetChatManager():QueueCommand(-1, '/bind r /lac fwd plusmp');
 end
 
@@ -410,7 +443,24 @@ profile.EquipMP = function(player)
     end
 end
 
-
+-- Sub job function for platte swaps
+profile.CheckPalette = function(sub)
+	if (sub and not Settings.Subjob[sub]) then
+		if (sub == 'WHM') then
+			AshitaCore:GetChatManager():QueueCommand(-1, '/tb palette change Base');
+		elseif (sub == 'BLM') then
+			AshitaCore:GetChatManager():QueueCommand(-1, '/tb palette change blm');
+		elseif (sub == 'NIN') then
+			AshitaCore:GetChatManager():QueueCommand(-1, '/tb palette change nin');
+		elseif (sub == 'WAR') then
+			AshitaCore:GetChatManager():QueueCommand(-1, '/tb palette change war');
+		end
+		for sub in pairs(Settings.Subjob) do
+			sub = false;
+		end
+		Settings.Subjob[sub] = true;
+	end
+end	
 
 profile.HandleCommand = function(args)
     if (args[1] and args[1]:lower() == 'togglelac') then
@@ -434,13 +484,13 @@ profile.HandleCommand = function(args)
     end	
 	
 	--ZDPS Toggle
-    if (args[1] == 'zdpsMode') then
-        if (Settings.zdpsMode == 1) then
-            gFunc.Echo(158, "ZDPS Mode OFF")
-            Settings.zdpsMode = 0
+    if (args[1] == 'Tank') then
+        if (Settings.tank == 1) then
+            gFunc.Echo(158, "Tank Mode OFF")
+            Settings.tank = 0
         else
-            gFunc.Echo(158, "ZDPS Mode ON")
-            Settings.zdpsMode = 1
+            gFunc.Echo(158, "Tank Mode ON")
+            Settings.tank = 1
         end
     end
 	
@@ -466,7 +516,7 @@ profile.HandleDefault = function()
         gFunc.EvaluateLevels(Sets, myLevel);
         Settings.CurrentLevel = myLevel;
     end	
-	
+		
 	local function GetEnSpellActive()
 		local buffs = AshitaCore:GetMemoryManager():GetPlayer():GetBuffs();
 		for _,buff in ipairs(buffs) do
@@ -483,12 +533,12 @@ profile.HandleDefault = function()
 			if Settings.swordMode == 1 then
 				gFunc.EquipSet(Sets.Kclub);
 			end
-			if Settings.zdpsMode == 1 then
-				gFunc.EquipSet(Sets.Enspell);
-			end
 			if (player.HP > 965) then
 				gFunc.EquipSet(Sets.HPdown);
 			end
+		end
+		if Settings.tank == 1 then
+			gFunc.EquipSet(Sets.PDT);
 		end
     elseif (player.Status == 'Resting') then
         if Settings.RestTimer == 0 then
@@ -504,7 +554,12 @@ profile.HandleDefault = function()
     if (player.Status ~= 'Resting') then 
         profile.EquipMP(player);
     end
+	if Settings.tank == 1 then
+		gFunc.EquipSet(Sets.PDT);
+	end
     profile.CheckCity(loc);
+	profile.CheckPalette(player.SubJob);
+	
 end
 
 profile.HandleAbility = function()
@@ -555,6 +610,9 @@ profile.HandleMidcast = function()
         -- Stoneskin
         elseif (string.match(action.Name, "Stoneskin")) then
             gFunc.EquipSet(Sets.MndEnfeebling);
+			if Settings.tank == 1 then
+				gFunc.EquipSet(Sets.PDT);
+			end
 
         -- Mnd Enfeebling
         elseif (profile.CheckForSpell(Spells.MndEnfeebling, action.Name)) then
@@ -573,12 +631,18 @@ profile.HandleMidcast = function()
 			if (conquest.settings.regionControl == false) then
 				gFunc.Equip('hands', 'Mst.Cst. Bracelets');
 			end
+			if Settings.tank == 1 then
+				gFunc.EquipSet(Sets.Enmity);
+			end
 
         -- Acc Enfeebling
         elseif (profile.CheckForSpell(Spells.AccEnfeebling, action.Name)) then
             gFunc.EquipSet(Sets.AccEnfeebling);
 			if (conquest.settings.regionControl == false) then
 				gFunc.Equip('hands', 'Mst.Cst. Bracelets');
+			end
+			if Settings.tank == 1 then
+				gFunc.EquipSet(Sets.Enmity);
 			end
 						
 		-- Shadows
@@ -593,6 +657,9 @@ profile.HandleMidcast = function()
         --elseif (profile.CheckForSpell(Spells.Healing, action.Name)) then
         elseif Spells.Healing:contains(action.Name) then
             gFunc.EquipSet(Sets.Healing);
+			if Settings.tank == 1 then
+				gFunc.EquipSet(Sets.Enmity);
+			end
 			
         -- Enhancing
         elseif ((string.match(action.Name, "Bar")) or profile.CheckForSpell(Spells.Enhancing, action.Name)) then
@@ -620,8 +687,14 @@ profile.HandleMidcast = function()
 
         -- Equips appropriate Elemental Staff
         profile.EquipEleStaff(action.Element, action.Name);
+		if Settings.tank == 1 then
+			gFunc.Equip('main', 'Terra\'s staff')
+		end
 	else
         profile.EquipEleStaff(action.Element, action.Name);
+		if Settings.tank == 1 then
+			gFunc.Equip('main', 'Terra\'s staff')
+		end
 	end
 	
 end

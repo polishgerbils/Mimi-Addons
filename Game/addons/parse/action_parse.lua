@@ -11,7 +11,9 @@ require('common')
 spike_effect_valid = {true,false,false,false,false,false,false,false,false,false,false,false,false,false,false}
 add_effect_valid = {true,true,true,true,false,false,false,false,false,false,true,false,true,false,false}
 skillchain_messages = T{288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,385,386,387,388,389,390,391,392,393,394,395,396,397,398,732,767,768,769,770}
-add_effect_messages = T{161,163,229}
+-- 161 is add effect drain, which as best I can tell, does not actually deal additional damage. 0 damage strikes from bloody bolts do not report any drain (e.g. weapon weakness Limbus zone) and it's known Blood Weapon doesn't do extra damage.
+-- Other sources haven't been tested, but there would be no way to tell the difference between those and a more common source (blood weapon, primarily)
+add_effect_messages = T{163, 229}
 skillchain_names = {
     [288] = "Skillchain: Light",
     [289] = "Skillchain: Darkness",

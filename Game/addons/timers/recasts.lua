@@ -154,7 +154,7 @@ local function ProcessReady(timer)
 	--local baseRecastMiliseconds = baseRecastSeconds * 1000;
 	
 	-- On Horizon, Ready is 45s timer, 3 charges.  Measured in MS to match the incoming value.
-	local baseRecast = (45 * 3) * 1000; 
+	local fullRecastTime = (45 * 3) * 1000; 
 	
     
     --Charges are treated as evenly divided between remaining recast by the server.

@@ -1,7 +1,7 @@
 require('common')
 addon.name = 'Parse'
 addon.author = 'Flippant (Ported to Ashita by Wintersolstice)'
-addon.version = '0.982'
+addon.version = '0.984'
 
 messageColor = 200
 

@@ -30,6 +30,7 @@ local sets = {
         Feet = {'Dst. leggings +1', 'Bounding Boots'},
 	},
 	['Kite_Priority'] = {
+		Main = 'Terra\'s Staff',
         Head = 'Shep. bonnet',
         Neck = {'Evasion torque'},
         Ear1 = {'Beastly Earring', 'Drone Earring'},

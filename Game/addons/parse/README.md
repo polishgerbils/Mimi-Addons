@@ -1,8 +1,8 @@
-# parse v0.981
+# parse v0.983
 An FFXI Parser Addon for Ashita v4 based on the upstream Parse v1.68. This addon parses both offensive and defensive data, stores WS/JAs/spells data by individual spell, tracks additional information like multihit rates, and provides the ability to export/import data in XML format and log individually recorded data.
 
 ## Ashitav4 Caveats
-Several things are not yet implemented, such as logging, settings savings, exporting and importing.
+Several things are not yet implemented, such as logging, exporting and importing.
 Various other things may not work properly, please make an issue if you find a bug.
 
 ### Settings

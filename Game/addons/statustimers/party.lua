@@ -29,14 +29,21 @@ local helpers = require('helpers');
 -- local constants
 -------------------------------------------------------------------------------
 local INFINITE_DURATION = 0x7FFFFFFF;
-local REALUTCSTAMP_ID = ('%s:realutcstamp'):fmt(addon.name);
+-------------------------------------------------------------------------------
+-- local state
+-------------------------------------------------------------------------------
+local real_utcstamp_pointer = nil;
 -------------------------------------------------------------------------------
 -- local functions
 -------------------------------------------------------------------------------
 -- return the utc timestamp the game is using.
 ---@return number timestamp the game's UTC timestamp
 local function get_utcstamp()
-    local ptr = AshitaCore:GetPointerManager():Get(REALUTCSTAMP_ID);
+    local ptr = real_utcstamp_pointer;
+    if (ptr == 0) then
+        return INFINITE_DURATION;
+    end
+
     -- double dereference the pointer to get the correct address
     ptr = ashita.memory.read_uint32(ptr);
     ptr = ashita.memory.read_uint32(ptr);
@@ -47,6 +54,7 @@ end
 -- check if the passed server_id is valid
 ---@return boolean is_valid
 local function valid_server_id(server_id)
+    -- TODO: test with (server_id & 0x0x1000000) == 0, anything below is not an NPC
     return server_id > 0 and server_id < 0x4000000;
 end
 -------------------------------------------------------------------------------
@@ -64,7 +72,7 @@ module.get_member_name = function(server_id)
     end
 
     -- try and find a party member with a matching server id
-    for i = 1,4,1 do
+    for i = 1,5,1 do
         if (party:GetMemberServerId(i) == server_id) then
             return party:GetMemberName(i);
         end
@@ -82,35 +90,26 @@ module.get_member_status = function(server_id)
     end
 
     -- try and find a party member with a matching server id
+    local base_ptr = AshitaCore:GetPointerManager():Get('party.statusicons');
+    base_ptr = ashita.memory.read_uint32(base_ptr);
     for i = 0,4,1 do
-        if (party:GetStatusIconsServerId(i) == server_id) then
-            local icons_lo = party:GetStatusIcons(i);
-            local icons_hi = party:GetStatusIconsBitMask(i);
+        local member_ptr = base_ptr + (0x30 * i);
+        local player_id = ashita.memory.read_uint32(member_ptr);
+        if (player_id == server_id) then
             local status_ids = T{};
 
             for j = 0,31,1 do
-                --[[ FIXME: lua doesn't handle 64bit return values properly..
-                --   FIXME: the next lines are a workaround by Thorny that cover most but not all cases..
-                --   FIXME: .. to try and retrieve the high bits of the buff id.
-                --   TODO:  revesit this once atom0s adjusted the API.
-                --]]
-                local high_bits;
-                if j < 16 then
-                    high_bits = bit.lshift(bit.band(bit.rshift(icons_hi, 2* j), 3), 8);
-                else
-                    local buffer = math.floor(icons_hi / 0xffffffff);
-                    high_bits = bit.lshift(bit.band(bit.rshift(buffer, 2 * (j - 16)), 3), 8);
-                end
-                local buff_id = icons_lo[j+1] + high_bits;
+                local high_bits = ashita.memory.read_uint8(member_ptr + 8 + (math.floor(j / 4)));
+                local f_mod = math.fmod(j, 4) * 2;
+                high_bits = bit.lshift(bit.band(bit.rshift(high_bits, f_mod), 0x03), 8);
+                local low_bits = ashita.memory.read_uint8(member_ptr + 16 + j);
+                local buff_id = high_bits + low_bits;
                 if (buff_id ~= 255) then
                     status_ids[#status_ids + 1] = buff_id;
                 end
             end
 
-            if (next(status_ids)) then
-                return status_ids;
-            end
-            break;
+            return status_ids;
         end
     end
     return nil;
@@ -135,7 +134,7 @@ module.get_member_id_by_name = function(name)
     end
 
     -- try and find a party member with a matching name
-    for i = 1,4,1 do
+    for i = 1,5,1 do
         if (party:GetMemberName(i) == name) then
             return party:GetMemberServerId(i);
         end
@@ -210,12 +209,10 @@ module.get_player_status = function()
         local offset = get_utcstamp() - vana_base_stamp;
         --multiply it by 60 to create like terms
         local comparand = offset * 60;
-        --emulate overflow..
-        comparand = bit.band(comparand, 0xFFFFFFFF);
         --get actual time remaining
         local real_duration = raw_duration - comparand;
         --handle the triennial spillover..
-        if (real_duration < -2147483648) then
+        while (real_duration < -2147483648) do
             real_duration = real_duration + 0xFFFFFFFF;
         end
 
@@ -246,21 +243,14 @@ module.get_player_status = function()
 end
 
 helpers.register_init('party_init', function()
-    local pm = AshitaCore:GetPointerManager();
-    if (pm:Get(REALUTCSTAMP_ID) == 0) then
-        pm:Add(REALUTCSTAMP_ID, 'FFXiMain.dll', '8B0D????????8B410C8B49108D04808D04808D04808D04C1C3', 2, 0);
-        if (pm:Get(REALUTCSTAMP_ID) == 0) then
-            return false;
-        end
+    real_utcstamp_pointer = ashita.memory.find('FFXiMain.dll', 0, '8B0D????????8B410C8B49108D04808D04808D04808D04C1C3', 2, 0);
+    if (real_utcstamp_pointer == 0) then
+        return false;
     end
     return true;
 end);
 
 helpers.register_cleanup('party_cleanup', function()
-    local pm = AshitaCore:GetPointerManager();
-    if (pm:Get(REALUTCSTAMP_ID) ~= 0) then
-        pm:Delete(REALUTCSTAMP_ID);
-    end
     return true;
 end);
 

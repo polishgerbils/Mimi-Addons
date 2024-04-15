@@ -12,8 +12,6 @@ commands.HandleCommand = function(e)
         print(chat.header('SimpleLog')..chat.message('Opening menu...'))
         gConfig.toggle_menu(1)
     end
-    if (#args == 2 and args[2]:any('test')) then
-    end
     if (#args == 2 and args[2]:any('build_msg')) then
         if debug then
             local success_en, loadError_en = loadfile(('%saddons\\simplelog\\lib\\res\\action_messages_en.lua'):fmt(AshitaCore:GetInstallPath()));

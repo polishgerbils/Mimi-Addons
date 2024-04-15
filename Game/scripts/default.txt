@@ -432,6 +432,11 @@
 /alias add /vahzl //teleport-vahzl
 /alias add /VAHZL //teleport-vahzl 
 
+/alias add /om /tt custom "Omega Time Out" 30m
+/alias add /pod /tt custom "First Pod" 5m
+/alias add /rpod /tt custom "Pod Ejection" 5m r 2
+/alias add /hnm /tt custom "HNM Window" 10m r
+/alias add /tia /tt custom "Tia Window" 60m r
 
 
 ##########################################################################

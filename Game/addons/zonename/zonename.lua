@@ -169,10 +169,16 @@ ashita.events.register('load', 'zonename_load', function()
     zonename.lang_id = 'en'
     if lang == 1 then
         zonename.lang_id = 'ja'
-
     end
 
     initialise()
+
+    settings.register('settings', 'settings_update', function(s)
+        if (s ~= nil) then
+            zonename.settings = s
+            initialise()
+        end
+    end)
 end)
 
 ashita.events.register('unload', 'zonename_unload', function()
@@ -217,18 +223,14 @@ end)
 
 -- Register a d3d_present event to display the OSD elements
 ashita.events.register('d3d_present', 'zonename_present', function()
+    -- Don't display unless we have a player entity and we've finished zoning
+    local player = AshitaCore:GetMemoryManager():GetPlayer()
+    local player_ent = GetPlayerEntity()
+    if (player == nil or player.isZoning or player_ent == nil) then
+		return
+	end
+
     if zonename.visible then
         updateFade()
     end
 end)
-
-local function update_settings(s)
-    if (s ~= nil) then
-        zonename.settings = s
-    end
-    settings.save()
-    initialise()
-end
-
--- Registers a callback for the settings to monitor for character switches.
-settings.register('settings', 'settings_update', update_settings)

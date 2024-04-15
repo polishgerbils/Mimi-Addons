@@ -22,6 +22,7 @@ SOFTWARE.
 
 local d3d = require('d3d8');
 local ffi = require('ffi');
+local customTracker = require('trackers.custom');
 ffi.cdef [[
     int16_t GetKeyState(int32_t vkey);
 ]]
@@ -115,6 +116,23 @@ end
 function TimerGroup:Render(sprite, timers)
     for _, timerData in ipairs(timers) do
         if (timerData.Duration <= 0) then
+            if ((timerData.Repeat) and (timerData.Stop == false)) then
+                local newDuration;
+                local newLoops;
+                if (timerData.Delay or timerData.Timecode) then
+                    newDuration = timerData.Local.InitialDuration;
+                    newLoops = timerData.Local.InitialLoops - 1;
+                else 
+                    newDuration = timerData.TotalDuration;
+                    newLoops = timerData.Loops;
+                end
+                local timerString = string.format("/tt custom \"%s\" %ss r %01d", timerData.Label, newDuration, newLoops + 1);
+                if (timerData.Tooltip) then
+                    timerString = timerString .. string.format(' \"%s\"', timerData.Tooltip);
+                end
+                AshitaCore:GetChatManager():QueueCommand(-1, timerString);
+                timerData.Stop = true;
+            end
             if ((timerData.Duration * -1) > self.Settings.CompletionDuration) then
                 timerData.Local.Delete = true;
             end
@@ -143,7 +161,17 @@ function TimerGroup:Render(sprite, timers)
             if (renderData.Duration > 0) or (renderData.Complete) then
                 renderData.Icon = timerData.Icon;
                 renderData.Local = timerData.Local;
-                renderData.Label = timerData.Label;
+                if(timerData.Repeat or timerData.Delay or timerData.Timecode) then 
+                    if (timerData.Timecode) then
+                        renderData.Label = timerData.Label .. "   " .. timerData.Timecode;
+                    elseif (timerData.Delay) then
+                        renderData.Label = timerData.Label .. " DELAYED" ; 
+                    else
+                        renderData.Label = timerData.Label .. "   Loops: " .. timerData.Loops; 
+                    end
+                else
+                    renderData.Label = timerData.Label
+                end
                 renderData.Tooltip = timerData.Tooltip;
                 renderDataContainer:append(renderData);
             end
@@ -169,13 +197,13 @@ function TimerGroup:Render(sprite, timers)
 
     self.TimerRenderer:Begin();
     self.TimerRenderer:DrawTimers(sprite, { X = self.Settings.Position.X, Y = self.Settings.Position.Y }, renderDataContainer);
+    if (self.AllowDrag) then
+        self.TimerRenderer:DrawDragHandle(sprite, { X = self.Settings.Position.X, Y = self.Settings.Position.Y });
+    end
     self.TimerRenderer:End();
 end
 
 function TimerGroup:RenderTooltip(sprite)
-    if (self.AllowDrag) then
-        self.TimerRenderer:DrawDragHandle(sprite, { X = self.Settings.Position.X, Y = self.Settings.Position.Y });
-    end
     if (self.Settings.UseTooltips) then
         local renderData = self.TimerRenderer:TimerHitTest({X=self.Mouse.X, Y=self.Mouse.Y});
         if renderData then

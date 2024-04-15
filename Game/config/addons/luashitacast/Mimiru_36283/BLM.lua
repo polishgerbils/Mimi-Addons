@@ -45,17 +45,7 @@ local Spells = {
 }
 
 local Sets = {
-	
-	Style = {
-
-		Head = 'Sorcerer\'s petas.',
-        Body = 'Igqira weskit',
-		Hands = 'Savage gauntlets',
-		Legs = 'Zenith slacks',
-		Feet = 'Savage gaiters', 
-
-	},
-	
+		
     ['Idle_Priority'] = {
         Main = 'Terra\'s Staff',
         Sub = '',
@@ -70,7 +60,7 @@ local Sets = {
         Ring2 = 'Merman\'s Ring',
         Back = 'Hexerei cape',
         Waist = {'Hierarch Belt', 'Swift belt'},
-        Legs = {'Mahatma slops', 'Savage loincloth'},
+        Legs = 'Nashira Seraweels',
         Feet = {'River gaiters'},
     },
 
@@ -127,7 +117,7 @@ local Sets = {
         Ring2 = 'Snow Ring',
         Back = 'Rainbow Cape',
         Waist = 'Penitent\'s rope',
-        Legs = 'Mahatma Slops',
+        Legs = 'Nashira Seraweels',
         Feet = 'River gaiters'
     },
 
@@ -333,7 +323,6 @@ profile.HandleDefault = function()
         end
     else
         gFunc.EquipSet(Sets.Idle); 
-		gFunc.LockStyle(Sets.Style);
         Settings.RestTimer = 0;
     end
     profile.CheckCity(loc);
