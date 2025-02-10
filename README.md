@@ -29,7 +29,6 @@ Ashita v4.2.0.3 addon package
 	
 		/tt custom "name" time r
 
-    		examples & presets:
   		26s Repeatable timer for adds popping every 26s
   			/tt custom "adds" 26s r
   		10m Repeatable timer starting at 10:00:00am (24hr format)
