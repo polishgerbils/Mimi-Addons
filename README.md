@@ -10,7 +10,8 @@ Ashita v4.2.0.3 addon package
 2.) Open config/addons folder
 
 3.) Change folder names to your character name (check other addons you have for the proper folder name syntax)
-	Ex: My folder names would be Mimiru_36283
+	
+ 	Ex: My folder names would be Mimiru_36283
 
 4.) Update pivot .ini to your folder path for polplugins
 	
