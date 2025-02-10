@@ -21,18 +21,28 @@ Ex: My folder names would be Mimiru_36283
 		HorizonXI/Game/docs/luashitacast folder for tutorials and commands
 	
 	
-* **CTimers**
+* **Ttimers**
 
 	Add a new timer
 	
-		/ctimers add NAME H M S
-		/ctimers del NAME
-		
-		Ex: 
-		/ctimers add Scorpion 0 7 0
-		/ctimers del Scorpion
-			
+		/tt custom "name" time r
 
+    		examples & presets:
+  		26s Repeatable timer for adds popping every 26s
+  			/tt custom "adds" 26s r
+  		10m Repeatable timer starting at 10:00:00am (24hr format)
+  			/tt custom "Faf" 10m r 10:00:00t
+  		30 minute timer for battlefield such as Omega
+  			/om
+  		5 minute repeatable timer used for omega pods
+  			/rpod
+  
+  	Add new alias timers in default.txt
+	
+  		/alias add /hnm /tt custom "HNM Window" 10m r 1
+  			in game type /hnm 10:00:00t for 10m repeatable hnm timer starting at entered time
+  				
+			
 * **tHotBar**
 
 	/tb for config
@@ -58,7 +68,7 @@ Ex: My folder names would be Mimiru_36283
 	
 * **XITools**
 
-	/xitools for config
+	/xit for config
 	
 
 * **Points**
@@ -73,5 +83,10 @@ Ex: My folder names would be Mimiru_36283
 	
 	Change camera distance in combat to # value
 	/cam b #
+
+* **Metrics**
+
+	/met for help and commands 
+  	
 	
 	
