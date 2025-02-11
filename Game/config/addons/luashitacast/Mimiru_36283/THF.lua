@@ -24,22 +24,23 @@ local sets = {
         Body = 'Dst. Harness +1',
         Hands = 'Dst. mittens +1',
         Ring1 = 'Merman\'s Ring',
-        Ring2 = 'Merman\'s Ring',
-		Back = 'Forager\'s mantle',
-        Waist = 'Scouter\'s rope',
+        Ring2 = 'Sattva Ring',
+		Back = 'Resentment cape',
+        Waist = 'Jungle sash',
 		Legs = 'Dst. subligar +1',
-        Feet = 'Strider Boots',
+        Feet = 'Trotter Boots',
 	},
 	
 	['TP_Priority'] = {
         Head = {'Homam zucchetto', 'Empress Hairpin'},
         Neck = 'Love Torque',
-        Ear1 = 'Merman\'s Earring',
+        Ear1 = 'Stealth Earring',
         Ear2 = 'Brutal Earring',
         Body = 'Rapparee harness',
         Hands = 'Homam manopolas',
         Ring1 = 'Toreador\'s Ring',
-        Ring2 = 'Rajas Ring',
+        Ring2 = {'Begrudging Ring'},
+        --Ring2 = {'Sattva Ring'},
 		Back = 'Forager\'s mantle',
         Waist = 'Swift belt',
 		Legs = 'Homam cosciales',
@@ -49,11 +50,9 @@ local sets = {
     ['Eva'] = {
 		Range = 'Ungur boomerang',
 		Head = 'Optical hat',
-		Neck = 'Evasion torque',
 		Ear1 = 'Stealth earring',
 		Ear2 = 'Novia earring',
-		Body = 'Scp. Harness +1',
-        Waist = 'Scouter\'s rope',
+        Body = 'Homam corazza',
 		Back = 'Boxer\'s mantle',
     },
 	
@@ -90,7 +89,7 @@ local sets = {
         Body = 'Dragon harness',
 		Hands = 'Hecatomb mittens',
         Ring1 = 'Thunder Ring',
-        Ring2 = 'Rajas Ring',
+        Ring2 = {'Begrudging Ring'},
 		Back = 'Assassin\'s cape',
         Waist = 'Warwolf belt',
         Legs = 'Dragon subligar',
@@ -104,8 +103,8 @@ local sets = {
         Ear2 = 'Brutal Earring',
         Body = 'Dragon harness',
 		Hands = 'Hecatomb mittens',
-        Ring1 = 'Kshama ring no.2',
-        Ring2 = 'Rajas Ring',
+        Ring1 = 'Thunder Ring',
+        Ring2 = {'Begrudging Ring'},
 		Back = 'Forager\'s mantle',
         Waist = 'Warwolf belt',
         Legs = 'Dragon subligar',
@@ -118,7 +117,7 @@ local sets = {
         Body = 'Dragon harness',
 		Hands = 'Rogue\'s Armlets',
         Ring1 = 'Thunder ring',
-        Ring2 = 'Rajas Ring',
+        Ring2 = 'Kshama Ring No.2',
 		Back = 'Assassin\'s cape',
         Waist = 'Warwolf belt',
         Legs = 'Dragon subligar',
@@ -151,7 +150,7 @@ local sets = {
     },
 	
     ['Steal'] = {
-		Hands = 'Rogue\'s armlets',
+		Hands = 'Thief\'s kote',
         Legs = 'Assassin\'s culottes',
         Feet = 'Rogue\'s poulaines',
     },
@@ -271,9 +270,9 @@ profile.HandleDefault = function()
 				gFunc.EquipSet(profile.Sets.Agi)
 			end
 		end
-		if (env.Day == 'Lightningday') then
-			gFunc.Equip('Ring1', 'Lightning Ring');
-		end
+		--if (env.Day == 'Lightningday') then
+			--gFunc.Equip('Ring1', 'Lightning Ring');
+		--end
 		if (player.SubJob == 'NIN') then
 			gFunc.Equip('Ear1', 'Stealth Earring');
 		end
@@ -285,6 +284,9 @@ profile.HandleDefault = function()
 		gFunc.LockStyle(profile.Sets.Style);
 		if Settings.TH == 1 then
 			gFunc.EquipSet(profile.Sets.TH)
+		end
+		if Settings.Eva == 1 then
+			gFunc.EquipSet(profile.Sets.Eva)
 		end
 	end
 	profile.CheckCity(loc);
@@ -304,6 +306,10 @@ profile.HandleAbility = function()
 end
 
 profile.HandleItem = function()
+	local action = gData.GetAction();
+	if (action.Name == 'Silent Oil') or (action.Name == 'Prism Powder') then
+		gFunc.EquipSet(sets.sneakvis);
+	end
 end
 
 profile.HandlePrecast = function()

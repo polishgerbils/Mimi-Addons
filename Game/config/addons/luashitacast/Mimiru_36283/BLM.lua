@@ -21,6 +21,30 @@ local EleStaffTable = {
     ['Dark'] = 'Pluto\'s Staff'
 };
 
+local Obis = {
+	--Uncomment as you get them.
+    --['Fire'] = 'Karin Obi',
+    --['Earth'] = 'Dorin Obi',
+    --['Water'] = 'Suirin Obi',
+    --['Wind'] = 'Furin Obi',
+    --['Ice'] = 'Hyorin Obi',
+    --['Thunder'] = 'Rairin Obi',
+    --['Light'] = 'Korin Obi',
+    ['Dark'] = 'Anrin Obi'
+}
+
+local ElementMap = {
+    [0] = "None",
+    [1] = "Fire",
+    [2] = "Ice",
+    [3] = "Wind",
+    [4] = "Earth",
+    [5] = "Lightning",
+    [6] = "Water",
+    [7] = "Dark",
+    [8] = "Light"
+}
+
 local Spells = {
     Healing = T{"Cure", "Cure II", "Cure III", "Cure IV", "Curaga", "Curaga II", "Erase"},
 
@@ -50,26 +74,27 @@ local Sets = {
         Main = 'Terra\'s Staff',
         Sub = '',
         Ammo = 'Phtm. Tathlum',
-        Head = 'Wizard\'s petasos',
+        Head = 'Wzd. Petasos +1',
 		Neck = {'Uggalepih pendant', 'Checkered Scarf'},
-        Ear1 = {'Loquac. Earring', 'Morion Earring'},
-        Ear2 = {'Magnetic Earring', 'Morion Earring'},
+        Ear1 = 'Merman\'s Earring',
+        Ear2 = 'Merman\'s Earring',
         Body = {'Dalmatica', 'Wizard\'s coat'},
         Hands = {'Sorcerer\'s gloves','Wizard\'s gloves'},
         Ring1 = 'Merman\'s Ring',
-        Ring2 = 'Merman\'s Ring',
+        Ring2 = 'Sattva Ring',
         Back = 'Hexerei cape',
         Waist = {'Hierarch Belt', 'Swift belt'},
-        Legs = 'Nashira Seraweels',
+		Legs = 'Wizard\'s tonban',
         Feet = {'River gaiters'},
     },
 
     ['Healing'] = {
 	    Ammo = 'Hedgehog Bomb',
+		Head = 'Hydra beret',
         Neck = 'Justice badge',
-        Body = 'Errant Hpl.',
+        Body = 'Mahatma Hpl.',
         Ear2 = 'Loquac. Earring',
-        Hands = 'Savage gauntlets',
+        Hands = 'Hydra gloves',
         Ring1 = 'Aqua Ring',
         Ring2 = 'Aqua Ring',
         Back = 'Rainbow Cape',		
@@ -80,16 +105,32 @@ local Sets = {
 
     ['Resting_Priority'] = {
         Main = {'Pluto\'s Staff', 'Pilgrim\'s wand'},
-        Head = 'Wizard\'s petasos',
+		Head = 'Hydra beret',
 		Neck = 'Checkered Scarf',
         Ear1 = 'Relaxing Earring',
 	    Ear2 = 'Magnetic Earring',
-        Body = {'Errant Hpl.', 'Seer\'s tunic +1'},
+        Hands = 'Hydra gloves',
+        Body = 'Mahatma Hpl.',
         Waist = 'Hierarch Belt',
         Back = 'Rainbow Cape',
         Legs = 'Baron\'s slops',
     },
-
+	
+    ['Stoneskin'] = {
+        Head = 'Zenith crown',
+        Neck = 'Promise badge', 
+        Ear1 = 'Coral Earring',
+        Ear2 = 'Coral Earring',
+        Body = 'Mahatma Hpl.',
+        Hands = 'Dvt. Mitts +1',
+        Ring1 = 'Aqua Ring',
+        Ring2 = 'Aqua Ring',
+        Back = 'Prism Cape',
+        Waist = 'Penitent\'s rope',
+        Legs = 'Mahatma Slops',
+        Feet = 'River gaiters'
+    },
+	
     ['MndEnfeebling'] = {
         Head = 'Igqira tiara',
         Neck = 'Enfeebling Torque', 
@@ -99,7 +140,7 @@ local Sets = {
         Hands = 'Savage gauntlets',
         Ring1 = 'Aqua Ring',
         Ring2 = 'Aqua Ring',
-        Back = 'Rainbow Cape',
+        Back = 'Prism Cape',
         Waist = 'Penitent\'s rope',
         Legs = 'Mahatma Slops',
         Feet = 'River gaiters'
@@ -115,7 +156,7 @@ local Sets = {
         Hands = '',
         Ring1 = 'Snow Ring',
         Ring2 = 'Snow Ring',
-        Back = 'Rainbow Cape',
+        Back = 'Prism Cape',
         Waist = 'Penitent\'s rope',
         Legs = 'Nashira Seraweels',
         Feet = 'River gaiters'
@@ -123,15 +164,16 @@ local Sets = {
 
     ['Nuking'] = {
         Ammo = '',
-        Head = 'Wizard\'s petasos',
+        Head = 'Wzd. Petasos +1',
 		Neck = 'Elemental torque',
         Ear1 = 'Moldavite Earring',
-        Ear2 = 'Morion Earring',
+        Ear2 = 'Novio Earring',
         Body = 'Igqira Weskit',
-        Hands = 'Zenith mitts',
+		Hands = 'Zenith Mitts',
+        --Hands = 'Sorcerer\'s gloves',
         Ring1 = 'Snow Ring',
         Ring2 = 'Snow Ring',
-        Back = 'Rainbow cape',
+        Back = 'Prism Cape',
         Waist = 'Penitent\'s rope',
         Legs = 'Mahatma Slops',
         Feet = 'River gaiters',
@@ -140,7 +182,7 @@ local Sets = {
     ['EleSkill'] = {
 		Head = 'Sorcerer\'s petas.',
 		Neck = 'Elemental torque',
-        Body = 'Errant Hpl.',
+        Body = 'Mahatma Hpl.',
         Hands = 'Wizard\'s gloves',
     },
 	
@@ -165,14 +207,15 @@ local Sets = {
 	
     ['DarkMagic'] = {
 		Hands = 'Sorcerer\'s gloves',
+		Ring1 = 'Overlord\'s ring',
 		Legs = 'Wizard\'s tonban',
     },	
 
     ['Enmity'] = {
 	    Ammo = 'Hedgehog Bomb',
-        Head = 'Wizard\'s petasos',
+        Head = 'Wzd. Petasos +1',
 		Ear2 = 'Novia earring',
-        Body = 'Errant Hpl.',
+        Body = 'Mahatma Hpl.',
         Hands = 'Sorcerer\'s gloves',
         Waist = 'Penitent\'s rope',
         Legs = 'Mahatma Slops',
@@ -255,8 +298,6 @@ profile.CheckCity = function(loc)
     if (string.match(loc, "Bastok")) or (string.match(loc, "Metalworks")) then
         gFunc.Equip('Body', "Republic Aketon");
     elseif (string.match(loc, "Windurst")) or (string.match(loc, "Heavens Tower")) then
-        gFunc.Equip('Body', 'Tanner\'s apron')
-		gFunc.Equip('Hands', 'Tanner\'s gloves')
     elseif (string.match(loc, "San d\'Oria")) or (string.match(loc, "d\'Oraguille")) then
         gFunc.Equip('Body', 'Tanner\'s apron')
 		gFunc.Equip('Hands', 'Tanner\'s gloves')
@@ -349,6 +390,7 @@ end
 
 profile.HandleMidcast = function()
     local action = gData.GetAction();
+	local weather = gData.GetEnvironment();
     local distance = tonumber(('%.1f'):fmt(math.sqrt(gData.GetActionTarget().Distance)));
     local spell = AshitaCore:GetResourceManager():GetSpellById(action.Id);
     local spellCooldown = AshitaCore:GetMemoryManager():GetRecast():GetSpellTimer(action.Id)/60;
@@ -357,6 +399,10 @@ profile.HandleMidcast = function()
         -- Buffs 
         if (profile.CheckForSpell(Spells.Buffs, action.Name) and not (string.match(action.Name, "Stoneskin"))) then
             gFunc.EquipSet(Sets.HasteCast);
+			
+        -- Stoneskin
+        elseif (string.match(action.Name, "Stoneskin")) then
+            gFunc.EquipSet(Sets.Stoneskin);
 
         -- Mind Enfeebling
         elseif (profile.CheckForSpell(Spells.MndEnfeebling, action.Name)) then
@@ -408,7 +454,27 @@ profile.HandleMidcast = function()
 		-- Dark
 		elseif (profile.CheckForSpell(Spells.Dark, action.Name)) then
 			gFunc.EquipSet(Sets.DarkMagic)
-		
+
+			-- Map numerical element ID to string
+			local elementName = ElementMap[spell.Element]
+			
+			-- Debugging outputs using gFunc.Echo
+			--gFunc.Echo(158, "Spell Element: " .. (elementName or "nil"))
+			--gFunc.Echo(158, "Weather Element: " .. (weather.WeatherElement or "nil"))
+			--gFunc.Echo(158, "Day Element: " .. (weather.DayElement or "nil"))
+			--gFunc.Echo(158, "Matching Obi: " .. (Obis[elementName] or "nil"))
+
+			-- Ensure element and Obi exist
+			if elementName and Obis[elementName] then
+				if (elementName == weather.WeatherElement) or (elementName == weather.DayElement) then
+					gFunc.Equip('waist', Obis[elementName])
+					--gFunc.Echo(158, "Equipping Obi: " .. Obis[elementName])
+				else
+					--gFunc.Echo(158, "No matching weather or day element for Obi.")
+				end
+			else
+				--gFunc.Echo(158, "Error: Spell element is nil or Obi not found for element.")
+			end
         -- Defaults to idle set if the check falls through somehow
         else 
             gFunc.EquipSet(Sets.Idle);

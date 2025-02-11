@@ -39,9 +39,9 @@ local function Convert_String(input, codepage_from, codepage_to, cache)
     ffi.C.MultiByteToWideChar(codepage_from, 0, cbuffer, -1, wbuffer, wchar_length);
 
     -- wchar_t[] > char[]
-    local char_length = ffi.C.WideCharToMultiByte(codepage_to, 0, wbuffer, -1, nil, 0, ' ', nil);
+    local char_length = ffi.C.WideCharToMultiByte(codepage_to, 0, wbuffer, -1, nil, 0, nil, nil);
     cbuffer = ffi.new('char[?]', char_length);
-    ffi.C.WideCharToMultiByte(codepage_to, 0, wbuffer, -1, cbuffer, char_length, ' ', nil);
+    ffi.C.WideCharToMultiByte(codepage_to, 0, wbuffer, -1, cbuffer, char_length, nil, nil);
 
     -- Back to lua string
     local new_str = ffi.string(cbuffer);

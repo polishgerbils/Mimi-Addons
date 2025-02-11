@@ -22,27 +22,18 @@ local pacts = {
 
 local sets = {
 
-	['Style'] = {
-		Main = 'Rep. Signet Staff',
-		Head = 'Opo-opo Crown',
-	},
-	
-	['Town'] = {
-
-	},
-	
     ['Idle_Priority'] = {
         Main = {'Terra\'s Staff', 'Dragon Staff'},
         Ammo = 'Hedgehog Bomb',
         Head = {'Summoner\'s horn', 'Shep. Bonnet'},
         Neck = 'Uggalepih pendant',
-        Ear1 = {'Magnetic Earring', 'Morion earring'},
-        Ear2 = {'Loquac. Earring', 'Morion earring'},
+        Ear1 = 'Merman\'s Earring',
+        Ear2 = 'Merman\'s Earring',
         Body = {'Yinyang Robe', 'Shep. Doublet'},
         Hands = {'Smn. Bracers +1', 'Savage Gauntlets'},
         Ring1 = {'Merman\'s Ring', 'Ether Ring'},
-        Ring2 = 'Merman\'s Ring',
-        Back = 'Summoner\'s Cape',
+        Ring2 = 'Sattva Ring',
+        Back = 'Astute Cape',
         Waist = 'Hierarch Belt',
         Legs = {'Summoner\'s Spats', 'Savage Loincloth'},
         Feet = {'River Gaiters', 'Mannequin Pumps'},
@@ -61,10 +52,12 @@ local sets = {
 	
     ['Resting_Priority'] = {
         Main = {'Pluto\'s Staff', 'Kukulcan\'s Staff', 'Pilgrim\'s Wand'},
+		Head = 'Hydra beret',
 		Neck = 'Checkered Scarf',
         Ear1 = 'Magnetic Earring',
 		Ear2 = 'Relaxing Earring',
-        Body = 'Errant Hpl.',
+        Body = 'Mahatma Hpl.',
+        Hands = 'Hydra gloves',
 		Waist = 'Hierarch Belt',
 		Legs = 'Baron\'s Slops',
     },
@@ -92,29 +85,22 @@ local sets = {
         Legs = 'Savage Loincloth',
 		Feet = 'Rostrum Pumps',
     },
-	
-    SIRD = {
-	
-	},
-		
+			
     ['BPDown'] = {
-		Head = "Summoner\'s horn",
+		Head = 'Summoner\'s horn',
 		Body = 'Yinyang Robe',
         Hands = 'Smn. Bracers +1',
 		Legs = 'Summoner\'s Spats',
+		Feet = 'Smn. pigaches +1',
     },
     
-	['Siphon'] = {
-	
-    },
-
 	['PetPhys_Priority'] = {
 		Head = {'Evoker\'s Horn','Shep. Bonnet',},
 		Neck = 'Smn. Torque',
 		Ear2 = 'Beastly Earring',
         Hands = 'Smn. Bracers +1',
 		Legs = 'Evoker\'s Spats',
-		Feet = 'Austere Sabots',	
+		Feet = 'Smn. pigaches +1',
     },
 	
 	['PetMagic_Priority'] = {
@@ -123,7 +109,6 @@ local sets = {
 		Ear1 = 'Relaxing Earring',
 		Body = 'Shep. Doublet',
 		Legs = 'Evoker\'s Spats',
-		Feet = 'Austere Sabots',	
     },
 	
 	['PetWard'] = {
@@ -131,10 +116,6 @@ local sets = {
 		Neck = 'Smn. Torque',
 		Legs = 'Evoker\'s Spats',
 	},
-    
-	['PetHealing'] = {--Avatar HP+
-	
-    },
 	
 	['PetMAcc_Priority'] = {
 		Head = {'Evoker\'s Horn','Shep. Bonnet',},
@@ -148,7 +129,7 @@ local sets = {
 		Neck = 'Smn. Torque',
 		Ear2 = 'Beastly Earring',
 		Legs = 'Evoker\'s Spats',
-		Feet = 'Austere Sabots',
+		Feet = 'Smn. pigaches +1',
     },
 	
     ['sneakvis'] = {
@@ -308,13 +289,11 @@ profile.HandleDefault = function()
 		end
 	elseif T{230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246}:contains(location) then
 		gFunc.EquipSet(profile.Sets.Idle);
-		gFunc.LockStyle(sets.Style);
 		if T{234, 235, 236, 237}:contains(location) then
 			gFunc.Equip('Body', 'Republic Aketon');		
 		end	
     else
 		gFunc.EquipSet(sets.Idle);
-		gFunc.LockStyle(sets.Style);
 		restTimer = 0;
     end
 	

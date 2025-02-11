@@ -28,7 +28,7 @@ config.DrawWindow = function(us)
         end
         imgui.BeginChild("Config Options", { 0, 0 }, true);
         if (imgui.CollapsingHeader("General")) then
-            imgui.BeginChild("GeneralSettings", { 0, 150 }, true);
+            imgui.BeginChild("GeneralSettings", { 0, 210 }, true);
             if (imgui.Checkbox('Lock HUD Position', { gConfig.lockPositions })) then
                 gConfig.lockPositions = not gConfig.lockPositions;
                 UpdateSettings();
@@ -85,16 +85,32 @@ config.DrawWindow = function(us)
             end
             imgui.ShowHelp('For bars with no bookends, how round they should be.');
 
+            local tooltipScale = { gConfig.tooltipScale };
+            if (imgui.SliderFloat('Tooltip Scale', tooltipScale, 0.1, 3.0, '%.2f')) then
+                gConfig.tooltipScale = tooltipScale[1];
+                UpdateSettings();
+            end
+            imgui.ShowHelp('Scales the size of the tooltip. Note that text may appear blured if scaled too large.');
+
+            if (imgui.Checkbox('Hide During Events', { gConfig.hideDuringEvents })) then
+                gConfig.hideDuringEvents = not gConfig.hideDuringEvents;
+                UpdateSettings();
+            end
+
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Player Bar")) then
-            imgui.BeginChild("PlayerBarSettings", { 0, 160 }, true);
+            imgui.BeginChild("PlayerBarSettings", { 0, 210 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showPlayerBar })) then
                 gConfig.showPlayerBar = not gConfig.showPlayerBar;
                 UpdateSettings();
             end
             if (imgui.Checkbox('Show Bookends', { gConfig.showPlayerBarBookends })) then
                 gConfig.showPlayerBarBookends = not gConfig.showPlayerBarBookends;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Hide During Events', { gConfig.playerBarHideDuringEvents })) then
+                gConfig.playerBarHideDuringEvents = not gConfig.playerBarHideDuringEvents;
                 UpdateSettings();
             end
             if (imgui.Checkbox('Always Show MP Bar', { gConfig.alwaysShowMpBar })) then
@@ -120,13 +136,17 @@ config.DrawWindow = function(us)
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Target Bar")) then
-            imgui.BeginChild("TargetBarSettings", { 0, 220 }, true);
+            imgui.BeginChild("TargetBarSettings", { 0, 270 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showTargetBar })) then
                 gConfig.showTargetBar = not gConfig.showTargetBar;
                 UpdateSettings();
             end
             if (imgui.Checkbox('Show Bookends', { gConfig.showTargetBarBookends })) then
                 gConfig.showTargetBarBookends = not gConfig.showTargetBarBookends;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Hide During Events', { gConfig.targetBarHideDuringEvents })) then
+                gConfig.targetBarHideDuringEvents = not gConfig.targetBarHideDuringEvents;
                 UpdateSettings();
             end
             if (imgui.Checkbox('Show Enemy Id', { gConfig.showEnemyId })) then
@@ -138,7 +158,7 @@ config.DrawWindow = function(us)
                 gConfig.alwaysShowHealthPercent = not gConfig.alwaysShowHealthPercent;
                 UpdateSettings();
             end
-            imgui.ShowHelp('Always display the percent of HP remanining regardless if the target is an enemy or not.'); 
+            imgui.ShowHelp('Always display the percent of HP remanining regardless if the target is an enemy or not.');
             local scaleX = { gConfig.targetBarScaleX };
             if (imgui.SliderFloat('Scale X', scaleX, 0.1, 3.0, '%.1f')) then
                 gConfig.targetBarScaleX = scaleX[1];
@@ -162,7 +182,7 @@ config.DrawWindow = function(us)
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Enemy List")) then
-            imgui.BeginChild("EnemyListSettings", { 0, 160 }, true);
+            imgui.BeginChild("EnemyListSettings", { 0, 180 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showEnemyList })) then
                 gConfig.showEnemyList = not gConfig.showEnemyList;
                 UpdateSettings();
@@ -194,9 +214,13 @@ config.DrawWindow = function(us)
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Party List")) then
-            imgui.BeginChild("PartyListSettings", { 0, 300 }, true);
+            imgui.BeginChild("PartyListSettings", { 0, 460 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showPartyList })) then
                 gConfig.showPartyList = not gConfig.showPartyList;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Preview Full Party (when config open)', { gConfig.partyListPreview })) then
+                gConfig.partyListPreview = not gConfig.partyListPreview;
                 UpdateSettings();
             end
             if (imgui.Checkbox('Show Bookends', { gConfig.showPartyListBookends })) then
@@ -207,31 +231,59 @@ config.DrawWindow = function(us)
                 gConfig.showPartyListWhenSolo = not gConfig.showPartyListWhenSolo;
                 UpdateSettings();
             end
-            local scaleX = { gConfig.partyListScaleX };
-            if (imgui.SliderFloat('Scale X', scaleX, 0.1, 3.0, '%.1f')) then
-                gConfig.partyListScaleX = scaleX[1];
+            if (imgui.Checkbox('Show Title', { gConfig.showPartyListTitle })) then
+                gConfig.showPartyListTitle = not gConfig.showPartyListTitle;
                 UpdateSettings();
             end
-            local scaleY = { gConfig.partyListScaleY };
-            if (imgui.SliderFloat('Scale Y', scaleY, 0.1, 3.0, '%.1f')) then
-                gConfig.partyListScaleY = scaleY[1];
+            if (imgui.Checkbox('Hide During Events', { gConfig.partyListHideDuringEvents })) then
+                gConfig.partyListHideDuringEvents = not gConfig.partyListHideDuringEvents;
                 UpdateSettings();
             end
-
-            local bgOpacity = { gConfig.partyListBgOpacity };
-            if (imgui.SliderFloat('Background Opacity', bgOpacity, 0, 255, '%.f')) then
-                gConfig.partyListBgOpacity = bgOpacity[1];
+            if (imgui.Checkbox('Align Bottom', { gConfig.partyListAlignBottom })) then
+                gConfig.partyListAlignBottom = not gConfig.partyListAlignBottom;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Expand Height', { gConfig.partyListExpandHeight })) then
+                gConfig.partyListExpandHeight = not gConfig.partyListExpandHeight;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Alliance Windows', { gConfig.partyListAlliance })) then
+                gConfig.partyListAlliance = not gConfig.partyListAlliance;
                 UpdateSettings();
             end
 
             -- Background
-            local bg_theme_paths = statusHandler.get_background_paths();
-            if (imgui.BeginCombo('Background', gConfig.partyListBackground)) then
-                for i = 1,#bg_theme_paths,1 do
-                    local is_selected = i == gConfig.partyListBackground;
+            local bgScale = { gConfig.partyListBgScale };
+            if (imgui.SliderFloat('Background Scale', bgScale, 0.1, 3.0, '%.2f')) then
+                gConfig.partyListBgScale = bgScale[1];
+                UpdateSettings();
+            end
 
-                    if (imgui.Selectable(bg_theme_paths[i], is_selected) and bg_theme_paths[i] ~= gConfig.partyListBackground) then
-                        gConfig.partyListBackground = bg_theme_paths[i];
+            local bgColor = { gConfig.partyListBgColor[1] / 255, gConfig.partyListBgColor[2] / 255, gConfig.partyListBgColor[3] / 255, gConfig.partyListBgColor[4] / 255 };
+            if (imgui.ColorEdit4('Background Color', bgColor, ImGuiColorEditFlags_AlphaBar)) then
+                gConfig.partyListBgColor[1] = bgColor[1] * 255;
+                gConfig.partyListBgColor[2] = bgColor[2] * 255;
+                gConfig.partyListBgColor[3] = bgColor[3] * 255;
+                gConfig.partyListBgColor[4] = bgColor[4] * 255;
+                UpdateSettings();
+            end
+
+            local borderColor = { gConfig.partyListBorderColor[1] / 255, gConfig.partyListBorderColor[2] / 255, gConfig.partyListBorderColor[3] / 255, gConfig.partyListBorderColor[4] / 255 };
+            if (imgui.ColorEdit4('Border Color', borderColor, ImGuiColorEditFlags_AlphaBar)) then
+                gConfig.partyListBorderColor[1] = borderColor[1] * 255;
+                gConfig.partyListBorderColor[2] = borderColor[2] * 255;
+                gConfig.partyListBorderColor[3] = borderColor[3] * 255;
+                gConfig.partyListBorderColor[4] = borderColor[4] * 255;
+                UpdateSettings();
+            end
+
+            local bg_theme_paths = statusHandler.get_background_paths();
+            if (imgui.BeginCombo('Background', gConfig.partyListBackgroundName)) then
+                for i = 1,#bg_theme_paths,1 do
+                    local is_selected = i == gConfig.partyListBackgroundName;
+
+                    if (imgui.Selectable(bg_theme_paths[i], is_selected) and bg_theme_paths[i] ~= gConfig.partyListBackgroundName) then
+                        gConfig.partyListBackgroundName = bg_theme_paths[i];
                         statusHandler.clear_cache();
                         UpdateSettings();
                     end
@@ -288,44 +340,185 @@ config.DrawWindow = function(us)
             end
 
             local buffScale = { gConfig.partyListBuffScale };
-            if (imgui.SliderFloat('Icon Scale', buffScale, 0.1, 3.0, '%.1f')) then
+            if (imgui.SliderFloat('Status Icon Scale', buffScale, 0.1, 3.0, '%.1f')) then
                 gConfig.partyListBuffScale = buffScale[1];
                 UpdateSettings();
             end
-            local fontOffset = { gConfig.partyListFontOffset };
-            if (imgui.SliderInt('Font Scale', fontOffset, -5, 10)) then
-                gConfig.partyListFontOffset = fontOffset[1];
-                UpdateSettings();
-            end
-            local entrySpacing = { gConfig.partyListEntrySpacing };
-            if (imgui.SliderInt('Entry Spacing', entrySpacing, -20, 20)) then
-                gConfig.partyListEntrySpacing = entrySpacing[1];
-                UpdateSettings();
-            end
             imgui.EndChild();
+
+            if true then
+                imgui.BeginChild('PartyListSettings.Party1', { 0, 230 }, true);
+                imgui.Text('Party');
+
+                if (imgui.Checkbox('Show TP', { gConfig.partyListTP })) then
+                    gConfig.partyListTP = not gConfig.partyListTP;
+                    UpdateSettings();
+                end
+
+                local minRows = { gConfig.partyListMinRows };
+                if (imgui.SliderInt('Min Rows', minRows, 1, 6)) then
+                    gConfig.partyListMinRows = minRows[1];
+                    UpdateSettings();
+                end
+
+                local scaleX = { gConfig.partyListScaleX };
+                if (imgui.SliderFloat('Scale X', scaleX, 0.1, 3.0, '%.2f')) then
+                    gConfig.partyListScaleX = scaleX[1];
+                    UpdateSettings();
+                end
+                local scaleY = { gConfig.partyListScaleY };
+                if (imgui.SliderFloat('Scale Y', scaleY, 0.1, 3.0, '%.2f')) then
+                    gConfig.partyListScaleY = scaleY[1];
+                    UpdateSettings();
+                end
+
+                local fontOffset = { gConfig.partyListFontOffset };
+                if (imgui.SliderInt('Font Scale', fontOffset, -5, 10)) then
+                    gConfig.partyListFontOffset = fontOffset[1];
+                    UpdateSettings();
+                end
+
+                local jobIconScale = { gConfig.partyListJobIconScale };
+                if (imgui.SliderFloat('Job Icon Scale', jobIconScale, 0.1, 3.0, '%.1f')) then
+                    gConfig.partyListJobIconScale = jobIconScale[1];
+                    UpdateSettings();
+                end
+
+                local entrySpacing = { gConfig.partyListEntrySpacing };
+                if (imgui.SliderInt('Entry Spacing', entrySpacing, -20, 20)) then
+                    gConfig.partyListEntrySpacing = entrySpacing[1];
+                    UpdateSettings();
+                end
+
+                imgui.EndChild();
+            end
+
+            if (gConfig.partyListAlliance) then
+                imgui.BeginChild('PartyListSettings.Party2', { 0, 205 }, true);
+                imgui.Text('Party B (Alliance)');
+
+                if (imgui.Checkbox('Show TP', { gConfig.partyList2TP })) then
+                    gConfig.partyList2TP = not gConfig.partyList2TP;
+                    UpdateSettings();
+                end
+
+                local scaleX = { gConfig.partyList2ScaleX };
+                if (imgui.SliderFloat('Scale X', scaleX, 0.1, 3.0, '%.2f')) then
+                    gConfig.partyList2ScaleX = scaleX[1];
+                    UpdateSettings();
+                end
+                local scaleY = { gConfig.partyList2ScaleY };
+                if (imgui.SliderFloat('Scale Y', scaleY, 0.1, 3.0, '%.2f')) then
+                    gConfig.partyList2ScaleY = scaleY[1];
+                    UpdateSettings();
+                end
+
+                local fontOffset = { gConfig.partyList2FontOffset };
+                if (imgui.SliderInt('Font Scale', fontOffset, -5, 10)) then
+                    gConfig.partyList2FontOffset = fontOffset[1];
+                    UpdateSettings();
+                end
+
+                local jobIconScale = { gConfig.partyList2JobIconScale };
+                if (imgui.SliderFloat('Job Icon Scale', jobIconScale, 0.1, 3.0, '%.1f')) then
+                    gConfig.partyList2JobIconScale = jobIconScale[1];
+                    UpdateSettings();
+                end
+
+                local entrySpacing = { gConfig.partyList2EntrySpacing };
+                if (imgui.SliderInt('Entry Spacing', entrySpacing, -20, 20)) then
+                    gConfig.partyList2EntrySpacing = entrySpacing[1];
+                    UpdateSettings();
+                end
+
+                imgui.EndChild();
+            end
+
+            if (gConfig.partyListAlliance) then
+                imgui.BeginChild('PartyListSettings.Party3', { 0, 205 }, true);
+                imgui.Text('Party C (Alliance)');
+
+                if (imgui.Checkbox('Show TP', { gConfig.partyList3TP })) then
+                    gConfig.partyList3TP = not gConfig.partyList3TP;
+                    UpdateSettings();
+                end
+
+                local scaleX = { gConfig.partyList3ScaleX };
+                if (imgui.SliderFloat('Scale X', scaleX, 0.1, 3.0, '%.2f')) then
+                    gConfig.partyList3ScaleX = scaleX[1];
+                    UpdateSettings();
+                end
+                local scaleY = { gConfig.partyList3ScaleY };
+                if (imgui.SliderFloat('Scale Y', scaleY, 0.1, 3.0, '%.2f')) then
+                    gConfig.partyList3ScaleY = scaleY[1];
+                    UpdateSettings();
+                end
+
+                local fontOffset = { gConfig.partyList3FontOffset };
+                if (imgui.SliderInt('Font Scale', fontOffset, -5, 10)) then
+                    gConfig.partyList3FontOffset = fontOffset[1];
+                    UpdateSettings();
+                end
+
+                local jobIconScale = { gConfig.partyList3JobIconScale };
+                if (imgui.SliderFloat('Job Icon Scale', jobIconScale, 0.1, 3.0, '%.1f')) then
+                    gConfig.partyList3JobIconScale = jobIconScale[1];
+                    UpdateSettings();
+                end
+
+                local entrySpacing = { gConfig.partyList3EntrySpacing };
+                if (imgui.SliderInt('Entry Spacing', entrySpacing, -20, 20)) then
+                    gConfig.partyList3EntrySpacing = entrySpacing[1];
+                    UpdateSettings();
+                end
+
+                imgui.EndChild();
+            end
         end
         if (imgui.CollapsingHeader("Exp Bar")) then
-            imgui.BeginChild("ExpBarSettings", { 0, 160 }, true);
+            imgui.BeginChild("ExpBarSettings", { 0, 300 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showExpBar })) then
                 gConfig.showExpBar = not gConfig.showExpBar;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Limit Points Mode', { gConfig.expBarLimitPointsMode })) then
+                gConfig.expBarLimitPointsMode = not gConfig.expBarLimitPointsMode;
+                UpdateSettings();
+            end
+            imgui.ShowHelp('Shows Limit Points if character is set to earn Limit Points in the game.');
+            if (imgui.Checkbox('Inline Mode', { gConfig.expBarInlineMode })) then
+                gConfig.expBarInlineMode = not gConfig.expBarInlineMode;
                 UpdateSettings();
             end
             if (imgui.Checkbox('Show Bookends', { gConfig.showExpBarBookends })) then
                 gConfig.showExpBarBookends = not gConfig.showExpBarBookends;
                 UpdateSettings();
             end
+            if (imgui.Checkbox('Show Text', { gConfig.expBarShowText })) then
+                gConfig.expBarShowText = not gConfig.expBarShowText;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Show Percent', { gConfig.expBarShowPercent })) then
+                gConfig.expBarShowPercent = not gConfig.expBarShowPercent;
+                UpdateSettings();
+            end
             local scaleX = { gConfig.expBarScaleX };
-            if (imgui.SliderFloat('Scale X', scaleX, 0.1, 3.0, '%.1f')) then
+            if (imgui.SliderFloat('Scale X', scaleX, 0.1, 3.0, '%.2f')) then
                 gConfig.expBarScaleX = scaleX[1];
                 UpdateSettings();
             end
             local scaleY = { gConfig.expBarScaleY };
-            if (imgui.SliderFloat('Scale Y', scaleY, 0.1, 3.0, '%.1f')) then
+            if (imgui.SliderFloat('Scale Y', scaleY, 0.1, 3.0, '%.2f')) then
                 gConfig.expBarScaleY = scaleY[1];
                 UpdateSettings();
             end
+            local textScaleX = { gConfig.expBarTextScaleX };
+            if (imgui.SliderFloat('Text Scale X', textScaleX, 0.1, 3.0, '%.2f')) then
+                gConfig.expBarTextScaleX = textScaleX[1];
+                UpdateSettings();
+            end
             local fontOffset = { gConfig.expBarFontOffset };
-            if (imgui.SliderInt('Font Scale', fontOffset, -5, 10)) then
+            if (imgui.SliderInt('Font Height', fontOffset, -5, 10)) then
                 gConfig.expBarFontOffset = fontOffset[1];
                 UpdateSettings();
             end
@@ -347,12 +540,41 @@ config.DrawWindow = function(us)
                 gConfig.gilTrackerFontOffset = fontOffset[1];
                 UpdateSettings();
             end
+            if (imgui.Checkbox('Right Align', { gConfig.gilTrackerRightAlign })) then
+                gConfig.gilTrackerRightAlign = not gConfig.gilTrackerRightAlign;
+                UpdateSettings();
+            end
+            local posOffset = { gConfig.gilTrackerPosOffset[1], gConfig.gilTrackerPosOffset[2] };
+            if (imgui.InputInt2('Position Offset', posOffset)) then
+                gConfig.gilTrackerPosOffset[1] = posOffset[1];
+                gConfig.gilTrackerPosOffset[2] = posOffset[2];
+                UpdateSettings();
+            end
             imgui.EndChild();
         end
         if (imgui.CollapsingHeader("Inventory Tracker")) then
-            imgui.BeginChild("InventoryTrackerSettings", { 0, 160 }, true);
+            imgui.BeginChild("InventoryTrackerSettings", { 0, 210 }, true);
             if (imgui.Checkbox('Enabled', { gConfig.showInventoryTracker })) then
                 gConfig.showInventoryTracker = not gConfig.showInventoryTracker;
+                UpdateSettings();
+            end
+            if (imgui.Checkbox('Show Count', { gConfig.inventoryShowCount })) then
+                gConfig.inventoryShowCount = not gConfig.inventoryShowCount;
+                UpdateSettings();
+            end
+            local columnCount = { gConfig.inventoryTrackerColumnCount };
+            if (imgui.SliderInt('Columns', columnCount, 1, 80)) then
+                gConfig.inventoryTrackerColumnCount = columnCount[1];
+                UpdateSettings();
+            end
+            local rowCount = { gConfig.inventoryTrackerRowCount };
+            if (imgui.SliderInt('Rows', rowCount, 1, 80)) then
+                gConfig.inventoryTrackerRowCount = rowCount[1];
+                UpdateSettings();
+            end
+            local opacity = { gConfig.inventoryTrackerOpacity };
+            if (imgui.SliderFloat('Opacity', opacity, 0, 1.0, '%.2f')) then
+                gConfig.inventoryTrackerOpacity = opacity[1];
                 UpdateSettings();
             end
             local scale = { gConfig.inventoryTrackerScale };

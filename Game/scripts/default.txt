@@ -45,7 +45,6 @@
 /addon load enternity
 /addon load filterless
 /addon load fps
-/addon load ImGui Style
 /addon load instantah
 /addon load luashitacast
 /addon load timestamp
@@ -221,20 +220,20 @@
 /alias add /rr //reraise
 /alias add /RR //reraise
 
-/alias add /pyna //paralyna
-/alias add /PYNA //paralyna
+/alias add /pna //paralyna
+/alias add /PNA //paralyna
 /alias add /pona //poisona
 /alias add /PONA //poisona
-/alias add /blna //blindna
-/alias add /BLNA //blindna
-/alias add /crna //cursna
-/alias add /CRNA //cursna
-/alias add /slna //silena
-/alias add /SLNA //silena
+/alias add /bna //blindna
+/alias add /BNA //blindna
+/alias add /cna //cursna
+/alias add /CNA //cursna
+/alias add /sna //silena
+/alias add /SNA //silena
 /alias add /stna //stona
 /alias add /STNA //stona
-/alias add /vrna //viruna
-/alias add /VRNA //viruna
+/alias add /vna //viruna
+/alias add /VNA //viruna
 /alias add /er //erase
 /alias add /ER //erase
 /alias add /dp //dispel
@@ -490,19 +489,22 @@
 /addon load nolock
 /addon load petme
 /addon load logs
-/addon load parse
+/addon load metrics
 /addon load meteorologist
 /addon load thotbar
-/addon load hticks
+/addon load rest
 /addon load zonename
 /addon load mipmap
 /addon load instantchat
 /addon load ttimers
 /addon load rcheck
+/addon load hticks
 /load shorthand
 /load stylist
 /wait 5
 /fps 0
+/drawdistance setworld 1
+/drawdistance setmob 10
 /cam d 8
 /cam b 20
 /time add EST -5

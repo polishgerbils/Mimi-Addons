@@ -9,27 +9,11 @@ local sets = {
 	Style = {
 		Head = 'Opo-opo Crown',
 		Body = 'Savage top +1',
-        Hands = 'Dusk Gloves',
 		Legs = 'Savage loincloth',
 		Feet = 'River gaiters',
 
 	},
-	
-	['Town'] = {
-        Head = 'Opo-opo Crown',
-        Neck = 'Peacock Amulet',
-        Ear1 = 'Beastly Earring',
-        Ear2 = 'Brutal Earring',
-        Body = 'Kirin\'s Osode',
-        Hands = 'Hecatomb Mittens',
-        Ring1 = 'Toreador\'s Ring',
-        Ring2 = 'Rajas Ring',
-		Back = 'Forager\'s mantle',
-        Waist = 'Swift Belt',
-        Legs = 'Byakko\'s Haidate',
-        Feet = 'Armada Sollerets',
-	},
-	
+
 	['Idle_Priority'] = {
 		Head = 'Darksteel cap +1',
         Neck = {'Peacock Amulet'},
@@ -38,7 +22,7 @@ local sets = {
         Body = 'Dst. Harness +1',
 		Hands = 'Dst. mittens +1',
         Ring1 = {'Merman\'s Ring'},
-        Ring2 = {'Merman\'s Ring'},
+        Ring2 = 'Sattva Ring',
 		Back = {'Forager\'s mantle', 'Ram Mantle'},
         Waist = {'Warwolf Belt'},
 		Legs = 'Dst. subligar +1',
@@ -49,9 +33,10 @@ local sets = {
 
         Head = {'Panther Mask', 'Optical Hat', 'Empress Hairpin'},
         Neck = {'Peacock Amulet'},
+        --Ear1 = {'Merman\'s Earring'},
         Ear1 = {'Beastly Earring'},
         Ear2 = {'Brutal Earring', 'Coral Earring'},
-        Body = {'Haubergeon +1'},
+        Body = 'Haubergeon +1',
         Hands = {'Dusk Gloves'},
         Ring1 = {'Toreador\'s Ring', 'Balance Ring'},
         Ring2 = {'Rajas Ring'},
@@ -72,11 +57,10 @@ local sets = {
 	
     ['WS_Priority'] = {
 
-        Head = {'Opo-opo crown'},
-        Ear1 = {'Beastly Earring'},      
+        Head = {'Adaman Celata'},
+        Ear1 = {'Merman\'s Earring'}, 
 		Ear2 = {'Brutal Earring'},
-        Neck = {'Spike Necklace'},
-        Body = {'Haubergeon +1'},
+        Body = 'Haubergeon +1',
 		Hands = {'Hecatomb Mittens'},
         Ring1 = {'Flame Ring'},
         Ring2 = {'Rajas Ring'},
@@ -89,9 +73,9 @@ local sets = {
 
         Head = {'Adaman Celata'},
         Neck = {'Peacock Amulet'},   
-        Ear1 = {'Beastly Earring', 'Coral Earring'},   		
+        Ear1 = {'Merman\'s Earring'},		
 		Ear2 = {'Brutal Earring'},
-        Body = {'Haubergeon +1'},
+        Body = 'Haubergeon +1',
         Hands = {'Warrior\'s Mufflers'},
         Ring1 = {'Toreador\'s Ring'},
         Ring2 = {'Rajas Ring'},
@@ -104,7 +88,7 @@ local sets = {
 		Head = 'Adaman Celata',
         Neck = 'Flame Gorget',
         Ear1 = 'Beastly Earring',
-        Body = {'Haubergeon +1'},
+        Body = 'Haubergeon +1',
 		Hands = 'Hecatomb Mittens',
         Ring1 = 'Flame Ring',
 		Ring2 = 'Rajas Ring',
@@ -117,7 +101,7 @@ local sets = {
 		Head = 'Adaman Celata',
         Neck = 'Soil Gorget',
         Ear2 = 'Brutal Earring',
-        Body = {'Scp. Harness +1'},
+        Body = 'Haubergeon +1',
 		Hands = 'Hecatomb Mittens',
         Ring1 = 'Aqua Ring',
 		Ring2 = 'Rajas Ring',
@@ -137,7 +121,6 @@ local sets = {
     },
 
     ['MDT'] = {
-		Head = 'Genbu\'s kabuto',
         Ear1 = 'Merman\'s Earring',   		
 		Ear2 = 'Merman\'s Earring',
         Ring1 = 'Merman\'s Ring',
@@ -251,15 +234,13 @@ profile.HandleDefault = function()
 			gFunc.Equip('Ring1', 'Lightning Ring');
 		end
 		
---		if (player.SubJob == 'NIN') then
---			gFunc.Equip('Ear1', 'Stealth Earring');
---		end
+		if (player.SubJob == 'NIN') then
+			gFunc.Equip('Ear1', 'Stealth Earring');
+		end
 		
 	elseif (player.Status == 'Resting') then
 		gFunc.EquipSet(profile.Sets.Resting);
-	elseif T{230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246}:contains(zone) then
-		gFunc.EquipSet(profile.Sets.Town);
-		gFunc.LockStyle(sets.Style);
+		
 		if T{234, 235, 236, 237}:contains(zone) then
 			gFunc.Equip('Body', 'Republic Aketon');		
 		end
@@ -318,7 +299,12 @@ profile.HandleWeaponskill = function()
 	elseif (action.Name == 'Sturmwind') or (action.Name == 'Full Break') or (action.Name == 'Steel Cyclone') then
 		gFunc.EquipSet(profile.Sets.WS);
 		gFunc.Equip('Neck', 'Aqua Gorget');
+		gFunc.Equip('Body', 'Kirin\'s Osode');
 		gFunc.Equip('Head', 'Genbu\'s Kabuto');
+		if (action.Name == 'Full Break') then
+			AshitaCore:GetChatManager():QueueCommand(-1, '/tt custom "Fullbreak:" 360s ');
+		end
+		
 	elseif (action.Name == 'Decimation') or (action.Name == 'Mistral Axe') then
 		gFunc.EquipSet(sets.Deci);
 	elseif (action.Name == 'Rampage') or (action.Name == 'Vorpal Blade')  then

@@ -16,16 +16,16 @@ local sets = {
 	},
 		
 	['Idle_Priority'] = {
-        Head = 'Shep. Bonnet',
-        Neck = {'Peacock Amulet'},
-        Ear1 = {'Merman\'s Earring', 'Drone Earring'},
-        Ear2 = {'Merman\'s Earring', 'Genin Earring'},
-        Body = {'Shep. Doublet'},
-        Hands = {'Dst. mittens +1', 'Savage gauntlets'},
+        Head = {'Darksteel Cap +1', 'Shep. Bonnet'},
+        Neck = {'Ajase Beads'},
+        Ear1 = {'Merman\'s Earring'},
+        Ear2 = {'Merman\'s Earring', 'Cassie Earring'},
+        Body = {'Dst. Harness +1', 'Shep. Doublet'},
+        Hands = {'Dst. mittens +1', 'Shep. Bracers'},
         Ring1 = {'Merman\'s Ring', 'Kshama Ring No.2'},
-        Ring2 = {'Merman\'s Ring', 'Rajas Ring'},
-		Back = {'Forager\'s mantle'},
-        Waist = {'Warwolf Belt', 'Swift Belt'},
+        Ring2 = {'Sattva Ring', 'Kshama Ring No.8'},
+		Back = 'Resentment cape',
+        Waist = {'Jungle Sash', 'Swift Belt'},
         Legs = {'Dst. subligar +1', 'Savage loincloth'},
         Feet = {'Dst. leggings +1', 'Bounding Boots'},
 	},
@@ -34,7 +34,7 @@ local sets = {
         Head = 'Shep. bonnet',
         Neck = {'Evasion torque'},
         Ear1 = {'Beastly Earring', 'Drone Earring'},
-        Ear2 = {'Merman\'s Earring', 'Genin Earring'},
+        Ear2 = {'Stealth Earring', 'Genin Earring'},
         Body = {'Shep. Doublet'},
         Hands = {'Shep. Bracers', 'Savage gauntlets'},
         Ring1 = {'Merman\'s Ring', 'Kshama Ring No.2'},
@@ -46,14 +46,14 @@ local sets = {
 	},
 	
 	['TP_Priority'] = {
-        Head = {'Panther Mask', 'Shep. Bonnet'},
+        Head = {'Optical Hat', 'Shep. Bonnet'},
         Neck = {'Peacock Amulet'},
         Ear1 = {'Beastly Earring', 'Merman\'s Earring'},
         Ear2 = {'Brutal Earring'},
-        Body = {'Scp. Harness +1', 'Assault Jerkin', 'Shep. Doublet'},
+        Body = {'Haubergeon +1', 'Shep. Doublet'},
         Hands = {'Dusk Gloves', 'Shep. Bracers'},
         Ring1 = {'Toreador\'s Ring'},
-        Ring2 = {'Rajas Ring'},
+        Ring2 = {'Begrudging Ring'},
 		Back = {'Forager\'s mantle'},
         Waist = {'Swift Belt'},
         Legs = {'Byakko\'s Haidate', 'Republic Subligar'},
@@ -74,7 +74,7 @@ local sets = {
 		Head = {'Wyvern Helm'},
         Neck = {'Spike Necklace'},
         Ear1 = {'Bushinomimi'},
-        Body = {'Scp. Harness +1', 'Hecatomb Harness', 'Savage Separates'},
+        Body = 'Hauberk',
 		Hands = {'Hecatomb Mittens'},
         Ring1 = {'Flame Ring'},
         Waist = {'Warwolf Belt'},
@@ -85,7 +85,7 @@ local sets = {
 		Head = {'Adaman Celata'},
         Neck = {'Peacock Amulet'},
         Ear1 = {'Bushinomimi'},
-        Body = {'Scp. Harness +1'},
+        Body = 'Haubergeon +1',
 		Hands = {'Hecatomb Mittens'},
         Ring1 = {'Flame Ring'},
         Waist = {'Warwolf Belt'},
@@ -96,7 +96,7 @@ local sets = {
 		Head = {'Adaman Celata'},
         Neck = {'Peacock Amulet'},
         Ear1 = {'Ethereal Earring'},
-        Body = {'Scp. Harness +1', 'Savage Separates'},
+        Body = 'Haubergeon +1',
 		Hands = {'Hecatomb Mittens'},
         Ring1 = {'Toreador\'s Ring'},
 		Ring2 = {'Rajas Ring'},
@@ -110,7 +110,7 @@ local sets = {
         Neck = {'Soil Gorget'},
         Ear1 = {'Coral Earring'},
         Ear2 = {'Brutal Earring'},
-        Body = {'Scp. Harness +1'},
+        Body = 'Haubergeon +1',
 		Hands = {'Hecatomb Mittens'},
         Ring1 = {'Toreador\'s Ring'},
 		Ring2 = {'Rajas Ring'},
@@ -141,11 +141,11 @@ local sets = {
         Neck = {'Star necklace', 'flower necklace'},	
         Body = {'Kirin\'s Osode', 'Savage separates'},
         Ear1 = {'Beastly Earring'},
-        Hands = '',
+        Hands = 'Mst. Gloves +1',
         Ring1 = {'Hope Ring'},
 		Ring2 = {'Hope Ring'},
 		Legs = 'Beast Trousers',
-        Feet = {'Savage gaiters'},
+        Feet = {'Mst. Gaiters +1'},
     },
 	
     ['octo'] = {
@@ -216,7 +216,7 @@ profile.HandleCommand = function(args)
             isEnabled = true;
         end
     end
-	--Treasure Hunter Toggle
+	--Kite Toggle
     if (args[1] == 'Kite') then
         if (Settings.Kite == 1) then
             gFunc.Echo(158, "Pet Kite OFF")
@@ -253,9 +253,7 @@ profile.HandleDefault = function()
 		if (player.SubJob == 'WHM') or (player.SubJob == 'BLM') then
 			if (player.MP < 50) then
 				gFunc.Equip('Body', 'Gaudy Harness');
-			end
---		elseif (player. == 'NIN') and (player.HP < 1000) and (party.Count < 3) then
---			gFunc.Equip('Main', 'Rune Axe');				
+			end			
 		end
 	elseif (player.Status == 'Resting') then
 		gFunc.EquipSet(sets.Resting);
@@ -270,7 +268,9 @@ profile.HandleDefault = function()
 			end		
 		end
 		if (conquest.settings.regionControl == false) then
-			gFunc.Equip('head', 'Presidential hairpin');
+			if (player.HPP < 100) then
+				gFunc.Equip('head', 'President. hairpin');
+			end
 		end
 		if Settings.Kite == 1 then
 			gFunc.EquipSet(sets.Kite)
@@ -306,6 +306,8 @@ profile.HandleAbility = function()
 		gFunc.Equip('Feet', 'Mst. Gaiters +1');
 	elseif (action.Name == 'Lamb Chop') then
 		gFunc.Equip('Feet', 'Mst. Gaiters +1');
+	elseif (action.Name == 'Call Beast') then
+		gFunc.Equip('Hands', 'Mst. Gloves +1');
 	end
 end
 
