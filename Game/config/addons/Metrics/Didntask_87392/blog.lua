@@ -1,0 +1,30 @@
+require('common');
+
+local settings = T{ };
+settings["Thresholds"] = T{ };
+settings["Flags"] = T{ };
+settings["Line_Height"] = 20;
+settings["Visible_Length"] = 8;
+settings["Thresholds"]["WS"] = 600;
+settings["Thresholds"]["MAGIC"] = 1000;
+settings["Thresholds"]["MAX"] = 99999;
+settings["Flags"]["SC"] = true;
+settings["Flags"]["Melee"] = false;
+settings["Flags"]["Ranged"] = false;
+settings["Flags"]["Mob_TP"] = false;
+settings["Flags"]["Timestamp"] = false;
+settings["Flags"]["Pet_Melee"] = true;
+settings["Flags"]["Ability"] = true;
+settings["Flags"]["Truncate_Actions"] = false;
+settings["Flags"]["Mob_Death"] = true;
+settings["Flags"]["Pet"] = true;
+settings["Flags"]["Paging"] = false;
+settings["Flags"]["Streaming"] = true;
+settings["Flags"]["WS"] = true;
+settings["Flags"]["Healing"] = true;
+settings["Flags"]["Pet_Heal"] = true;
+settings["Flags"]["Pet_TP"] = true;
+settings["Flags"]["Magic"] = true;
+settings["Flags"]["Deaths"] = false;
+
+return settings;

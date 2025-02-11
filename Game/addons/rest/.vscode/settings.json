@@ -1,0 +1,22 @@
+{
+    "Lua.diagnostics.globals": [
+        "addon",
+        "ashita",
+        "GetPlayerEntity",
+        "AshitaCore",
+        "bit",
+        "ImGuiWindowFlags_NoDecoration",
+        "ImGuiWindowFlags_AlwaysAutoResize",
+        "ImGuiWindowFlags_NoSavedSettings",
+        "ImGuiWindowFlags_NoFocusOnAppearing",
+        "ImGuiWindowFlags_NoNav",
+        "ImGuiCond_Always",
+        "ImGuiWindowFlags_NoBackground",
+        "T",
+        "ImGuiWindowFlags_NoTitleBar",
+        "ImGuiTabBarFlags_None",
+        "ImGuiSliderFlags_None",
+        "ImGuiWindowFlags_NoMove",
+        "ImGuiCol_PlotHistogram"
+    ]
+}
